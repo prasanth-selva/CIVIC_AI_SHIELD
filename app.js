@@ -1,3 +1,5 @@
+import { checkHealth, uploadVideo as uploadVideoAPI, sendLiveFrame } from './api.js';
+
 const pages = document.querySelectorAll('.page');
 const navButtons = document.querySelectorAll('.nav-link, .hero-actions button');
 const statThreats = document.getElementById('stat-threats');
@@ -18,32 +20,20 @@ const uploadTimelineEl = document.getElementById('upload-timeline');
 const historyList = document.getElementById('history-list');
 const dropArea = document.getElementById('drop-area');
 const fileInput = document.getElementById('file-input');
-const uploadVideo = document.getElementById('upload-video');
+const uploadVideoEl = document.getElementById('upload-video');
 const uploadStatus = document.getElementById('upload-status');
 const progressBar = document.getElementById('progress-bar');
 const uploadOverlay = document.getElementById('upload-overlay');
 const downloadReport = document.getElementById('download-report');
+const alertBanner = document.createElement('div');
+alertBanner.className = 'alert-banner hidden';
+alertBanner.innerHTML = '<span>⚠️ HIGH THREAT DETECTED</span><button class="close-alert">×</button>';
+document.body.insertBefore(alertBanner, document.body.firstChild);
 
 let liveInterval = null;
-let threatCount = 12;
-const detectionFeed = [
-  { time: '12:14:03', label: 'Unattended bag', confidence: 0.82, severity: 'warn', camera: 'Station-02' },
-  { time: '12:07:44', label: 'Weapon detected', confidence: 0.91, severity: 'danger', camera: 'Mall-Entry' },
-  { time: '11:59:10', label: 'Crowd surge', confidence: 0.73, severity: 'warn', camera: 'Arena-05' },
-  { time: '11:40:22', label: 'Person', confidence: 0.96, severity: 'safe', camera: 'Harbor-01' }
-];
-const uploadDetections = [
-  { timestamp: '00:14', type: 'Person', severity: 'safe', note: 'Normal movement' },
-  { timestamp: '01:22', type: 'Fight risk', severity: 'warn', note: 'Aggressive gesture' },
-  { timestamp: '02:05', type: 'Weapon detected', severity: 'danger', note: 'Object resembling knife' },
-  { timestamp: '03:47', type: 'Evacuation', severity: 'danger', note: 'People running' }
-];
-const history = [
-  { time: 'Today 09:12', camera: 'Downtown-04', type: 'Weapon detected', severity: 'danger' },
-  { time: 'Today 08:33', camera: 'Metro-03', type: 'Unattended bag', severity: 'warn' },
-  { time: 'Yesterday 22:14', camera: 'Harbor-01', type: 'Intrusion', severity: 'warn' },
-  { time: 'Yesterday 18:55', camera: 'Mall-Entry', type: 'Crowd surge', severity: 'safe' }
-];
+let threatCount = 0;
+let videoStream = null;
+let detectionCache = [];
 
 function showPage(id) {
   pages.forEach(page => page.classList.toggle('hidden', page.id !== id));
@@ -56,53 +46,72 @@ function showToast(message) {
   setTimeout(() => toast.classList.remove('show'), 2400);
 }
 
+function showAlertBanner() {
+  alertBanner.classList.remove('hidden');
+  setTimeout(() => alertBanner.classList.add('hidden'), 4000);
+}
+
+function mapThreatLevel(label, confidence) {
+  const threatLabels = ['fight', 'accident', 'fall', 'harassment', 'animal_attack', 'weapon', 'unattended'];
+  const isThreat = threatLabels.some(t => label.toLowerCase().includes(t));
+  if (isThreat && confidence > 0.75) return 'danger';
+  if (isThreat || confidence > 0.65) return 'warn';
+  return 'safe';
+}
+
 function renderFeed() {
-  liveFeed.innerHTML = detectionFeed.map(item => {
+  const items = detectionCache.slice(-5).map(item => {
     const badge = item.severity === 'danger' ? 'danger' : item.severity === 'warn' ? 'warn' : 'safe';
     const conf = Math.round(item.confidence * 100);
+    const now = new Date();
+    const time = now.toLocaleTimeString();
     return `
       <div class="timeline-item">
-        <span class="muted">${item.time}</span>
+        <span class="muted">${time}</span>
         <div>
           <div class="value">${item.label}</div>
-          <div class="muted">Camera: ${item.camera}</div>
+          <div class="muted">Camera: Live</div>
         </div>
         <span class="tag ${badge}">${conf}%</span>
       </div>
     `;
   }).join('');
+  liveFeed.innerHTML = items || '<p class="muted">Waiting for detections...</p>';
 }
 
 function renderUploadTimeline() {
-  uploadTimelineEl.innerHTML = uploadDetections.map(item => {
+  uploadTimelineEl.innerHTML = detectionCache.map((item, i) => {
     const badge = item.severity === 'danger' ? 'danger' : item.severity === 'warn' ? 'warn' : 'safe';
+    const ts = item.timestamp || (i * 0.5).toFixed(1);
     return `
       <div class="timeline-item">
-        <span class="muted">${item.timestamp}</span>
+        <span class="muted">${ts}s</span>
         <div>
-          <div class="value">${item.type}</div>
-          <div class="muted">${item.note}</div>
+          <div class="value">${item.label}</div>
+          <div class="muted">${item.severity} threat</div>
         </div>
-        <span class="tag ${badge}">${item.severity}</span>
+        <span class="tag ${badge}">${Math.round(item.confidence * 100)}%</span>
       </div>
     `;
-  }).join('');
+  }).join('') || '<p class="muted">No detections yet</p>';
 }
 
 function renderHistory() {
-  historyList.innerHTML = history.map(item => {
+  historyList.innerHTML = detectionCache.slice(-10).map(item => {
     const badge = item.severity === 'danger' ? 'danger' : item.severity === 'warn' ? 'warn' : 'safe';
+    const now = new Date();
+    const time = now.toLocaleTimeString();
     return `
       <div class="history-item">
         <div class="thumb"></div>
         <div>
-          <div class="value">${item.type}</div>
-          <div class="muted">${item.time} · ${item.camera}</div>
+          <div class="value">${item.label}</div>
+          <div class="muted">${time} · Live Camera</div>
         </div>
         <span class="tag ${badge}">${item.severity}</span>
       </div>
     `;
-  }).join('');
+  }).join('') || '<p class="muted">No history yet</p>';
 }
 
 function updateStats(latest) {
@@ -114,15 +123,15 @@ function updateStats(latest) {
   statStatus.style.background = statusColor;
 }
 
-function setLiveStatus(level, label, confidence) {
-  liveStatus.dataset.level = level;
-  liveStatus.textContent = level === 'danger' ? 'Threat Detected' : level === 'warn' ? 'Suspicious' : 'Safe';
-  liveLabel.textContent = label;
-  liveConfidence.textContent = `${confidence}%`;
+function setLiveStatus(label, severity, confidence) {
+  liveStatus.dataset.level = severity;
+  liveStatus.textContent = severity === 'danger' ? 'Threat Detected' : severity === 'warn' ? 'Suspicious' : 'Safe';
+  liveLabel.textContent = label || 'Idle';
+  liveConfidence.textContent = `${Math.round(confidence * 100)}%`;
   heroStatus.textContent = liveStatus.textContent;
-  heroLabel.textContent = label;
-  heroConfidence.textContent = `${confidence}%`;
-  if (level === 'safe' && label === 'Idle') {
+  heroLabel.textContent = label || 'Person';
+  heroConfidence.textContent = `${Math.round(confidence * 100)}%`;
+  if (severity === 'safe' && label === 'Idle') {
     liveBox.style.display = 'none';
   } else {
     liveBox.style.display = 'block';
@@ -131,17 +140,56 @@ function setLiveStatus(level, label, confidence) {
     liveBox.style.width = `${20 + Math.random() * 30}%`;
     liveBox.style.height = `${20 + Math.random() * 35}%`;
   }
+  if (severity === 'danger') showAlertBanner();
 }
 
 function startLive() {
   if (liveInterval) return;
-  showToast('Live camera started');
-  liveInterval = setInterval(() => {
-    const sample = detectionFeed[Math.floor(Math.random() * detectionFeed.length)];
-    const confidence = Math.max(60, Math.round(sample.confidence * 100 + Math.random() * 8));
-    setLiveStatus(sample.severity === 'danger' ? 'danger' : sample.severity === 'warn' ? 'suspicious' : 'safe', sample.label, confidence);
-    updateStats({ time: sample.time, severity: sample.severity });
-  }, 2000);
+  showToast('Requesting camera access...');
+  
+  navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+    .then(stream => {
+      videoStream = stream;
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.play();
+      
+      showToast('Camera started, sending frames...');
+      liveInterval = setInterval(async () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;
+        canvas.height = 480;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        const b64 = canvas.toDataURL('image/jpeg').split(',')[1];
+        
+        try {
+          const result = await sendLiveFrame(b64);
+          const severity = result.threat_level === 'HIGH' ? 'danger' : result.threat_level === 'MEDIUM' ? 'warn' : 'safe';
+          setLiveStatus(result.label || 'Analyzing', severity, result.confidence || 0);
+          
+          if (result.label && result.label !== 'none') {
+            detectionCache.push({
+              label: result.label,
+              confidence: result.confidence || 0,
+              severity: severity,
+              timestamp: new Date().toLocaleTimeString()
+            });
+            threatCount += 1;
+            statThreats.textContent = threatCount;
+            statLastAlert.textContent = new Date().toLocaleTimeString();
+            renderFeed();
+            renderHistory();
+          }
+        } catch (error) {
+          console.error('Frame send failed:', error);
+        }
+      }, 1000);
+    })
+    .catch(err => {
+      showToast(`Camera error: ${err.message}`);
+      console.error('Camera error:', err);
+    });
 }
 
 function stopLive() {
@@ -149,31 +197,51 @@ function stopLive() {
     clearInterval(liveInterval);
     liveInterval = null;
   }
-  setLiveStatus('safe', 'Idle', 100);
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+  setLiveStatus('Idle', 'safe', 1);
   showToast('Live camera stopped');
 }
 
 function handleUpload(file) {
   if (!file) return;
-  uploadStatus.textContent = `Uploading ${file.name}`;
+  uploadStatus.textContent = `Uploading ${file.name}...`;
   progressBar.style.width = '0%';
-  uploadOverlay.textContent = 'Analyzing...';
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += Math.random() * 20;
-    if (progress >= 100) {
-      progress = 100;
-      clearInterval(interval);
-      uploadStatus.textContent = 'Analysis complete';
-      uploadOverlay.textContent = 'Detections overlay ready';
-      showToast('Video processed');
-    }
-    progressBar.style.width = `${progress}%`;
-  }, 400);
+  uploadOverlay.textContent = 'Processing video...';
+  detectionCache = [];
+  
+  uploadVideoAPI(file)
+    .then(result => {
+      uploadStatus.textContent = `Analysis complete: ${result.count || 0} detections`;
+      uploadOverlay.textContent = 'Ready for playback';
+      
+      if (result.detections) {
+        detectionCache = result.detections.map(d => ({
+          label: d.label || 'object',
+          confidence: d.confidence || 0,
+          severity: d.threat_level || 'safe',
+          timestamp: d.timestamp || 0
+        }));
+        renderUploadTimeline();
+        
+        const hasHighThreat = detectionCache.some(d => d.severity === 'danger');
+        if (hasHighThreat) showAlertBanner();
+      }
+      
+      progressBar.style.width = '100%';
+      showToast('Video analyzed successfully');
+    })
+    .catch(error => {
+      uploadStatus.textContent = `Error: ${error.message}`;
+      uploadOverlay.textContent = 'Analysis failed';
+      showToast(`Upload failed: ${error.message}`);
+      console.error('Upload error:', error);
+    });
 
   const url = URL.createObjectURL(file);
-  uploadVideo.src = url;
-  uploadVideo.play();
+  uploadVideoEl.src = url;
 }
 
 function wireNavigation() {
@@ -201,13 +269,28 @@ function wireActions() {
 }
 
 function init() {
+  checkHealth()
+    .then(() => {
+      showToast('Connected to backend');
+      statStatus.textContent = 'Online';
+    })
+    .catch(err => {
+      showToast('Backend unavailable');
+      statStatus.textContent = 'Offline';
+      console.error('Health check failed:', err);
+    });
+  
   renderFeed();
   renderUploadTimeline();
   renderHistory();
   wireNavigation();
   wireUpload();
   wireActions();
-  setLiveStatus('safe', 'Idle', 100);
+  setLiveStatus('Idle', 'safe', 1);
+  
+  alertBanner.querySelector('.close-alert').addEventListener('click', () => {
+    alertBanner.classList.add('hidden');
+  });
 }
 
 init();

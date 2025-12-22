@@ -287,6 +287,24 @@ main { padding: 24px; max-width: 1200px; margin: 0 auto 64px; }
 .thumb { width: 120px; height: 74px; border-radius: 12px; background: linear-gradient(135deg, rgba(66,165,255,0.15), rgba(49,226,124,0.12)); border: 1px solid var(--border); position: relative; overflow: hidden; }
 .thumb::after { content:""; position:absolute; inset:0; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), transparent 60%); }
 
+.alert-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 20;
+  background: linear-gradient(135deg, var(--danger), #d9194e);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  animation: slideDown 0.3s ease;
+}
+.alert-banner.hidden { display: none; }
+@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+.close-alert { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+.close-alert:hover { background: rgba(255,255,255,0.3); }
+
 .toast {
   position: fixed;
   bottom: 16px; right: 16px;
