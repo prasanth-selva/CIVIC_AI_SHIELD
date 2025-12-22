@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes.api import router
+from .routes.api import router
 
 app = FastAPI(title="Civic AI Shield", version="1.0.0")
 
