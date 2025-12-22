@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Civic AI Shield</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">Civic AI Shield</div>
+        <div class="brand-sub">Smart city threat intelligence</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <button class="nav-link active" data-target="home">Home</button>
+      <button class="nav-link" data-target="live">Live Detection</button>
+      <button class="nav-link" data-target="upload">Video Upload</button>
+      <button class="nav-link" data-target="alerts">Alerts & History</button>
+    </nav>
+    <div class="top-actions">
+      <label class="toggle">
+        <input type="checkbox" id="telegram-toggle" checked>
+        <span>Telegram alerts</span>
+      </label>
+      <button class="ghost-button" id="dark-toggle">Theme</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page" id="home" aria-label="Home dashboard">
+      <div class="hero">
+        <div class="hero-text">
+          <p class="eyebrow">Real-time civic safety</p>
+          <h1>Detect threats from CCTV and live streams in seconds.</h1>
+          <p class="lede">Civic AI Shield fuses computer vision with actionable alerts so city teams can respond before incidents escalate.</p>
+          <div class="hero-actions">
+            <button class="primary" data-target="live">Start Live Detection</button>
+            <button class="secondary" data-target="upload">Upload Video Detection</button>
+          </div>
+          <div class="quick-stats">
+            <div class="stat-card">
+              <div class="label">Threats detected</div>
+              <div class="value" id="stat-threats">0</div>
+              <div class="muted">Last 24h</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Last alert</div>
+              <div class="value" id="stat-last-alert">--</div>
+              <div class="muted">Timestamp</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">System status</div>
+              <div class="status-pill" id="stat-status">Online</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="live-preview" aria-label="Live detection preview">
+            <div class="status-badge" id="hero-status">Safe</div>
+            <div class="video-frame">
+              <div class="bounding-box" style="left:20%;top:25%;width:30%;height:38%;"></div>
+              <div class="bounding-box" style="left:60%;top:55%;width:25%;height:30%;"></div>
+              <div class="live-pulse"></div>
+            </div>
+            <div class="live-meta">
+              <div>
+                <p class="muted">Label</p>
+                <p class="value" id="hero-label">Person</p>
+              </div>
+              <div>
+                <p class="muted">Confidence</p>
+                <p class="value" id="hero-confidence">98%</p>
+              </div>
+              <div>
+                <p class="muted">Camera</p>
+                <p class="value">Downtown-04</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page hidden" id="live" aria-label="Live detection page">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Live Detection</p>
+          <h2>Monitor live CCTV or webcam streams</h2>
+          <p class="muted">Bounding boxes, labels, and confidence update in real-time. Status pulses between Safe, Suspicious, and Threat.</p>
+        </div>
+        <div class="cta-row">
+          <button class="primary" id="start-live">Start Camera</button>
+          <button class="secondary" id="stop-live">Stop</button>
+        </div>
+      </div>
+      <div class="grid two">
+        <div class="card video-area">
+          <div class="video-head">
+            <div class="status-indicator" id="live-status" data-level="safe">Safe</div>
+            <div class="badge">Real-time</div>
+          </div>
+          <div class="video-frame" id="live-frame">
+            <div class="live-pulse"></div>
+            <div class="overlay-label" id="live-label">Idle</div>
+            <div class="overlay-confidence" id="live-confidence">--</div>
+            <div class="bounding-box" id="live-box" style="display:none;"></div>
+          </div>
+          <div class="controls">
+            <label class="toggle">
+              <input type="checkbox" id="toggle-telegram" checked>
+              <span>Telegram alerts enabled</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-audio" checked>
+              <span>Audio alarm</span>
+            </label>
+          </div>
+        </div>
+        <div class="card timeline">
+          <div class="card-header">
+            <h3>Threat Feed</h3>
+            <span class="muted">Live updates</span>
+          </div>
+          <div class="timeline-list" id="live-feed"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page hidden" id="upload" aria-label="Video upload detection">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Video Upload</p>
+          <h2>Run threat detection on recorded footage</h2>
+          <p class="muted">Drag and drop a video to analyze. Watch detections overlayed with a timeline of events.</p>
+        </div>
+        <button class="ghost-button" id="download-report">Download report</button>
+      </div>
+      <div class="grid two">
+        <div class="card upload-area" id="drop-area">
+          <p class="muted">Drag & Drop or</p>
+          <label class="primary upload-btn" for="file-input">Choose a file</label>
+          <input type="file" id="file-input" accept="video/*" hidden>
+          <div class="progress" id="upload-progress">
+            <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+          </div>
+          <div class="muted" id="upload-status">No file uploaded</div>
+        </div>
+        <div class="card video-area">
+          <div class="video-head">
+            <div class="badge">Playback</div>
+          </div>
+          <video id="upload-video" controls muted playsinline class="video-player" aria-label="Uploaded video preview"></video>
+          <div class="overlay-label" id="upload-overlay">Waiting for video</div>
+        </div>
+      </div>
+      <div class="card timeline">
+        <div class="card-header">
+          <h3>Detections Timeline</h3>
+          <span class="muted">Time, threat type, severity</span>
+        </div>
+        <div class="timeline-list" id="upload-timeline"></div>
+      </div>
+    </section>
+
+    <section class="page hidden" id="alerts" aria-label="Alerts and history">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Alerts & History</p>
+          <h2>Review past incidents</h2>
+          <p class="muted">Track when, where, and what was detected. Snapshots and severity help triage quickly.</p>
+        </div>
+        <button class="secondary">Export CSV</button>
+      </div>
+      <div class="card history-list" id="history-list"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
