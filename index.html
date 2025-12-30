@@ -1,105 +1,143 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Civic AI Shield</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-icon">⚡</div>
-      <div>
-        <div class="brand-title">Civic AI Shield</div>
-        <div class="brand-sub">Smart city threat intelligence</div>
-      </div>
-    </div>
-    <nav class="nav-links">
-      <button class="nav-link active" data-target="home">Home</button>
-      <button class="nav-link" data-target="live">Live Detection</button>
-      <button class="nav-link" data-target="upload">Video Upload</button>
-      <button class="nav-link" data-target="alerts">Alerts & History</button>
-    </nav>
-    <div class="top-actions">
-      <label class="toggle">
-        <input type="checkbox" id="telegram-toggle" checked>
-        <span>Telegram alerts</span>
-      </label>
-      <button class="ghost-button" id="dark-toggle">Theme</button>
-    </div>
-  </header>
+*** Begin Patch
+*** Update File: /home/abarnesh/Documents/CIVIC_AI_SHIELD/index.html
+@@
+ <!doctype html>
+ <html lang="en" class="h-full">
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <title>Civic AI Shield - AI-Powered Public Safety System</title>
+     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+     <link rel="stylesheet" href="frontend/assets/css/styles.css">
+     <script src="/_sdk/element_sdk.js" defer></script>
+     <script src="/_sdk/data_sdk.js" defer></script>
+   </head>
+   <body class="h-full">
+     <div class="app-wrapper"><!-- Animated Background -->
+       <div class="aurora-background">
+         <div class="aurora-wave"></div>
+         <div class="aurora-wave"></div>
+         <div class="aurora-wave"></div>
+       </div>
+       <div class="particles" id="particles"></div><!-- Navigation -->
+       <div class="content-container">
+         <nav class="nav-bar">
+           <div class="nav-logo">CIVIC AI SHIELD</div>
+           <div class="nav-links"><a href="#" class="nav-link active" data-page="landing">Home</a> <a href="#" class="nav-link" data-page="detection">Live Detection</a> <a href="#" class="nav-link" data-page="upload">Video Analysis</a> <a href="#" class="nav-link" data-page="alerts">Alerts &amp; History</a> <a href="#" class="nav-link" data-page="status">System Status</a>
+           </div>
+         </nav>
 
-  <main>
-    <section class="page" id="home" aria-label="Home dashboard">
-      <div class="hero">
-        <div class="hero-text">
-          <p class="eyebrow">Real-time civic safety</p>
-          <h1>Detect threats from CCTV and live streams in seconds.</h1>
-          <p class="lede">Civic AI Shield fuses computer vision with actionable alerts so city teams can respond before incidents escalate.</p>
-          <div class="hero-actions">
-            <button class="primary" data-target="live">Start Live Detection</button>
-            <button class="secondary" data-target="upload">Upload Video Detection</button>
-          </div>
-          <div class="quick-stats">
-            <div class="stat-card">
-              <div class="label">Threats detected</div>
-              <div class="value" id="stat-threats">0</div>
-              <div class="muted">Last 24h</div>
-            </div>
-            <div class="stat-card">
-              <div class="label">Last alert</div>
-              <div class="value" id="stat-last-alert">--</div>
-              <div class="muted">Timestamp</div>
-            </div>
-            <div class="stat-card">
-              <div class="label">System status</div>
-              <div class="status-pill" id="stat-status">Online</div>
-            </div>
-          </div>
-        </div>
-        <div class="hero-visual">
-          <div class="live-preview" aria-label="Live detection preview">
-            <div class="status-badge" id="hero-status">Safe</div>
-            <div class="video-frame">
-              <div class="bounding-box" style="left:20%;top:25%;width:30%;height:38%;"></div>
-              <div class="bounding-box" style="left:60%;top:55%;width:25%;height:30%;"></div>
-              <div class="live-pulse"></div>
-            </div>
-            <div class="live-meta">
-              <div>
-                <p class="muted">Label</p>
-                <p class="value" id="hero-label">Person</p>
-              </div>
-              <div>
-                <p class="muted">Confidence</p>
-                <p class="value" id="hero-confidence">98%</p>
-              </div>
-              <div>
-                <p class="muted">Camera</p>
-                <p class="value">Downtown-04</p>
-              </div>
-            </div>
-          </div>
-        <!doctype html>
-        <html lang="en">
-          <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>Civic AI Shield — Frontend</title>
-            <meta http-equiv="refresh" content="0; url=frontend/index.html" />
-            <style>
-              html,body{height:100%;display:flex;align-items:center;justify-content:center;background:#0a0e27;color:#e0e7ff;font-family:Inter,system-ui,sans-serif}
-              a{color:#3b82f6}
-            </style>
-          </head>
-          <body>
-            <div>
-              <p>If you are not redirected, <a href="frontend/index.html">open the frontend here</a>.</p>
-            </div>
-          </body>
-        </html>
-          <div class="video-head">
+         <!-- Landing Page -->
+         <div class="page active" id="landing">
+           <section class="hero-section">
+             <h1 class="hero-title" id="system-title">Civic AI Shield</h1>
+             <p class="hero-subtitle" id="system-subtitle">AI-Powered Real-Time Public Safety System</p>
+             <div class="cta-buttons"><button class="cta-button cta-primary" id="primary-cta" data-page="detection">Start Live Detection</button> <button class="cta-button cta-secondary" id="secondary-cta" data-page="upload">Upload Video for Analysis</button>
+             </div>
+           </section>
+         </div>
+
+         <!-- Live Detection Page -->
+         <div class="page" id="detection">
+           <div class="detection-grid">
+             <div class="glass-card">
+               <h2 style="font-family: 'Orbitron', sans-serif; color: #00d9ff; margin-bottom: 1rem; font-size: 1.5rem;">Live Camera Feed</h2>
+               <div class="camera-preview">
+                 <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem; color: rgba(255, 255, 255, 0.1);">📹</div>
+                 <div class="scanning-overlay">
+                   <div class="scan-line"></div>
+                   <div class="bounding-box box-1"></div>
+                   <div class="bounding-box box-2"></div>
+                 </div>
+               </div>
+             </div>
+             <div class="detection-info">
+               <div class="glass-card threat-badge threat-safe" id="threat-status">SAFE</div>
+               <div class="glass-card confidence-meter">
+                 <div class="confidence-label">Detection Confidence</div>
+                 <div class="confidence-value" id="confidence-value">98%</div>
+               </div>
+               <div class="glass-card">
+                 <h3 style="color: #cbd5e0; margin-bottom: 1rem; font-size: 1.1rem;">Active Monitoring</h3>
+                 <p style="color: #718096; line-height: 1.6;">AI models are actively scanning the video feed for potential threats, suspicious behavior, and security anomalies in real-time.</p>
+               </div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Video Upload Page -->
+         <div class="page" id="upload">
+           <div class="upload-container">
+             <div class="glass-card">
+               <h2 style="font-family: 'Orbitron', sans-serif; color: #00d9ff; margin-bottom: 2rem; font-size: 1.8rem;">Video Analysis</h2>
+               <div class="upload-zone" id="upload-zone">
+                 <div class="upload-icon">📁</div>
+                 <div class="upload-text">Drop video file here or click to browse</div>
+                 <div class="upload-subtext">Supports MP4, AVI, MOV (Max 500MB)</div><input type="file" id="file-input" accept="video/*" style="display: none;">
+               </div>
+               <div class="progress-container" id="progress-container">
+                 <div class="progress-bar-wrapper">
+                   <div class="progress-bar" id="progress-bar"></div>
+                 </div>
+                 <div class="progress-text" id="progress-text">Processing: 0%</div>
+               </div>
+             </div>
+             <div class="timeline-container" id="timeline-container">
+               <div class="glass-card">
+                 <h3 class="timeline-header">Detected Threats Timeline</h3>
+                 <div class="threat-cards">
+                   <div class="glass-card threat-card high">
+                     <div class="threat-type">🚨 Weapon Detection</div>
+                     <div class="threat-details"><strong>Timestamp:</strong> 02:34<br><strong>Confidence:</strong> 94%<br><strong>Severity:</strong> HIGH
+                     </div>
+                   </div>
+                   <div class="glass-card threat-card medium">
+                     <div class="threat-type">⚠️ Suspicious Behavior</div>
+                     <div class="threat-details"><strong>Timestamp:</strong> 04:12<br><strong>Confidence:</strong> 78%<br><strong>Severity:</strong> MEDIUM
+                     </div>
+                   </div>
+                   <div class="glass-card threat-card low">
+                     <div class="threat-type">ℹ️ Crowd Density Alert</div>
+                     <div class="threat-details"><strong>Timestamp:</strong> 06:45<br><strong>Confidence:</strong> 89%<br><strong>Severity:</strong> LOW
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Alerts & History Page -->
+         <div class="page" id="alerts">
+           <div class="alerts-container">
+             <h2 style="font-family: 'Orbitron', sans-serif; color: #00d9ff; margin-bottom: 2rem; font-size: 1.8rem;">Alert History</h2>
+             <div class="glass-card alert-card" style="border-left-color: #ff3366;">
+               <div class="alert-header"><span class="alert-severity" style="color: #ff3366;">HIGH PRIORITY</span> <span class="alert-time">15 minutes ago</span>
+               </div>
+               <div class="alert-location">📍 Location: City Center Plaza, Camera 7</div>
+               <div class="alert-description">Weapon detected in video feed. Security personnel dispatched. Subject wearing dark jacket near main entrance.</div>
+             </div>
+           </div>
+         </div>
+
+         <!-- System Status Page -->
+         <div class="page" id="status">
+           <h2 style="font-family: 'Orbitron', sans-serif; color: #00d9ff; margin-bottom: 2rem; font-size: 1.8rem; text-align: center;">System Status Dashboard</h2>
+           <div class="status-grid">
+             <div class="glass-card status-card">
+               <h3 class="status-title">AI Model Status</h3>
+               <div class="circular-progress">
+                 <svg width="150" height="150"><circle class="progress-circle-bg" cx="75" cy="75" r="65"></circle> <circle class="progress-circle" cx="75" cy="75" r="65" stroke-dasharray="408.4" stroke-dashoffset="40.84"></circle>
+                 </svg>
+                 <div class="progress-text">90%</div>
+               </div>
+               <div class="status-label">Operational</div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+     <script src="frontend/assets/js/main.js" defer></script>
+   </body>
+ </html>
+*** End Patch
