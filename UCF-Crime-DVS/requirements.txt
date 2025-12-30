@@ -1,0 +1,28 @@
+# Core deep learning (CPU-only versions)
+torch
+torchvision
+torchaudio
+# cupy==11.4.0  # Skip cupy for CPU-only
+spikingjelly==0.0.0.0.12
+
+# Vision + transforms
+timm==0.6.12
+einops
+opencv-python
+h5py
+scipy
+matplotlib
+
+# Data handling & utils
+numpy
+tqdm
+pyyaml
+scikit-learn
+pillow
+
+# Logging
+tensorboard
+tensorboard_logger
+
+# Event camera toolkit (install separately via Prophesee SDK)
+# metavision-core
