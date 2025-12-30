@@ -1,3 +1,170 @@
+// frontend/assets/js/main.js
+// Extracted page JavaScript: particles, navigation, threat simulation, upload handling, and Element SDK mapping
+
+document.addEventListener('DOMContentLoaded', () => {
+  const defaultConfig = {
+    system_title: "Civic AI Shield",
+    system_subtitle: "AI-Powered Real-Time Public Safety System",
+    primary_button_text: "Start Live Detection",
+    secondary_button_text: "Upload Video for Analysis",
+    background_color: "#0a0e27",
+    accent_color: "#00d9ff",
+    secondary_accent_color: "#00ffcc",
+    primary_action_color: "#0066ff",
+    alert_color: "#ff3366"
+  };
+
+  // Particles
+  function createParticles() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDelay = Math.random() * 15 + 's';
+      p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+      container.appendChild(p);
+    }
+  }
+  createParticles();
+
+  // Navigation & page switching
+  const navLinks = document.querySelectorAll('.nav-link');
+  const pages = document.querySelectorAll('.page');
+  const ctaButtons = document.querySelectorAll('[data-page]');
+
+  function navigateToPage(pageName) {
+    pages.forEach(p => p.classList.remove('active'));
+    navLinks.forEach(l => l.classList.remove('active'));
+    const targetPage = document.getElementById(pageName);
+    const targetLink = document.querySelector(`[data-page="${pageName}"]`);
+    if (targetPage) targetPage.classList.add('active');
+    if (targetLink && targetLink.classList.contains('nav-link')) targetLink.classList.add('active');
+    // scroll to top of content container
+    const content = document.querySelector('.content-container');
+    if (content) content.scrollTop = 0;
+  }
+
+  navLinks.forEach(link => link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const page = link.getAttribute('data-page');
+    if (page) navigateToPage(page);
+  }));
+
+  ctaButtons.forEach(btn => btn.addEventListener('click', (e) => {
+    const page = btn.getAttribute('data-page');
+    if (page) navigateToPage(page);
+  }));
+
+  // Threat simulation
+  let threatLevel = 0;
+  const threatStatus = document.getElementById('threat-status');
+  const confidenceValue = document.getElementById('confidence-value');
+
+  if (threatStatus && confidenceValue) {
+    setInterval(() => {
+      threatLevel = Math.floor(Math.random() * 3);
+      const confidence = Math.floor(Math.random() * 20 + 80);
+      threatStatus.className = 'glass-card threat-badge';
+      if (threatLevel === 0) {
+        threatStatus.classList.add('threat-safe');
+        threatStatus.textContent = 'SAFE';
+      } else if (threatLevel === 1) {
+        threatStatus.classList.add('threat-medium');
+        threatStatus.textContent = 'MEDIUM';
+      } else {
+        threatStatus.classList.add('threat-high');
+        threatStatus.textContent = 'HIGH ALERT';
+      }
+      confidenceValue.textContent = confidence + '%';
+    }, 5000);
+  }
+
+  // Video upload handling (simulated)
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+  const progressContainer = document.getElementById('progress-container');
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  const timelineContainer = document.getElementById('timeline-container');
+
+  if (uploadZone && fileInput) {
+    uploadZone.addEventListener('click', () => fileInput.click());
+
+    uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.style.borderColor = 'rgba(0,217,255,0.8)'; uploadZone.style.background = 'rgba(0,217,255,0.15)'; });
+    uploadZone.addEventListener('dragleave', () => { uploadZone.style.borderColor = 'rgba(0,217,255,0.4)'; uploadZone.style.background = 'rgba(0,217,255,0.05)'; });
+    uploadZone.addEventListener('drop', (e) => { e.preventDefault(); uploadZone.style.borderColor = 'rgba(0,217,255,0.4)'; uploadZone.style.background = 'rgba(0,217,255,0.05)'; const files = e.dataTransfer.files; if (files.length) handleFileUpload(files[0]); });
+
+    fileInput.addEventListener('change', (e) => { if (e.target.files.length) handleFileUpload(e.target.files[0]); });
+  }
+
+  function handleFileUpload(file) {
+    if (!progressContainer || !progressBar || !progressText || !timelineContainer) return;
+    progressContainer.style.display = 'block';
+    timelineContainer.style.display = 'none';
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        progressText.textContent = 'Analysis Complete!';
+        setTimeout(() => { progressContainer.style.display = 'none'; timelineContainer.style.display = 'block'; }, 1000);
+      }
+      progressBar.style.width = progress + '%';
+      progressText.textContent = `Processing: ${Math.floor(progress)}%`;
+    }, 300);
+  }
+
+  // Element SDK integration
+  async function onConfigChange(config) {
+    const systemTitle = document.getElementById('system-title');
+    const systemSubtitle = document.getElementById('system-subtitle');
+    const primaryCta = document.getElementById('primary-cta');
+    const secondaryCta = document.getElementById('secondary-cta');
+
+    if (systemTitle) systemTitle.textContent = config.system_title || defaultConfig.system_title;
+    if (systemSubtitle) systemSubtitle.textContent = config.system_subtitle || defaultConfig.system_subtitle;
+    if (primaryCta) primaryCta.textContent = config.primary_button_text || defaultConfig.primary_button_text;
+    if (secondaryCta) secondaryCta.textContent = config.secondary_button_text || defaultConfig.secondary_button_text;
+
+    const backgroundElements = document.querySelectorAll('body, .app-wrapper');
+    backgroundElements.forEach(el => { el.style.background = config.background_color || defaultConfig.background_color; });
+
+    const accentElements = document.querySelectorAll('.hero-title, .nav-logo, .nav-link.active, .confidence-value, .timeline-header, .status-label');
+    accentElements.forEach(el => { el.style.color = config.accent_color || defaultConfig.accent_color; });
+  }
+
+  function mapToCapabilities(config) {
+    return {
+      recolorables: [
+        { get: () => config.background_color || defaultConfig.background_color, set: (value) => window.elementSdk && window.elementSdk.setConfig({ background_color: value }) },
+        { get: () => config.accent_color || defaultConfig.accent_color, set: (value) => window.elementSdk && window.elementSdk.setConfig({ accent_color: value }) },
+        { get: () => config.secondary_accent_color || defaultConfig.secondary_accent_color, set: (value) => window.elementSdk && window.elementSdk.setConfig({ secondary_accent_color: value }) },
+        { get: () => config.primary_action_color || defaultConfig.primary_action_color, set: (value) => window.elementSdk && window.elementSdk.setConfig({ primary_action_color: value }) },
+        { get: () => config.alert_color || defaultConfig.alert_color, set: (value) => window.elementSdk && window.elementSdk.setConfig({ alert_color: value }) }
+      ],
+      borderables: [],
+      fontEditable: undefined,
+      fontSizeable: undefined
+    };
+  }
+
+  function mapToEditPanelValues(config) {
+    return new Map([
+      ["system_title", config.system_title || defaultConfig.system_title],
+      ["system_subtitle", config.system_subtitle || defaultConfig.system_subtitle],
+      ["primary_button_text", config.primary_button_text || defaultConfig.primary_button_text],
+      ["secondary_button_text", config.secondary_button_text || defaultConfig.secondary_button_text]
+    ]);
+  }
+
+  if (window.elementSdk) {
+    window.elementSdk.init({ defaultConfig, onConfigChange, mapToCapabilities, mapToEditPanelValues });
+  }
+});
 /* Extracted JS from original index.html */
 
 const defaultConfig = {
