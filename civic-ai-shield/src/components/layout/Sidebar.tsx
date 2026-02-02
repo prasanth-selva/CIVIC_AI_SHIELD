@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { LayoutDashboard, Video, Film, Bell, HeartPulse, Settings, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -11,8 +12,22 @@ const navItems = [
   { key: "settings", label: "Settings", icon: Settings },
 ];
 
-export default function Sidebar({ setPage }: { setPage: (p: string) => void }) {
+const roleAccess: Record<"ADMIN" | "OPERATOR" | "VIEWER", string[]> = {
+  ADMIN: ["dashboard", "live", "analysis", "alerts", "health", "settings"],
+  OPERATOR: ["dashboard", "live"],
+  VIEWER: ["dashboard"],
+};
+
+export default function Sidebar({
+  setPage,
+  role,
+}: {
+  setPage: (p: string) => void;
+  role: "ADMIN" | "OPERATOR" | "VIEWER";
+}) {
   const [active, setActive] = useState("dashboard");
+  const { logout, user } = useAuth();
+  const allowed = roleAccess[role];
 
   const containerVariants = {
     hidden: { x: -260 },
@@ -41,7 +56,9 @@ export default function Sidebar({ setPage }: { setPage: (p: string) => void }) {
       <motion.div className="mb-8">
         <p className="text-xs uppercase tracking-widest text-gray-400 mb-4">Navigation</p>
         <nav className="space-y-2">
-          {navItems.map(({ key, label, icon: Icon }) => (
+          {navItems
+            .filter(({ key }) => allowed.includes(key))
+            .map(({ key, label, icon: Icon }) => (
             <motion.button
               key={key}
               variants={itemVariants}
@@ -86,7 +103,15 @@ export default function Sidebar({ setPage }: { setPage: (p: string) => void }) {
         variants={itemVariants}
         className="mt-auto pt-6 border-t border-white/10"
       >
-        <button className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-red-400 transition rounded-lg w-full hover:bg-red-500/5">
+        <div className="mb-4 px-4">
+          <p className="text-xs text-gray-500">Signed in as</p>
+          <p className="text-sm text-gray-200 font-semibold truncate">{user?.full_name}</p>
+          <p className="text-xs text-cyan-400 uppercase tracking-widest">{role}</p>
+        </div>
+        <button
+          onClick={logout}
+          className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-red-400 transition rounded-lg w-full hover:bg-red-500/5"
+        >
           <LogOut size={18} />
           <span className="text-sm font-medium">Logout</span>
         </button>

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 interface SeverityBadgeProps {
-  level: "high" | "medium" | "low";
+  level: "high" | "medium" | "low" | "safe";
   animated?: boolean;
 }
 
@@ -10,12 +10,14 @@ export function SeverityBadge({ level, animated = false }: SeverityBadgeProps) {
     high: "bg-red-500/20 text-red-300 border-red-500/50 hover:bg-red-500/30",
     medium: "bg-yellow-500/20 text-yellow-300 border-yellow-500/50 hover:bg-yellow-500/30",
     low: "bg-green-500/20 text-green-300 border-green-500/50 hover:bg-green-500/30",
+    safe: "bg-cyan-500/20 text-cyan-300 border-cyan-500/50 hover:bg-cyan-500/30",
   };
 
   const labels = {
     high: "High",
     medium: "Medium",
-    low: "Safe",
+    low: "Low",
+    safe: "Safe",
   };
 
   const badge = (
