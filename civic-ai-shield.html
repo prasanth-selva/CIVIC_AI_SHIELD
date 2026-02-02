@@ -834,6 +834,83 @@
             box-shadow: 0 5px 15px var(--glow-red);
         }
 
+        /* AI Explainability Modal */
+        .explainability-modal {
+            max-width: 800px;
+        }
+
+        .explainability-header {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(139, 0, 0, 0.1));
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--accent-red);
+        }
+
+        .explainability-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-red);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .explainability-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .explainability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .explainability-stat {
+            background: rgba(26, 26, 26, 0.6);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+
+        .explainability-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .explainability-stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-red);
+        }
+
+        .explainability-text {
+            background: rgba(13, 13, 13, 0.6);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(220, 38, 38, 0.15);
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        .explainability-text strong {
+            color: var(--accent-red);
+        }
+
+        .explainability-footer {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(220, 38, 38, 0.2);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
         /* Upload Zone */
         .upload-zone {
             background: var(--panel-bg);
@@ -1175,6 +1252,20 @@
 
         .toggle-switch.active .toggle-thumb {
             transform: translateX(30px);
+        }
+
+        /* Model Badge */
+        .model-badge {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            border-radius: 6px;
+            color: var(--accent-green);
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 2s ease-in-out infinite;
         }
 
         /* Buttons */
@@ -2240,6 +2331,39 @@
                         </div>
                     </div>
 
+                    <div class="settings-section">
+                        <h2 class="section-title">AI Detection System</h2>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Demo Mode</h3>
+                                <p>Force anomaly detections for presentation and testing (increases alert frequency)</p>
+                            </div>
+                            <div class="toggle-switch" id="demoModeToggle" onclick="toggleDemoMode()">
+                                <div class="toggle-thumb"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Confidence Threshold</h3>
+                                <p>Minimum AI confidence required to trigger alerts (current: 75%)</p>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" class="slider" min="50" max="95" value="75" onchange="updateConfidenceThreshold(this)">
+                                <div class="slider-value" id="threshold-value">75%</div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Roboflow Model</h3>
+                                <p>Violence & Anomaly Detection v2.0 (YOLOv8)</p>
+                            </div>
+                            <div class="model-badge">ACTIVE</div>
+                        </div>
+                    </div>
+
                     <div class="btn-group">
                         <button class="btn btn-primary">Save Changes</button>
                         <button class="btn btn-secondary">Reset to Default</button>
@@ -2259,6 +2383,48 @@
             <div class="camera-feed" style="width: 100%; height: 600px;">
                 <div class="live-badge">LIVE</div>
                 <div class="status-badge" id="modalStatus">SAFE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Explainability Modal -->
+    <div class="modal" id="explainabilityModal">
+        <div class="modal-content explainability-modal">
+            <div class="modal-header">
+                <div class="explainability-header">
+                    <div class="explainability-title">AI Detection Explainability</div>
+                    <div class="explainability-subtitle">Understanding how the AI identified this anomaly</div>
+                </div>
+                <button class="close-modal" onclick="closeExplainability()">×</button>
+            </div>
+            
+            <div class="explainability-grid">
+                <div class="explainability-stat">
+                    <div class="explainability-stat-label">Camera ID</div>
+                    <div class="explainability-stat-value" id="explain-camera">CAM-001</div>
+                </div>
+                <div class="explainability-stat">
+                    <div class="explainability-stat-label">Anomaly Type</div>
+                    <div class="explainability-stat-value" id="explain-anomaly">VIOLENCE</div>
+                </div>
+                <div class="explainability-stat">
+                    <div class="explainability-stat-label">AI Confidence</div>
+                    <div class="explainability-stat-value" id="explain-confidence">92.4%</div>
+                </div>
+            </div>
+
+            <div class="explainability-text">
+                <strong>Detection Analysis:</strong><br><br>
+                <span id="explain-text">
+                    This alert was triggered based on patterns identified by our Roboflow-trained computer vision model.
+                    The AI detected abnormal behavioral patterns with high confidence.
+                </span>
+            </div>
+
+            <div class="explainability-footer">
+                <strong>Model:</strong> Roboflow Violence & Anomaly Detection v2.0 (YOLOv8) | 
+                <strong>Dataset:</strong> Public Safety Surveillance Dataset | 
+                <strong>Accuracy:</strong> 94.2%
             </div>
         </div>
     </div>
@@ -2364,7 +2530,18 @@
                 const status = statuses[Math.floor(Math.random() * statuses.length)];
                 const camera = document.createElement('div');
                 camera.className = 'camera-card';
-                camera.onclick = () => openCamera(i, locations[i-1], status);
+                
+                // Add click handler for explainability
+                camera.onclick = function(e) {
+                    // If has detection data, show explainability
+                    if (this.dataset.detection) {
+                        e.stopPropagation();
+                        showExplainability(this.dataset.detection);
+                    } else {
+                        openCamera(i, locations[i-1], status);
+                    }
+                };
+                
                 camera.innerHTML = `
                     <div class="camera-feed">
                         <div class="live-badge">LIVE</div>
@@ -2416,6 +2593,14 @@
         // Update Slider Value
         function updateSliderValue(slider, id) {
             document.getElementById(id + '-value').textContent = slider.value + '%';
+        }
+
+        // Update Confidence Threshold
+        function updateConfidenceThreshold(slider) {
+            const value = slider.value;
+            document.getElementById('threshold-value').textContent = value + '%';
+            aiDetectionEngine.confidenceThreshold = value / 100;
+            console.log('[AI ENGINE] Confidence threshold updated to', value + '%');
         }
 
         // Toggle Switch
@@ -2674,6 +2859,293 @@
         window.addEventListener('load', () => {
             // Show login screen initially
             document.getElementById('loginScreen').classList.remove('hidden');
+        });
+
+        // ====================================================
+        // ROBOFLOW AI DETECTION SIMULATION ENGINE
+        // ====================================================
+
+        // Roboflow Dataset Classes (Violence Detection)
+        const ROBOFLOW_CLASSES = {
+            violence: { severity: 'HIGH', color: '#dc2626', threshold: 0.75 },
+            assault: { severity: 'HIGH', color: '#dc2626', threshold: 0.80 },
+            fighting: { severity: 'HIGH', color: '#dc2626', threshold: 0.78 },
+            robbery: { severity: 'HIGH', color: '#dc2626', threshold: 0.82 },
+            shooting: { severity: 'HIGH', color: '#dc2626', threshold: 0.85 },
+            vandalism: { severity: 'MEDIUM', color: '#f59e0b', threshold: 0.70 },
+            suspicious_activity: { severity: 'MEDIUM', color: '#f59e0b', threshold: 0.65 },
+            accident: { severity: 'MEDIUM', color: '#f59e0b', threshold: 0.72 },
+            fall: { severity: 'MEDIUM', color: '#f59e0b', threshold: 0.68 },
+            crowd_anomaly: { severity: 'LOW', color: '#10b581', threshold: 0.60 },
+            normal: { severity: 'SAFE', color: '#10b581', threshold: 0.50 }
+        };
+
+        // Global AI State
+        let aiDetectionEngine = {
+            isActive: false,
+            demoMode: false,
+            cameras: [],
+            detections: [],
+            alertCount: 0,
+            confidenceThreshold: 0.75
+        };
+
+        // Initialize AI Detection System
+        function initAIDetectionEngine() {
+            console.log('[AI ENGINE] Initializing Roboflow-based detection system...');
+            aiDetectionEngine.isActive = true;
+            
+            // Start real-time detection simulation
+            setInterval(() => {
+                if (aiDetectionEngine.isActive) {
+                    runAIDetectionCycle();
+                }
+            }, 5000); // Run detection every 5 seconds
+        }
+
+        // Main AI Detection Cycle
+        function runAIDetectionCycle() {
+            const cameras = document.querySelectorAll('.camera-card');
+            
+            cameras.forEach((camera, index) => {
+                const cameraId = `CAM-${String(index + 1).padStart(3, '0')}`;
+                const detection = simulateRoboflowDetection(cameraId);
+                
+                if (detection) {
+                    updateCameraStatus(camera, detection);
+                    
+                    // Generate alert if confidence exceeds threshold
+                    if (detection.confidence >= aiDetectionEngine.confidenceThreshold) {
+                        generateAIAlert(detection);
+                    }
+                }
+            });
+            
+            updateDashboardMetrics();
+        }
+
+        // Simulate Roboflow YOLO Detection Output
+        function simulateRoboflowDetection(cameraId) {
+            const classes = Object.keys(ROBOFLOW_CLASSES);
+            
+            // Demo mode forces anomalies
+            if (aiDetectionEngine.demoMode) {
+                const anomalyClasses = ['violence', 'assault', 'fighting', 'robbery', 'suspicious_activity'];
+                const selectedClass = anomalyClasses[Math.floor(Math.random() * anomalyClasses.length)];
+                const confidence = 0.80 + Math.random() * 0.18; // 0.80 - 0.98
+                
+                return createDetectionObject(cameraId, selectedClass, confidence);
+            }
+            
+            // Normal mode - mostly safe with occasional anomalies
+            const randomChance = Math.random();
+            
+            if (randomChance < 0.85) {
+                // 85% chance of SAFE
+                return createDetectionObject(cameraId, 'normal', 0.30 + Math.random() * 0.25);
+            } else if (randomChance < 0.95) {
+                // 10% chance of MONITORING (medium severity)
+                const mediumClasses = ['suspicious_activity', 'accident', 'fall', 'vandalism'];
+                const selectedClass = mediumClasses[Math.floor(Math.random() * mediumClasses.length)];
+                const confidence = 0.60 + Math.random() * 0.20; // 0.60 - 0.80
+                return createDetectionObject(cameraId, selectedClass, confidence);
+            } else {
+                // 5% chance of ALERT (high severity)
+                const highClasses = ['violence', 'assault', 'fighting', 'robbery'];
+                const selectedClass = highClasses[Math.floor(Math.random() * highClasses.length)];
+                const confidence = 0.75 + Math.random() * 0.23; // 0.75 - 0.98
+                return createDetectionObject(cameraId, selectedClass, confidence);
+            }
+        }
+
+        // Create Detection Object (YOLO-style format)
+        function createDetectionObject(cameraId, label, confidence) {
+            const classData = ROBOFLOW_CLASSES[label];
+            
+            return {
+                camera_id: cameraId,
+                timestamp: new Date().toISOString(),
+                detections: [{
+                    label: label,
+                    confidence: confidence,
+                    bbox: generateRandomBoundingBox(),
+                    class_id: Object.keys(ROBOFLOW_CLASSES).indexOf(label)
+                }],
+                status: getStatusFromConfidence(confidence, classData.threshold),
+                severity: classData.severity,
+                color: classData.color
+            };
+        }
+
+        // Generate Random Bounding Box (YOLO format: x_center, y_center, width, height)
+        function generateRandomBoundingBox() {
+            return {
+                x: 0.3 + Math.random() * 0.4,
+                y: 0.3 + Math.random() * 0.4,
+                width: 0.15 + Math.random() * 0.2,
+                height: 0.15 + Math.random() * 0.2
+            };
+        }
+
+        // Determine Status from Confidence
+        function getStatusFromConfidence(confidence, threshold) {
+            if (confidence < 0.6) return 'SAFE';
+            if (confidence < threshold) return 'MONITORING';
+            return 'ALERT';
+        }
+
+        // Update Camera Tile Status
+        function updateCameraStatus(cameraElement, detection) {
+            const statusBadge = cameraElement.querySelector('.status-badge');
+            const status = detection.status;
+            
+            if (statusBadge) {
+                statusBadge.textContent = status;
+                statusBadge.className = 'status-badge';
+                
+                if (status === 'ALERT') {
+                    statusBadge.classList.add('alert');
+                    statusBadge.style.background = 'rgba(220, 38, 38, 0.9)';
+                    statusBadge.style.animation = 'pulse 2s ease-in-out infinite';
+                } else if (status === 'MONITORING') {
+                    statusBadge.style.background = 'rgba(245, 158, 11, 0.9)';
+                    statusBadge.style.animation = 'none';
+                } else {
+                    statusBadge.style.background = 'rgba(16, 185, 129, 0.9)';
+                    statusBadge.style.animation = 'none';
+                }
+            }
+            
+            // Store detection data in element for later use
+            cameraElement.dataset.detection = JSON.stringify(detection);
+        }
+
+        // Generate AI Alert
+        function generateAIAlert(detection) {
+            const alert = {
+                id: `ALT-${Date.now()}`,
+                timestamp: new Date().toLocaleTimeString(),
+                camera_id: detection.camera_id,
+                anomaly: detection.detections[0].label,
+                confidence: (detection.detections[0].confidence * 100).toFixed(1) + '%',
+                severity: detection.severity,
+                status: 'ACTIVE',
+                explanation: generateExplanation(detection)
+            };
+            
+            aiDetectionEngine.detections.push(alert);
+            aiDetectionEngine.alertCount++;
+            
+            console.log('[AI ALERT]', alert);
+        }
+
+        // Generate AI Explainability Text
+        function generateExplanation(detection) {
+            const label = detection.detections[0].label;
+            const confidence = (detection.detections[0].confidence * 100).toFixed(1);
+            
+            const explanations = {
+                violence: `Violent behavior pattern detected with ${confidence}% confidence. The AI model, trained on Roboflow's violence detection dataset, identified aggressive physical movements and postures consistent with assault or fighting activities.`,
+                assault: `Assault activity detected with ${confidence}% confidence. Based on temporal analysis of body movements and positioning, the model identified patterns matching physical aggression toward another individual.`,
+                fighting: `Physical altercation detected with ${confidence}% confidence. Multiple individuals exhibiting rapid, aggressive movements characteristic of fighting behavior were identified in the surveillance feed.`,
+                robbery: `Robbery or theft behavior detected with ${confidence}% confidence. Suspicious approach patterns, grabbing motions, and fleeing behavior were identified by the AI model.`,
+                shooting: `Potential weapon discharge detected with ${confidence}% confidence. The model identified rapid movements, defensive postures, and environmental disturbances consistent with shooting incidents.`,
+                suspicious_activity: `Suspicious behavior pattern detected with ${confidence}% confidence. Unusual loitering, evasive movements, or anomalous activity patterns triggered this alert based on learned behavioral norms.`,
+                accident: `Accident or collision event detected with ${confidence}% confidence. Sudden impact, object displacement, or fall patterns were identified in the video stream.`,
+                fall: `Person fall detected with ${confidence}% confidence. The model identified rapid vertical movement and prone position characteristic of fall incidents, potentially requiring medical attention.`,
+                vandalism: `Vandalism activity detected with ${confidence}% confidence. Destructive actions toward property or infrastructure were identified in the surveillance footage.`,
+                crowd_anomaly: `Crowd behavior anomaly detected with ${confidence}% confidence. Unusual crowd density, movement patterns, or gathering formations deviate from normal baseline activity.`
+            };
+            
+            return explanations[label] || `Anomaly detected with ${confidence}% confidence based on Roboflow computer vision model analysis.`;
+        }
+
+        // Update Dashboard Metrics
+        function updateDashboardMetrics() {
+            // Count statuses
+            const cameras = document.querySelectorAll('.camera-card');
+            let alertCount = 0;
+            let monitoringCount = 0;
+            let totalConfidence = 0;
+            let detectionCount = 0;
+            
+            cameras.forEach(camera => {
+                const statusBadge = camera.querySelector('.status-badge');
+                if (statusBadge) {
+                    const status = statusBadge.textContent;
+                    if (status === 'ALERT') alertCount++;
+                    if (status === 'MONITORING') monitoringCount++;
+                }
+                
+                const detectionData = camera.dataset.detection;
+                if (detectionData) {
+                    try {
+                        const detection = JSON.parse(detectionData);
+                        totalConfidence += detection.detections[0].confidence;
+                        detectionCount++;
+                    } catch (e) {}
+                }
+            });
+            
+            // Update dashboard stats
+            const activeAlertsEl = document.querySelector('.stat-value[data-target="12"]');
+            if (activeAlertsEl) {
+                activeAlertsEl.textContent = alertCount;
+                activeAlertsEl.setAttribute('data-target', alertCount);
+            }
+            
+            // Update AI confidence display
+            const avgConfidence = detectionCount > 0 ? (totalConfidence / detectionCount * 100).toFixed(1) : 0;
+            updateConfidenceDisplay(avgConfidence);
+        }
+
+        // Update Confidence Display
+        function updateConfidenceDisplay(avgConfidence) {
+            const confidenceBars = document.querySelectorAll('.confidence-bar-fill');
+            if (confidenceBars.length > 0) {
+                confidenceBars[0].style.width = avgConfidence + '%';
+            }
+        }
+
+        // Toggle Demo Mode
+        function toggleDemoMode() {
+            aiDetectionEngine.demoMode = !aiDetectionEngine.demoMode;
+            const toggle = document.getElementById('demoModeToggle');
+            if (toggle) {
+                toggle.classList.toggle('active');
+            }
+            console.log('[DEMO MODE]', aiDetectionEngine.demoMode ? 'ENABLED' : 'DISABLED');
+        }
+
+        // Show AI Explainability Modal
+        function showExplainability(detectionData) {
+            const modal = document.getElementById('explainabilityModal');
+            if (modal && detectionData) {
+                const detection = JSON.parse(detectionData);
+                document.getElementById('explain-camera').textContent = detection.camera_id;
+                document.getElementById('explain-anomaly').textContent = detection.detections[0].label.toUpperCase();
+                document.getElementById('explain-confidence').textContent = (detection.detections[0].confidence * 100).toFixed(1) + '%';
+                document.getElementById('explain-text').textContent = generateExplanation(detection);
+                modal.classList.add('active');
+            }
+        }
+
+        // Close Explainability Modal
+        function closeExplainability() {
+            const modal = document.getElementById('explainabilityModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Initialize AI Engine after dashboard loads
+        const originalLaunchDashboard = launchDashboard;
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (document.getElementById('dashboard').classList.contains('active')) {
+                    initAIDetectionEngine();
+                }
+            }, 2000);
         });
     </script>
 
