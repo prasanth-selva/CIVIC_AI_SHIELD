@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import { AlertTriangle, Wifi, WifiOff } from "lucide-react";
+import { AlertTriangle, Wifi, WifiOff, Maximize2 } from "lucide-react";
+import { useState } from "react";
+import { CameraFullscreen } from "./CameraFullscreen";
 
 interface CameraFeedProps {
   threat?: string;
@@ -16,32 +18,36 @@ export function CameraFeed({
   online = true,
   fps = 30,
 }: CameraFeedProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="relative group"
-    >
-      <motion.div
-        animate={{
-          boxShadow: online
-            ? [
-                "0 0 0 0 rgba(239, 68, 68, 0)",
-                "0 0 30px 10px rgba(239, 68, 68, 0.3)",
-                "0 0 0 0 rgba(239, 68, 68, 0)",
-              ]
-            : "0 0 0 0 rgba(100, 116, 139, 0)",
-        }}
-        transition={{ repeat: Infinity, duration: 2 }}
-        className="absolute inset-0 rounded-2xl"
-      />
+  const [fullscreen, setFullscreen] = useState(false);
 
-      <div
-        className={`aspect-video bg-black/80 rounded-2xl border-2 relative overflow-hidden backdrop-blur-xl ${
-          online ? "border-red-500/50" : "border-gray-700/50"
-        }`}
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative group cursor-pointer"
+        onClick={() => setFullscreen(true)}
       >
+        <motion.div
+          animate={{
+            boxShadow: online
+              ? [
+                  "0 0 0 0 rgba(239, 68, 68, 0)",
+                  "0 0 30px 10px rgba(239, 68, 68, 0.3)",
+                  "0 0 0 0 rgba(239, 68, 68, 0)",
+                ]
+              : "0 0 0 0 rgba(100, 116, 139, 0)",
+          }}
+          transition={{ repeat: Infinity, duration: 2 }}
+          className="absolute inset-0 rounded-2xl"
+        />
+
+        <div
+          className={`aspect-video bg-black/80 rounded-2xl border-2 relative overflow-hidden backdrop-blur-xl ${
+            online ? "border-red-500/50" : "border-gray-700/50"
+          }`}
+        >
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/20 to-transparent"
           animate={{ x: ["-100%", "100%"] }}
@@ -85,6 +91,25 @@ export function CameraFeed({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
+          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setFullscreen(true);
+            }}
+            className="bg-black/60 backdrop-blur-lg p-2 rounded-lg border border-cyan-500/40 hover:border-cyan-500/80 transition"
+          >
+            <Maximize2 className="text-cyan-400" size={18} />
+          </motion.button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
           className="absolute bottom-4 right-4 text-xs text-gray-400"
         >
           {fps} FPS
@@ -106,7 +131,10 @@ export function CameraFeed({
             <span className="text-xs text-red-200 ml-2">{confidence}%</span>
           </motion.div>
         )}
-      </div>
-    </motion.div>
+        </div>
+      </motion.div>
+
+      <CameraFullscreen open={fullscreen} onClose={() => setFullscreen(false)} />
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { SeverityBadge } from "../components/ui/SeverityBadge";
+import { AILoading } from "../components/ui/AILoading";
 import { Upload, Play, Download, BarChart3 } from "lucide-react";
 import { useState } from "react";
 
@@ -84,24 +85,19 @@ export default function VideoAnalysis() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-green-500/20 to-green-600/10 border border-green-500/30 rounded-2xl p-6 backdrop-blur-xl"
+          className="bg-gradient-to-br from-black/40 to-black/20 border border-cyan-500/30 rounded-2xl p-8 backdrop-blur-xl"
         >
-          <div className="flex items-center gap-4 mb-4">
-            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2 }}>
-              <BarChart3 className="text-green-400" size={24} />
-            </motion.div>
-            <div>
-              <p className="font-bold text-green-300">Analysis in Progress</p>
-              <p className="text-sm text-green-200/80">Processing video: sample_video.mp4</p>
+          <AILoading text="AI ANALYZING VIDEO" />
+          <div className="mt-6">
+            <p className="text-sm text-gray-400 text-center mb-3">Processing: sample_video.mp4</p>
+            <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden border border-cyan-500/20">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 4, ease: "easeInOut" }}
+                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+              />
             </div>
-          </div>
-          <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden border border-green-500/20">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: "100%" }}
-              transition={{ duration: 4, ease: "easeInOut" }}
-              className="h-full bg-gradient-to-r from-green-500 to-green-400"
-            />
           </div>
         </motion.div>
       )}

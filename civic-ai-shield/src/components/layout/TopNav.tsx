@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
-import { Bell, Shield, Circle } from "lucide-react";
+import { Bell, Shield, Circle, Settings } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { useState, useEffect } from "react";
 
-export default function TopNav() {
+export default function TopNav({ role }: { role: "ADMIN" | "OPERATOR" | "VIEWER" }) {
+  const { user } = useAuth();
   return (
     <motion.header
       initial={{ y: -70, opacity: 0 }}
@@ -22,6 +25,10 @@ export default function TopNav() {
       </motion.div>
 
       <div className="flex items-center gap-6">
+        <div className="hidden lg:flex flex-col items-end text-right mr-2">
+          <TimeDisplay />
+        </div>
+
         <motion.div className="flex items-center gap-2 text-sm text-green-400">
           <motion.div
             animate={{ scale: [1, 1.2, 1] }}
@@ -45,13 +52,52 @@ export default function TopNav() {
           />
         </motion.button>
 
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-semibold cursor-pointer"
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="p-2 hover:bg-white/5 rounded-lg transition"
         >
-          CS
+          <Settings size={20} className="text-gray-300 hover:text-cyan-400" />
+        </motion.button>
+
+        <motion.div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-xs text-gray-400">{user?.full_name}</p>
+            <p className="text-[11px] uppercase tracking-widest text-cyan-400">{role}</p>
+          </div>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-semibold cursor-pointer"
+          >
+            {user?.full_name
+              ?.split(" ")
+              .map((part) => part[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase() ?? "CS"}
+          </motion.div>
         </motion.div>
       </div>
     </motion.header>
   );
+}
+
+function TimeDisplay() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <>
+      <span className="text-lg font-bold text-white leading-none tracking-wider font-mono">
+        {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+      </span>
+      <span className="text-xs text-cyan-400/80 font-medium tracking-wide uppercase">
+        {time.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+      </span>
+    </>
+  )
 }

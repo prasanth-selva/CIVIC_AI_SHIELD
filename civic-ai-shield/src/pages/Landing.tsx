@@ -7,14 +7,14 @@ export default function Landing({ onEnter }: { onEnter: () => void }) {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: 0.15,
+        delayChildren: 0.3,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 40 },
     visible: {
       opacity: 1,
       y: 0,
@@ -63,7 +63,18 @@ export default function Landing({ onEnter }: { onEnter: () => void }) {
           </motion.div>
         </motion.div>
 
-        <motion.h1 variants={itemVariants} className="text-6xl font-bold mb-4 text-white">
+        <motion.h1
+          variants={itemVariants}
+          animate={{
+            textShadow: [
+              "0 0 0px #3b82f6",
+              "0 0 30px #3b82f6, 0 0 60px #22d3ee",
+              "0 0 0px #3b82f6",
+            ],
+          }}
+          transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+          className="text-6xl md:text-7xl font-extrabold mb-4 text-white"
+        >
           Civic AI Shield
         </motion.h1>
 

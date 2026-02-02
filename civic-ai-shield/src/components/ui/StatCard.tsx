@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { ReactNode } from "react";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
+import { ReactNode, useEffect } from "react";
 
 interface StatCardProps {
   title: string;
@@ -12,6 +12,17 @@ interface StatCardProps {
 export function StatCard({ title, value, icon, trend, trendValue }: StatCardProps) {
   const trendColor =
     trend === "up" ? "text-green-400" : trend === "down" ? "text-red-400" : "text-gray-400";
+
+  const numericValue = typeof value === "number" ? value : Number.parseFloat(String(value).replace(/[^\d.]/g, ""));
+  const suffix = typeof value === "string" ? String(value).replace(/[\d.]/g, "") : "";
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => `${latest.toFixed(numericValue % 1 === 0 ? 0 : 1)}${suffix}`);
+
+  useEffect(() => {
+    if (Number.isNaN(numericValue)) return;
+    const controls = animate(count, numericValue, { duration: 1.2, ease: "easeOut" });
+    return controls.stop;
+  }, [count, numericValue]);
 
   return (
     <motion.div
@@ -27,7 +38,9 @@ export function StatCard({ title, value, icon, trend, trendValue }: StatCardProp
         <div className="flex items-start justify-between mb-4">
           <div>
             <p className="text-gray-400 text-sm font-medium mb-2">{title}</p>
-            <h3 className="text-3xl font-bold text-white">{value}</h3>
+            <h3 className="text-3xl font-bold text-white">
+              {Number.isNaN(numericValue) ? value : <motion.span>{rounded}</motion.span>}
+            </h3>
           </div>
           {icon && (
             <motion.div

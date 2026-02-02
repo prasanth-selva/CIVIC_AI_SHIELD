@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { StatCard } from "../components/ui/StatCard";
 import { CameraFeed } from "../components/ui/CameraFeed";
 import { SeverityBadge } from "../components/ui/SeverityBadge";
+import { AIConfidenceChart } from "../components/ui/AIConfidenceChart";
 import { Camera, AlertTriangle, Activity, Wifi } from "lucide-react";
 
 const mockAlerts = [
@@ -39,33 +40,53 @@ export default function Dashboard() {
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <h2 className="text-xl font-bold text-white mb-4">Live Threat Detection</h2>
-          <CameraFeed threat="Violence Detected" confidence={94} location="Warehouse A - Section 2" />
+        <div className="lg:col-span-2 space-y-6">
+          <div>
+            <h2 className="text-xl font-bold text-white mb-4">Live Threat Detection</h2>
+            <CameraFeed threat="Violence Detected" confidence={94} location="Warehouse A - Section 2" />
+          </div>
+          <AIConfidenceChart />
         </div>
 
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="bg-gradient-to-br from-black/40 to-black/20 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-2xl"
+          className="bg-gradient-to-br from-black/40 to-black/20 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-2xl flex flex-col h-full"
         >
-          <h3 className="text-lg font-bold text-white mb-4">Quick Stats</h3>
-          <div className="space-y-4">
-            <div className="p-3 bg-black/40 rounded-lg border border-white/10 hover:border-cyan-500/30 transition">
-              <p className="text-gray-400 text-sm mb-1">Online Cameras</p>
-              <p className="text-2xl font-bold text-cyan-400">824 / 847</p>
-              <p className="text-xs text-gray-500 mt-1">97.3% operational</p>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-white">Current Threat Status</h3>
+            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_#ef4444]" />
+          </div>
+
+          <div className="space-y-6 flex-1 flex flex-col justify-center">
+            <div className="text-center p-4 bg-red-500/10 rounded-2xl border border-red-500/20">
+              <p className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Detected Threat</p>
+              <p className="text-2xl font-bold text-white mb-2">Violence Detected</p>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 rounded-full border border-red-500/30 text-red-300 text-xs font-semibold">
+                <Activity size={12} />
+                <span>Action Required</span>
+              </div>
             </div>
-            <div className="p-3 bg-black/40 rounded-lg border border-white/10 hover:border-cyan-500/30 transition">
-              <p className="text-gray-400 text-sm mb-1">Avg Response Time</p>
-              <p className="text-2xl font-bold text-green-400">2.3 sec</p>
-              <p className="text-xs text-gray-500 mt-1">Detection to alert</p>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-black/40 rounded-xl border border-white/5 text-center">
+                <p className="text-gray-400 text-xs mb-1">Confidence</p>
+                <div className="text-xl font-bold text-cyan-400">94%</div>
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-white/5 text-center">
+                <p className="text-gray-400 text-xs mb-1">Severity</p>
+                <div className="flex justify-center">
+                  <SeverityBadge level="high" animated />
+                </div>
+              </div>
             </div>
-            <div className="p-3 bg-black/40 rounded-lg border border-white/10 hover:border-cyan-500/30 transition">
-              <p className="text-gray-400 text-sm mb-1">Detection Accuracy</p>
-              <p className="text-2xl font-bold text-green-400">98.2%</p>
-              <p className="text-xs text-gray-500 mt-1">AI model performance</p>
+
+            <div className="p-3 bg-black/40 rounded-xl border border-white/5 text-center">
+              <p className="text-gray-400 text-xs mb-1">Timestamp</p>
+              <p className="text-lg font-mono text-white tracking-widest">
+                {new Date().toLocaleTimeString()}
+              </p>
             </div>
           </div>
         </motion.div>
