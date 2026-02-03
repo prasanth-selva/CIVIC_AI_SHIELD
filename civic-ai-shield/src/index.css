@@ -1,0 +1,192 @@
+@import 'tailwindcss';
+
+body {
+  background-color: #0a0e1a;
+}
+
+/* ===== GLOBAL AI MOTION ===== */
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 15px rgba(59,130,246,.3); }
+  50% { box-shadow: 0 0 40px rgba(59,130,246,.6); }
+  100% { box-shadow: 0 0 15px rgba(59,130,246,.3); }
+}
+
+/* ===== STAT CARD BREATHING ===== */
+.stat-card {
+  animation: float 6s ease-in-out infinite;
+}
+
+.stat-card.primary { animation-delay: 0s; }
+.stat-card.accent { animation-delay: 1s; }
+.stat-card.warning { animation-delay: 2s; }
+.stat-card.safe { animation-delay: 3s; }
+
+/* ===== HIGH SEVERITY PULSE ===== */
+.severity-high {
+  animation: dangerPulse 1.4s infinite;
+}
+
+@keyframes dangerPulse {
+  0% { box-shadow: 0 0 0 rgba(239,68,68,0.7); }
+  70% { box-shadow: 0 0 25px rgba(239,68,68,0); }
+  100% { box-shadow: 0 0 0 rgba(239,68,68,0); }
+}
+
+/* ===== CAMERA CINEMATIC EFFECT ===== */
+.camera-feed::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 40%, rgba(255,255,255,.04), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, transparent 2px, transparent 4px);
+  animation: cameraSweep 6s linear infinite;
+  pointer-events: none;
+  border-radius: 1rem;
+}
+
+@keyframes cameraSweep {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+/* ===== PAGE TRANSITION ===== */
+.page {
+  animation: pageFade 0.5s ease forwards;
+}
+
+@keyframes pageFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== BUTTON MICRO INTERACTION ===== */
+.btn:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+/* ===== AI GLOW BORDER ===== */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  pointer-events: none;
+  box-shadow: inset 0 0 30px rgba(59,130,246,0.08);
+}
+
+/* ===== CAMERA MODAL CINEMATIC ===== */
+.camera-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: pageFade .4s ease;
+  backdrop-filter: blur(4px);
+}
+
+.camera-modal .camera-feed {
+  position: relative;
+  box-shadow:
+    0 0 0 2px rgba(34, 211, 238, 0.2),
+    0 0 30px rgba(34, 211, 238, 0.3),
+    inset 0 0 50px rgba(34, 211, 238, 0.05);
+}
+
+/* ===== SCAN LINE EFFECT ===== */
+.scan-line {
+  animation: scanMove 3s linear infinite;
+}
+
+@keyframes scanMove {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* ===== CORNER GLOW ===== */
+.corner-glow {
+  animation: cornerFlicker 2s ease-in-out infinite;
+}
+
+@keyframes cornerFlicker {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ===== FILM GRAIN TEXTURE ===== */
+.film-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" seed="1"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.03"/></svg>');
+  background-repeat: repeat;
+  pointer-events: none;
+  animation: grain 0.8s steps(2) infinite;
+  opacity: 0.03;
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-5px, -5px); }
+  20% { transform: translate(-10px, 5px); }
+  30% { transform: translate(5px, -10px); }
+  40% { transform: translate(-5px, 15px); }
+  50% { transform: translate(-10px, -5px); }
+  60% { transform: translate(15px, 5px); }
+  70% { transform: translate(5px, 10px); }
+  80% { transform: translate(-15px, -10px); }
+  90% { transform: translate(10px, 5px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ===== ENHANCED BUTTON STATES ===== */
+button {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* ===== GLOW EDGE PULSE ===== */
+.glow-edge {
+  animation: edgeGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes edgeGlow {
+  0% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.5); }
+  100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.2); }
+}
+
+/* ===== CARD HOVER ELEVATION ===== */
+.card-elevated {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-elevated:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== TEXT GLOW ===== */
+.text-glow {
+  text-shadow:
+    0 0 5px rgba(59, 130, 246, 0.3),
+    0 0 10px rgba(59, 130, 246, 0.2);
+}
+
