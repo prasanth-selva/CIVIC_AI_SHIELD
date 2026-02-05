@@ -1,25 +1,100 @@
+"""
+Civic AI Shield - FastAPI Routes
+Updated with real detection integration
+"""
+
 from typing import List, Dict, Any, Optional, Literal
 from datetime import datetime, timezone
 from pathlib import Path
 import tempfile
 import cv2
-from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
+import base64
+import numpy as np
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, BackgroundTasks
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import logging
 
-from ..model import get_model, ModelNotAvailable
-from ..utils import b64_to_frame, parse_predictions, threat_level
 from ..auth import require_roles, UserPublic
+from ..config import settings, get_settings, ThreatClass, Severity
 
+# Import detection modules (with graceful fallback)
+try:
+    from ..inference import ThreatDetector, DecisionEngine, Detection
+    from ..telegram_alert import TelegramBot, AlertManager
+    from ..utils import get_incident_logger, get_system_monitor
+    DETECTION_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Detection modules not fully available: {e}")
+    DETECTION_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
-Severity = Literal["low", "medium", "high", "critical"]
+# Type aliases
 AlertStatus = Literal["open", "acknowledged", "resolved"]
 CameraStatus = Literal["online", "offline", "degraded", "maintenance"]
 
+# ============== Utility Functions ==============
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
+
+def b64_to_frame(b64_string: str) -> np.ndarray:
+    """Decode base64 string to OpenCV BGR frame."""
+    data = base64.b64decode(b64_string.split(",")[-1])
+    arr = np.frombuffer(data, np.uint8)
+    frame = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+    if frame is None:
+        raise ValueError("Unable to decode image")
+    return frame
+
+
+# ============== Global State ==============
+
+# Detector instances (lazy loaded)
+_detector: Optional["ThreatDetector"] = None
+_decision_engine: Optional["DecisionEngine"] = None
+_telegram_bot: Optional["TelegramBot"] = None
+_alert_manager: Optional["AlertManager"] = None
+
+
+def get_detector():
+    """Get or create detector instance"""
+    global _detector
+    if _detector is None and DETECTION_AVAILABLE:
+        _detector = ThreatDetector()
+        _detector.initialize()
+    return _detector
+
+
+def get_decision_engine():
+    """Get or create decision engine"""
+    global _decision_engine
+    if _decision_engine is None and DETECTION_AVAILABLE:
+        _decision_engine = DecisionEngine()
+    return _decision_engine
+
+
+def get_telegram():
+    """Get or create Telegram bot"""
+    global _telegram_bot
+    if _telegram_bot is None and DETECTION_AVAILABLE:
+        _telegram_bot = TelegramBot()
+    return _telegram_bot
+
+
+def get_alert_mgr():
+    """Get or create alert manager"""
+    global _alert_manager, _telegram_bot
+    if _alert_manager is None and DETECTION_AVAILABLE:
+        _alert_manager = AlertManager(telegram_bot=get_telegram())
+        _alert_manager.start()
+    return _alert_manager
+
+
+# ============== Mock Data (for demo mode) ==============
 
 MOCK_CAMERAS: Dict[str, Dict[str, Any]] = {
     "cam-001": {
@@ -35,62 +110,31 @@ MOCK_CAMERAS: Dict[str, Dict[str, Any]] = {
         "id": "cam-002",
         "name": "Transit Hub - Platform 3",
         "location": "Sector C / Platform 3",
-        "status": "degraded",
+        "status": "online",
         "last_seen": _utc_now_iso(),
         "stream_url": "rtsp://mock.civic-ai-shield.local/cam-002",
-        "health": {"latency_ms": 180, "packet_loss": 2.6},
+        "health": {"latency_ms": 55, "packet_loss": 0.5},
     },
     "cam-003": {
         "id": "cam-003",
         "name": "Harbor Watch - Pier 7",
         "location": "Sector D / Pier 7",
-        "status": "offline",
+        "status": "online",
         "last_seen": _utc_now_iso(),
         "stream_url": "rtsp://mock.civic-ai-shield.local/cam-003",
-        "health": {"latency_ms": None, "packet_loss": None},
+        "health": {"latency_ms": 38, "packet_loss": 0.1},
     },
 }
 
+MOCK_ALERTS: Dict[str, Dict[str, Any]] = {}
 
-MOCK_ALERTS: Dict[str, Dict[str, Any]] = {
-    "alt-1001": {
-        "id": "alt-1001",
-        "camera_id": "cam-001",
-        "type": "unauthorized_access",
-        "severity": "high",
-        "status": "open",
-        "confidence": 0.91,
-        "message": "Unauthorized access detected near North Gate.",
-        "created_at": _utc_now_iso(),
-        "updated_at": _utc_now_iso(),
-    },
-    "alt-1002": {
-        "id": "alt-1002",
-        "camera_id": "cam-002",
-        "type": "fight",
-        "severity": "critical",
-        "status": "acknowledged",
-        "confidence": 0.95,
-        "message": "Physical altercation detected on Platform 3.",
-        "created_at": _utc_now_iso(),
-        "updated_at": _utc_now_iso(),
-    },
-    "alt-1003": {
-        "id": "alt-1003",
-        "camera_id": "cam-003",
-        "type": "camera_offline",
-        "severity": "medium",
-        "status": "open",
-        "confidence": 0.5,
-        "message": "Camera heartbeat lost at Pier 7.",
-        "created_at": _utc_now_iso(),
-        "updated_at": _utc_now_iso(),
-    },
-}
 
+# ============== Request/Response Models ==============
 
 class LiveFrameRequest(BaseModel):
     frame_b64: str
+    camera_id: str = "cam-001"
+    camera_name: str = "Camera 1"
 
 
 class AlertRequest(BaseModel):
@@ -101,7 +145,7 @@ class AlertRequest(BaseModel):
 class AlertCreateRequest(BaseModel):
     camera_id: str
     type: str
-    severity: Severity
+    severity: str
     message: str
     confidence: float = 0.0
 
@@ -116,29 +160,71 @@ class CameraUpdateRequest(BaseModel):
     last_seen: Optional[str] = None
 
 
+class TelegramConfigRequest(BaseModel):
+    bot_token: str
+    chat_id: str
+    enabled: bool = True
+
+
+# ============== Health & Status Endpoints ==============
+
 @router.get("/health")
 def health(current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR", "VIEWER"))) -> dict:
+    """Get system health status"""
     total_cameras = len(MOCK_CAMERAS)
     online_cameras = sum(1 for cam in MOCK_CAMERAS.values() if cam["status"] == "online")
-    open_alerts = sum(1 for alert in MOCK_ALERTS.values() if alert["status"] == "open")
+    open_alerts = sum(1 for alert in MOCK_ALERTS.values() if alert.get("status") == "open")
+    
+    # Get system metrics if available
+    system_metrics = {}
+    if DETECTION_AVAILABLE:
+        try:
+            monitor = get_system_monitor()
+            system_metrics = monitor.get_current_metrics()
+        except:
+            pass
+    
     return {
         "status": "running",
         "service": "Civic AI Shield",
-        "version": "1.0.0-mock",
+        "version": "2.0.0",
+        "detection_available": DETECTION_AVAILABLE,
         "timestamp": _utc_now_iso(),
         "system": {
             "cameras_total": total_cameras,
             "cameras_online": online_cameras,
             "alerts_open": open_alerts,
+            **system_metrics,
         },
     }
 
+
+@router.get("/system/info")
+def system_info(current_user: UserPublic = Depends(require_roles("ADMIN"))) -> dict:
+    """Get detailed system information"""
+    if not DETECTION_AVAILABLE:
+        return {"error": "Detection modules not available"}
+    
+    monitor = get_system_monitor()
+    return {
+        "system_info": monitor.get_system_info(),
+        "health_status": monitor.get_health_status(),
+        "detection_config": {
+            "model_path": str(settings.detection.model_path),
+            "confidence_thresholds": settings.detection.confidence_thresholds,
+            "use_gpu": settings.detection.use_gpu,
+        },
+    }
+
+
+# ============== Camera Endpoints ==============
 
 @router.get("/cameras")
 def list_cameras(
     status: Optional[CameraStatus] = None,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR", "VIEWER")),
 ) -> Dict[str, Any]:
+    """List all cameras"""
     cameras = list(MOCK_CAMERAS.values())
     if status:
         cameras = [cam for cam in cameras if cam["status"] == status]
@@ -150,9 +236,19 @@ def get_camera(
     camera_id: str,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR", "VIEWER")),
 ) -> Dict[str, Any]:
+    """Get camera details"""
     camera = MOCK_CAMERAS.get(camera_id)
     if not camera:
         raise HTTPException(status_code=404, detail="Camera not found")
+    
+    # Add detection status if available
+    if DETECTION_AVAILABLE:
+        try:
+            decision = get_decision_engine()
+            camera["detection_status"] = decision.get_camera_status(camera_id)
+        except:
+            pass
+    
     return camera
 
 
@@ -162,6 +258,7 @@ def update_camera_status(
     payload: CameraUpdateRequest,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
 ) -> Dict[str, Any]:
+    """Update camera status"""
     camera = MOCK_CAMERAS.get(camera_id)
     if not camera:
         raise HTTPException(status_code=404, detail="Camera not found")
@@ -170,35 +267,200 @@ def update_camera_status(
     return {"status": "updated", "camera": camera}
 
 
+# ============== Detection Endpoints ==============
+
+@router.post("/live_frame")
+def live_frame(
+    payload: LiveFrameRequest,
+    current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
+) -> Dict[str, Any]:
+    """Process a single frame for threat detection"""
+    if not DETECTION_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Detection modules not available")
+    
+    try:
+        # Decode frame
+        frame = b64_to_frame(payload.frame_b64)
+        
+        # Get detector
+        detector = get_detector()
+        if not detector or not detector.is_initialized:
+            raise HTTPException(status_code=503, detail="Detector not initialized")
+        
+        # Run detection
+        result = detector.detect(frame)
+        
+        # Process through decision engine
+        decision = get_decision_engine()
+        alerts = decision.process_detections(
+            camera_id=payload.camera_id,
+            camera_name=payload.camera_name,
+            result=result,
+            frame=frame if settings.telegram.send_image else None,
+        )
+        
+        # Queue alerts for sending
+        alert_mgr = get_alert_mgr()
+        for alert in alerts:
+            alert_mgr.queue_alert(alert)
+        
+        # Format response
+        if not result.detections:
+            return {
+                "label": "none",
+                "threat_level": "safe",
+                "confidence": 0.0,
+                "boxes": [],
+                "inference_time_ms": result.inference_time,
+            }
+        
+        # Get highest confidence detection
+        top_detection = max(result.detections, key=lambda d: d.confidence)
+        
+        return {
+            "label": top_detection.label,
+            "threat_level": top_detection.severity.value,
+            "confidence": round(top_detection.confidence, 3),
+            "boxes": [d.to_dict()["bbox"] for d in result.detections],
+            "all_detections": [d.to_dict() for d in result.detections],
+            "inference_time_ms": round(result.inference_time, 1),
+            "alerts_triggered": len(alerts),
+        }
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Detection error: {e}")
+        raise HTTPException(status_code=500, detail=f"Detection failed: {str(e)}")
+
+
+@router.post("/analyze_video")
+async def analyze_video(
+    file: UploadFile = File(...),
+    current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
+) -> Dict[str, Any]:
+    """Analyze a video file for threats"""
+    if not DETECTION_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Detection modules not available")
+    
+    try:
+        detector = get_detector()
+        if not detector or not detector.is_initialized:
+            raise HTTPException(status_code=503, detail="Detector not initialized")
+        
+        # Save uploaded file temporarily
+        with tempfile.NamedTemporaryFile(delete=True, suffix=Path(file.filename or "video.mp4").suffix) as tmp:
+            content = await file.read()
+            tmp.write(content)
+            tmp.flush()
+            
+            cap = cv2.VideoCapture(tmp.name)
+            
+            if not cap.isOpened():
+                raise HTTPException(status_code=400, detail="Could not open video file")
+            
+            fps = cap.get(cv2.CAP_PROP_FPS) or 25
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            
+            frame_id = 0
+            detections = []
+            
+            # Sample at ~2 FPS
+            sample_interval = max(int(fps // 2), 1)
+            
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                
+                if frame_id % sample_interval != 0:
+                    frame_id += 1
+                    continue
+                
+                result = detector.detect(frame, frame_id=frame_id)
+                
+                for det in result.detections:
+                    detections.append({
+                        "timestamp": round(frame_id / fps, 2),
+                        "frame": frame_id,
+                        "label": det.label,
+                        "severity": det.severity.value,
+                        "confidence": round(det.confidence, 3),
+                        "bbox": det.to_dict()["bbox"],
+                    })
+                
+                frame_id += 1
+            
+            cap.release()
+        
+        return {
+            "filename": file.filename,
+            "total_frames": total_frames,
+            "fps": fps,
+            "duration_seconds": round(total_frames / fps, 2),
+            "frames_analyzed": frame_id // sample_interval,
+            "detections_count": len(detections),
+            "detections": detections,
+        }
+        
+    except Exception as e:
+        logger.error(f"Video analysis error: {e}")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+
+# ============== Alert Endpoints ==============
+
 @router.get("/alerts")
 def list_alerts(
     status: Optional[AlertStatus] = None,
-    severity: Optional[Severity] = None,
+    severity: Optional[str] = None,
     camera_id: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR", "VIEWER")),
 ) -> Dict[str, Any]:
+    """List alerts with optional filters"""
+    # Get from incident logger if available
+    if DETECTION_AVAILABLE:
+        try:
+            logger_inst = get_incident_logger()
+            incidents = logger_inst.get_incidents(
+                camera_id=camera_id,
+                severity=severity,
+                limit=limit,
+                offset=offset,
+            )
+            return {"count": len(incidents), "alerts": incidents}
+        except:
+            pass
+    
+    # Fall back to mock alerts
     alerts = list(MOCK_ALERTS.values())
     if status:
-        alerts = [alert for alert in alerts if alert["status"] == status]
+        alerts = [a for a in alerts if a.get("status") == status]
     if severity:
-        alerts = [alert for alert in alerts if alert["severity"] == severity]
+        alerts = [a for a in alerts if a.get("severity") == severity]
     if camera_id:
-        alerts = [alert for alert in alerts if alert["camera_id"] == camera_id]
-    alerts = alerts[offset : offset + limit]
+        alerts = [a for a in alerts if a.get("camera_id") == camera_id]
+    
+    alerts = alerts[offset:offset + limit]
     return {"count": len(alerts), "alerts": alerts}
 
 
-@router.get("/alerts/{alert_id}")
-def get_alert(
-    alert_id: str,
+@router.get("/alerts/stats")
+def alert_stats(
+    hours: int = 24,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR", "VIEWER")),
 ) -> Dict[str, Any]:
-    alert = MOCK_ALERTS.get(alert_id)
-    if not alert:
-        raise HTTPException(status_code=404, detail="Alert not found")
-    return alert
+    """Get alert statistics"""
+    if DETECTION_AVAILABLE:
+        try:
+            logger_inst = get_incident_logger()
+            return logger_inst.get_incident_stats(time_window_hours=hours)
+        except:
+            pass
+    
+    return {"error": "Statistics not available"}
 
 
 @router.post("/alerts")
@@ -206,10 +468,10 @@ def create_alert(
     payload: AlertCreateRequest,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
 ) -> Dict[str, Any]:
-    if payload.camera_id not in MOCK_CAMERAS:
-        raise HTTPException(status_code=404, detail="Camera not found")
-    alert_id = f"alt-{1000 + len(MOCK_ALERTS) + 1}"
+    """Create a manual alert"""
+    alert_id = f"alt-{len(MOCK_ALERTS) + 1001}"
     now = _utc_now_iso()
+    
     alert = {
         "id": alert_id,
         "camera_id": payload.camera_id,
@@ -221,7 +483,22 @@ def create_alert(
         "created_at": now,
         "updated_at": now,
     }
+    
     MOCK_ALERTS[alert_id] = alert
+    
+    # Log to incident logger
+    if DETECTION_AVAILABLE:
+        try:
+            logger_inst = get_incident_logger()
+            logger_inst.log_incident(
+                threat_type=payload.type,
+                severity=payload.severity,
+                confidence=payload.confidence,
+                camera_id=payload.camera_id,
+            )
+        except:
+            pass
+    
     return {"status": "created", "alert": alert}
 
 
@@ -231,89 +508,144 @@ def update_alert(
     payload: AlertUpdateRequest,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
 ) -> Dict[str, Any]:
+    """Update an alert status"""
     alert = MOCK_ALERTS.get(alert_id)
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
+    
     alert["status"] = payload.status
-    if payload.message is not None:
+    if payload.message:
         alert["message"] = payload.message
     alert["updated_at"] = _utc_now_iso()
+    
     return {"status": "updated", "alert": alert}
 
 
-@router.post("/live_frame")
-def live_frame(
-    payload: LiveFrameRequest,
-    current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
-) -> Dict[str, Any]:
-    try:
-        model = get_model()
-    except ModelNotAvailable as exc:  # pragma: no cover
-        raise HTTPException(status_code=500, detail=str(exc))
-
-    frame = b64_to_frame(payload.frame_b64)
-    results = model.predict(frame, verbose=False)
-    parsed = parse_predictions(results)
-    if not parsed:
-        return {"label": "none", "threat_level": "safe", "confidence": 0.0, "boxes": []}
-
-    label, conf, box = max(parsed, key=lambda x: x[1])
-    return {
-        "label": label,
-        "threat_level": threat_level(label, conf),
-        "confidence": round(conf, 3),
-        "boxes": [box for _, _, box in parsed],
-    }
-
-
-@router.post("/analyze_video")
-def analyze_video(
-    file: UploadFile = File(...),
-    current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
-) -> Dict[str, Any]:
-    try:
-        model = get_model()
-    except ModelNotAvailable as exc:  # pragma: no cover
-        raise HTTPException(status_code=500, detail=str(exc))
-
-    with tempfile.NamedTemporaryFile(delete=True, suffix=Path(file.filename or "video.mp4").suffix) as tmp:
-        content = file.file.read()
-        tmp.write(content)
-        tmp.flush()
-        cap = cv2.VideoCapture(tmp.name)
-
-    fps = cap.get(cv2.CAP_PROP_FPS) or 25
-    frame_id = 0
-    detections: List[Dict[str, Any]] = []
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        if frame_id % max(int(fps // 2), 1) != 0:  # sample ~2 fps to keep it light
-            frame_id += 1
-            continue
-        results = model.predict(frame, verbose=False)
-        parsed = parse_predictions(results)
-        for label, conf, _ in parsed:
-            detections.append(
-                {
-                    "timestamp": round(frame_id / fps, 2),
-                    "label": label,
-                    "threat_level": threat_level(label, conf),
-                    "confidence": round(conf, 3),
-                }
-            )
-        frame_id += 1
-
-    cap.release()
-    return {"count": len(detections), "detections": detections}
-
+# ============== Telegram Endpoints ==============
 
 @router.post("/send_alert")
 def send_alert(
     payload: AlertRequest,
+    background_tasks: BackgroundTasks,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
 ) -> Dict[str, str]:
-    # Placeholder: wire your Telegram bot token and chat_id here.
-    return {"status": "queued", "message": payload.message, "chat_id": payload.chat_id or "default"}
+    """Send an alert via Telegram"""
+    if not DETECTION_AVAILABLE:
+        return {"status": "skipped", "reason": "Telegram not configured"}
+    
+    bot = get_telegram()
+    
+    if not bot.is_configured:
+        return {"status": "skipped", "reason": "Telegram not configured"}
+    
+    # Send in background
+    def send_msg():
+        bot.send_message(payload.message, chat_id=payload.chat_id)
+    
+    background_tasks.add_task(send_msg)
+    
+    return {"status": "queued", "message": payload.message}
+
+
+@router.get("/telegram/status")
+def telegram_status(
+    current_user: UserPublic = Depends(require_roles("ADMIN")),
+) -> Dict[str, Any]:
+    """Get Telegram bot status"""
+    if not DETECTION_AVAILABLE:
+        return {"configured": False, "error": "Detection modules not available"}
+    
+    bot = get_telegram()
+    
+    return {
+        "configured": bot.is_configured,
+        "enabled": settings.telegram.enabled,
+        "stats": bot.stats,
+    }
+
+
+@router.post("/telegram/test")
+def telegram_test(
+    current_user: UserPublic = Depends(require_roles("ADMIN")),
+) -> Dict[str, Any]:
+    """Send a test message to Telegram"""
+    if not DETECTION_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Detection modules not available")
+    
+    bot = get_telegram()
+    
+    if not bot.is_configured:
+        raise HTTPException(status_code=400, detail="Telegram not configured")
+    
+    result = bot.test_connection()
+    
+    if result.get("ok"):
+        bot.send_message("🧪 *Test Alert*\n\nCivic AI Shield is working correctly!")
+        return {"status": "success", "bot_info": result.get("result")}
+    else:
+        return {"status": "failed", "error": result.get("error")}
+
+
+@router.post("/telegram/configure")
+def configure_telegram(
+    payload: TelegramConfigRequest,
+    current_user: UserPublic = Depends(require_roles("ADMIN")),
+) -> Dict[str, Any]:
+    """Configure Telegram bot"""
+    global _telegram_bot, _alert_manager
+    
+    if not DETECTION_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Detection modules not available")
+    
+    # Create new bot with provided credentials
+    _telegram_bot = TelegramBot(
+        bot_token=payload.bot_token,
+        default_chat_id=payload.chat_id,
+    )
+    
+    # Update settings
+    settings.telegram.enabled = payload.enabled
+    
+    # Test connection
+    result = _telegram_bot.test_connection()
+    
+    if result.get("ok"):
+        # Recreate alert manager with new bot
+        if _alert_manager:
+            _alert_manager.stop()
+        _alert_manager = AlertManager(telegram_bot=_telegram_bot)
+        _alert_manager.start()
+        
+        return {"status": "configured", "bot_info": result.get("result")}
+    else:
+        return {"status": "failed", "error": result.get("error")}
+
+
+# ============== Detection Config Endpoints ==============
+
+@router.get("/detection/config")
+def get_detection_config(
+    current_user: UserPublic = Depends(require_roles("ADMIN")),
+) -> Dict[str, Any]:
+    """Get detection configuration"""
+    return {
+        "thresholds": settings.detection.confidence_thresholds,
+        "default_threshold": settings.detection.default_threshold,
+        "use_gpu": settings.detection.use_gpu,
+        "decision_engine": {
+            "min_consecutive_frames": settings.decision.min_consecutive_frames,
+            "alert_cooldown": settings.decision.alert_cooldown,
+            "detection_window": settings.decision.detection_window,
+        },
+    }
+
+
+@router.get("/detection/classes")
+def get_detection_classes(
+    current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR", "VIEWER")),
+) -> Dict[str, Any]:
+    """Get supported detection classes"""
+    return {
+        "classes": [c.value for c in ThreatClass],
+        "thresholds": settings.detection.confidence_thresholds,
+    }
