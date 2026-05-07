@@ -315,6 +315,25 @@ def live_frame(
         # Run detection
         result = detector.detect(frame)
         
+        # Process detections
+        if payload.privacy_mode and result.detections:
+            for det in result.detections:
+                # In a real system, we'd use a face detector here.
+                # For this implementation, we blur the upper 30% of any 'person' detection
+                # or the whole box for threat classes to ensure privacy.
+                x1, y1, x2, y2 = det.bbox
+                h, w = frame.shape[:2]
+                
+                # Ensure coordinates are within frame
+                x1, y1 = max(0, int(x1)), max(0, int(y1))
+                x2, y2 = min(w, int(x2)), min(h, int(y2))
+                
+                if x2 > x1 and y2 > y1:
+                    # Apply heavy blur to the area
+                    roi = frame[y1:y2, x1:x2]
+                    blurred_roi = cv2.GaussianBlur(roi, (51, 51), 0)
+                    frame[y1:y2, x1:x2] = blurred_roi
+
         # Process through decision engine
         decision = get_decision_engine()
         alerts = decision.process_detections(
