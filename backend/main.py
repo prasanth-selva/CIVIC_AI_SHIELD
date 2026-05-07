@@ -5,8 +5,14 @@ Real-time AI Threat Detection for Women Safety
 
 import logging
 import sys
-from contextlib import asynccontextmanager
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
+
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles

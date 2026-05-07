@@ -8,6 +8,10 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 
 class ThreatClass(str, Enum):
