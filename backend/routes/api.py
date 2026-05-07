@@ -645,31 +645,62 @@ def configure_telegram(
         return {"status": "failed", "error": result.get("error")}
 
 
-# ============== Detection Config Endpoints ==============
+# ============== Training Endpoints ==============
 
-@router.get("/detection/config")
-def get_detection_config(
+@router.post("/training/start")
+async def start_training(
+    background_tasks: BackgroundTasks,
+    api_key: Optional[str] = None,
+    version: int = 1,
     current_user: UserPublic = Depends(require_roles("ADMIN")),
 ) -> Dict[str, Any]:
-    """Get detection configuration"""
-    return {
-        "thresholds": settings.detection.confidence_thresholds,
-        "default_threshold": settings.detection.default_threshold,
-        "use_gpu": settings.detection.use_gpu,
-        "decision_engine": {
-            "min_consecutive_frames": settings.decision.min_consecutive_frames,
-            "alert_cooldown": settings.decision.alert_cooldown,
-            "detection_window": settings.decision.detection_window,
-        },
+    """Start model training pipeline (Roboflow)"""
+    if not DETECTION_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Detection modules not available")
+    
+    from ..training.train import train_from_roboflow
+    
+    api_key = api_key or settings.training.roboflow_api_key
+    if not api_key:
+        raise HTTPException(status_code=400, detail="Roboflow API key not configured")
+    
+    # Store status globally (mock for now)
+    global _training_status
+    _training_status = {
+        "status": "starting",
+        "start_time": _utc_now_iso(),
+        "version": version,
     }
+    
+    def run_training():
+        global _training_status
+        try:
+            _training_status["status"] = "in_progress"
+            best_model = train_from_roboflow(
+                api_key=api_key,
+                workspace=settings.training.roboflow_workspace,
+                project=settings.training.roboflow_project,
+                version=version,
+            )
+            if best_model:
+                _training_status["status"] = "completed"
+                _training_status["best_model"] = str(best_model)
+            else:
+                _training_status["status"] = "failed"
+        except Exception as e:
+            _training_status["status"] = "failed"
+            _training_status["error"] = str(e)
+
+    background_tasks.add_task(run_training)
+    
+    return {"status": "accepted", "message": "Training started in background"}
 
 
-@router.get("/detection/classes")
-def get_detection_classes(
-    current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR", "VIEWER")),
+_training_status = {"status": "idle"}
+
+@router.get("/training/status")
+def get_training_status(
+    current_user: UserPublic = Depends(require_roles("ADMIN")),
 ) -> Dict[str, Any]:
-    """Get supported detection classes"""
-    return {
-        "classes": [c.value for c in ThreatClass],
-        "thresholds": settings.detection.confidence_thresholds,
-    }
+    """Get current training status"""
+    return _training_status
