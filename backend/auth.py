@@ -68,6 +68,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    import logging
+    logger = logging.getLogger("civic-ai-shield")
     # Simple mock verification for demo purposes
     try:
         from passlib.context import CryptContext
@@ -80,19 +82,27 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
             "Operator123": "$2b$12$VQq8xEsZe8qAqEbBZgKLkOuNZ5.RQJqFLBcLnX7sQEzVYMJ9YW/zq",
             "Viewer123": "$2b$12$kBz5Z8z7YqK5KpZ8F5Z5ZeZ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zu",
         }
-        return password_map.get(plain_password) == hashed_password
+        match = password_map.get(plain_password) == hashed_password
+        logger.info(f"Fallback password check for '{plain_password}': {'SUCCESS' if match else 'FAILED'}")
+        return match
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def authenticate_user(email: str, password: str) -> Optional[UserInDB]:
+    logger = logging.getLogger("civic-ai-shield")
+    logger.info(f"Authenticating user: {email}")
     user = MOCK_USERS.get(email.lower())
     if not user:
+        logger.warning(f"User not found: {email}")
         return None
     if not verify_password(password, user.hashed_password):
+        logger.warning(f"Invalid password for: {email}")
         return None
     if user.disabled:
+        logger.warning(f"User disabled: {email}")
         return None
+    logger.info(f"User authenticated successfully: {email}")
     return user
 
 
