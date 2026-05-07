@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CameraFeed } from "../components/ui/CameraFeed";
+import { CameraStream } from "../components/ui/CameraStream";
 import { SeverityBadge } from "../components/ui/SeverityBadge";
 import { AlertTriangle, Clock, MapPin, Zap } from "lucide-react";
 
@@ -45,7 +45,7 @@ export default function LiveDetection() {
 
       <motion.div variants={itemVariants}>
         <h2 className="text-xl font-bold text-white mb-4">Live Camera Feed: Area 01</h2>
-        <CameraFeed threat="Violence Detected" confidence={85} location="Warehouse A - Section 2" />
+        <CameraStream />
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
