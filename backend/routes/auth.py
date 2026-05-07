@@ -11,7 +11,7 @@ class LoginRequest(BaseModel):
     password: str
 
 
-@router.post("/auth/login", response_model=Token)
+@router.post("/login", response_model=Token)
 def login(payload: LoginRequest) -> Token:
     user = authenticate_user(payload.email, payload.password)
     if not user:
@@ -24,6 +24,6 @@ def login(payload: LoginRequest) -> Token:
     return Token(access_token=access_token, token_type="bearer")
 
 
-@router.get("/auth/me", response_model=UserPublic)
+@router.get("/me", response_model=UserPublic)
 def me(current_user: UserPublic = Depends(get_current_user)) -> UserPublic:
     return current_user
