@@ -111,33 +111,76 @@ export default function Settings() {
             animate={{ opacity: 1, x: 0 }}
             className="bg-gradient-to-br from-black/40 to-black/20 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-2xl hover:border-cyan-500/40 transition"
           >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-start gap-4 flex-1">
-                <Icon className="text-cyan-400 flex-shrink-0 mt-1" size={24} />
-                <div>
-                  <p className="font-bold text-white text-lg">{title}</p>
-                  <p className="text-gray-400 text-sm mt-1">{desc}</p>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4 flex-1">
+                  <Icon className="text-cyan-400 flex-shrink-0 mt-1" size={24} />
+                  <div>
+                    <p className="font-bold text-white text-lg">{title}</p>
+                    <p className="text-gray-400 text-sm mt-1">{desc}</p>
+                  </div>
                 </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  onClick={() => handleToggle(key as keyof typeof settings)}
+                  className={`flex-shrink-0 relative w-14 h-8 rounded-full transition ${
+                    settings[key as keyof typeof settings] ? "bg-cyan-500/40 border-cyan-500/60" : "bg-gray-700/40 border-gray-600/60"
+                  } border`}
+                >
+                  <motion.div
+                    animate={{
+                      x: settings[key as keyof typeof settings] ? 28 : 4,
+                    }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
+                  />
+                </motion.button>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                onClick={() => handleToggle(key as keyof typeof settings)}
-                className={`flex-shrink-0 relative w-14 h-8 rounded-full transition ${
-                  settings[key as keyof typeof settings] ? "bg-cyan-500/40 border-cyan-500/60" : "bg-gray-700/40 border-gray-600/60"
-                } border`}
-              >
-                <motion.div
-                  animate={{
-                    x: settings[key as keyof typeof settings] ? 28 : 4,
-                  }}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                />
-              </motion.button>
+
+              {key === 'telegram' && settings.telegram && (
+                <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    className="space-y-4 pt-4 border-t border-white/5"
+                >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Bot Token</label>
+                            <input 
+                                type="password" 
+                                value={settings.telegramToken}
+                                onChange={(e) => setSettings({...settings, telegramToken: e.target.value})}
+                                placeholder="123456789:ABCDEF..." 
+                                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-sm text-white focus:border-cyan-500/50 outline-none"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Chat ID</label>
+                            <input 
+                                type="text" 
+                                value={settings.telegramChatId}
+                                onChange={(e) => setSettings({...settings, telegramChatId: e.target.value})}
+                                placeholder="-100123456789" 
+                                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-sm text-white focus:border-cyan-500/50 outline-none"
+                            />
+                        </div>
+                    </div>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         ))}
       </motion.div>
+
+      {saveStatus && (
+        <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`p-4 rounded-xl border ${saveStatus === 'success' ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}
+        >
+            {saveStatus === 'success' ? 'Settings saved successfully!' : 'Error saving settings. Please check your credentials.'}
+        </motion.div>
+      )}
 
       <motion.div variants={itemVariants} className="space-y-6">
         <h2 className="text-2xl font-bold text-white">Detection Settings</h2>
