@@ -24,7 +24,42 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { API_BASE } from "../config";
+
 export default function Dashboard() {
+  const { token } = useAuth();
+  const [stats, setStats] = useState({
+    total_cameras: "847",
+    active_streams: "124",
+    alerts_today: "37",
+    system_health: "98.7%",
+    trends: {
+        cameras: "up",
+        streams: "stable",
+        alerts: "down",
+        health: "up"
+    }
+  });
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const response = await fetch(`${API_BASE}/api/dashboard/stats`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard stats:", err);
+      }
+    }
+    if (token) fetchStats();
+  }, [token]);
+
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-8">
       <motion.div variants={itemVariants}>
@@ -33,10 +68,10 @@ export default function Dashboard() {
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Cameras" value="847" icon={<Camera size={24} />} trend="up" trendValue="+12 this month" />
-        <StatCard title="Active Streams" value="124" icon={<Wifi size={24} />} trend="stable" trendValue="98.7% uptime" />
-        <StatCard title="Alerts Today" value="37" icon={<AlertTriangle size={24} />} trend="down" trendValue="-23% vs yesterday" />
-        <StatCard title="System Health" value="98.7%" icon={<Activity size={24} />} trend="up" trendValue="All systems nominal" />
+        <StatCard title="Total Cameras" value={stats.total_cameras} icon={<Camera size={24} />} trend={stats.trends.cameras as any} trendValue="+12 this month" />
+        <StatCard title="Active Streams" value={stats.active_streams} icon={<Wifi size={24} />} trend={stats.trends.streams as any} trendValue="98.7% uptime" />
+        <StatCard title="Alerts Today" value={stats.alerts_today} icon={<AlertTriangle size={24} />} trend={stats.trends.alerts as any} trendValue="-23% vs yesterday" />
+        <StatCard title="System Health" value={stats.system_health} icon={<Activity size={24} />} trend={stats.trends.health as any} trendValue="All systems nominal" />
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">

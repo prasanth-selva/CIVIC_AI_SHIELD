@@ -15,19 +15,57 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { API_BASE } from "../config";
+
 export default function Settings() {
+  const { token } = useAuth();
   const [settings, setSettings] = useState({
     telegram: true,
+    telegramToken: "",
+    telegramChatId: "",
     email: true,
     sms: false,
     pushNotifications: true,
     soundAlerts: true,
     confidenceThreshold: 75,
   });
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<null | 'success' | 'error'>(null);
 
   const handleToggle = (key: keyof typeof settings) => {
     if (typeof settings[key] === "boolean") {
       setSettings({ ...settings, [key]: !settings[key] });
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveStatus(null);
+    try {
+      const response = await fetch(`${API_BASE}/api/telegram/configure`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            bot_token: settings.telegramToken,
+            chat_id: settings.telegramChatId,
+            enabled: settings.telegram
+        })
+      });
+
+      if (response.ok) {
+        setSaveStatus('success');
+      } else {
+        setSaveStatus('error');
+      }
+    } catch (err) {
+      setSaveStatus('error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
