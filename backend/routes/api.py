@@ -11,7 +11,7 @@ import cv2
 import base64
 import numpy as np
 from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, BackgroundTasks
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 import logging
 
@@ -23,6 +23,7 @@ try:
     from ..inference import ThreatDetector, DecisionEngine, Detection
     from ..telegram_alert import TelegramBot, AlertManager
     from ..utils import get_incident_logger, get_system_monitor
+    from ..utils.report_generator import get_report_generator
     DETECTION_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"Detection modules not fully available: {e}")
@@ -563,6 +564,45 @@ def update_alert(
     alert["updated_at"] = _utc_now_iso()
     
     return {"status": "updated", "alert": alert}
+
+
+@router.get("/alerts/{alert_id}/report")
+def generate_report(
+    alert_id: str,
+    current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
+):
+    """Generate a court-ready PDF report for an alert"""
+    if not DETECTION_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Detection modules not available")
+    
+    # 1. Get alert data
+    alert = MOCK_ALERTS.get(alert_id)
+    if not alert:
+        # Try to get from real logger
+        try:
+            logger_inst = get_incident_logger()
+            # Find the specific incident (mocked for now in this example if not found)
+            incidents = logger_inst.get_incidents(limit=100)
+            alert = next((a for a in incidents if str(a.get('id')) == alert_id), None)
+        except:
+            pass
+            
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alert not found")
+    
+    # 2. Generate PDF
+    try:
+        gen = get_report_generator()
+        report_path = gen.generate_incident_report(alert)
+        
+        return FileResponse(
+            path=report_path,
+            filename=f"Incident_Report_{alert_id}.pdf",
+            media_type="application/pdf"
+        )
+    except Exception as e:
+        logger.error(f"Report generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate report: {str(e)}")
 
 
 # ============== Telegram Endpoints ==============

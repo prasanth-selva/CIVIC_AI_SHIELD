@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Bell, Mail, MessageSquare, Zap, Volume2, Lock } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { API_BASE } from "../config";
 
 const pageVariants = {
   hidden: { opacity: 0 },
@@ -14,10 +16,6 @@ const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
-
-import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { API_BASE } from "../config";
 
 export default function Settings() {
   const { token } = useAuth();

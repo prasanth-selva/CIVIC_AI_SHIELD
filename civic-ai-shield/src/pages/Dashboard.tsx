@@ -3,8 +3,9 @@ import { StatCard } from "../components/ui/StatCard";
 import { CameraFeed } from "../components/ui/CameraFeed";
 import { SeverityBadge } from "../components/ui/SeverityBadge";
 import { AIConfidenceChart } from "../components/ui/AIConfidenceChart";
-import { Camera, AlertTriangle, Activity, Wifi, Globe } from "lucide-react";
+import { Camera, AlertTriangle, Activity, Wifi, Globe, Map } from "lucide-react";
 import Globe3D from "../components/Globe3D";
+import { PredictiveHeatmap } from "../components/ui/PredictiveHeatmap";
 
 const mockAlerts = [
   { id: 1, threat: "Fight Detected", location: "Main Entrance", time: "2 min ago", severity: "high" as const },
@@ -78,35 +79,44 @@ export default function Dashboard() {
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <div>
-            <h2 className="text-xl font-bold text-white mb-4">Live Threat Detection</h2>
-            <CameraFeed threat="Violence Detected" confidence={94} location="Warehouse A - Section 2" />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-br from-black/40 to-black/20 border border-cyan-500/20 rounded-2xl p-6 backdrop-blur-2xl relative overflow-hidden h-[400px]">
-                <div className="absolute top-6 left-6 z-10">
-                    <h3 className="text-lg font-bold text-white">Global Threat Intelligence</h3>
-                    <p className="text-gray-400 text-xs">Real-time node status & anomaly distribution</p>
-                </div>
-                <div className="absolute inset-0 pt-12">
-                    <Globe3D />
-                </div>
-                <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end z-10 pointer-events-none">
-                    <div className="space-y-1">
-                        <p className="text-cyan-400 font-mono text-xs">SCANNING_PROTOCOL: ACTIVE</p>
-                        <p className="text-white/40 font-mono text-[10px]">COORDINATES: 28.6139° N, 77.2090° E</p>
+            <h2 className="text-xl font-bold text-white mb-4">Tactical Intelligence</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gradient-to-br from-black/40 to-black/20 border border-cyan-500/20 rounded-3xl p-6 backdrop-blur-2xl relative overflow-hidden h-[450px]">
+                    <div className="absolute top-6 left-6 z-10">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <Globe size={18} className="text-cyan-400" />
+                            Global Node Status
+                        </h3>
+                        <p className="text-gray-400 text-xs">Real-time anomaly distribution</p>
                     </div>
-                    <div className="text-right">
-                        <div className="flex gap-2 justify-end mb-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    <div className="absolute inset-0 pt-12">
+                        <Globe3D />
+                    </div>
+                    <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end z-10 pointer-events-none">
+                        <div className="space-y-1">
+                            <p className="text-cyan-400 font-mono text-xs">SCANNING_PROTOCOL: ACTIVE</p>
+                            <p className="text-white/40 font-mono text-[10px]">COORDINATES: 28.6139° N, 77.2090° E</p>
                         </div>
-                        <p className="text-red-400 font-bold text-xs">3 ACTIVE THREATS</p>
+                        <div className="text-right">
+                            <div className="flex gap-2 justify-end mb-1">
+                                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                            </div>
+                            <p className="text-red-400 font-bold text-xs uppercase">3 Active Nodes</p>
+                        </div>
                     </div>
                 </div>
+
+                <PredictiveHeatmap />
             </div>
-            <AIConfidenceChart />
           </div>
+
+          <div>
+             <h2 className="text-xl font-bold text-white mb-4">Live Threat Stream</h2>
+             <CameraFeed threat="Violence Detected" confidence={94} location="Warehouse A - Section 2" />
+          </div>
+
+          <AIConfidenceChart />
         </div>
 
         <motion.div

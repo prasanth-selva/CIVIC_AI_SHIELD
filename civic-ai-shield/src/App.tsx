@@ -7,6 +7,7 @@ import Alerts from "./pages/Alerts";
 import SystemHealth from "./pages/SystemHealth";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
+import SubjectTracking from "./pages/SubjectTracking";
 import { useAuth } from "./context/AuthContext";
 
 export default function App() {
@@ -15,8 +16,8 @@ export default function App() {
 
   const allowedPages = useMemo(() => {
     if (!user) return ["dashboard"];
-    if (user.role === "ADMIN") return ["dashboard", "live", "analysis", "alerts", "health", "settings"];
-    if (user.role === "OPERATOR") return ["dashboard", "live"];
+    if (user.role === "ADMIN") return ["dashboard", "live", "tracking", "analysis", "alerts", "health", "settings"];
+    if (user.role === "OPERATOR") return ["dashboard", "live", "tracking"];
     return ["dashboard"];
   }, [user]);
 
@@ -47,6 +48,7 @@ export default function App() {
       {{
         dashboard: <Dashboard />,
         live: <LiveDetection />,
+        tracking: <SubjectTracking />,
         analysis: <VideoAnalysis />,
         alerts: <Alerts />,
         health: <SystemHealth />,

@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { LayoutDashboard, Video, Film, Bell, HeartPulse, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Video, Film, Bell, HeartPulse, Settings, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "live", label: "Live Detection", icon: Video },
+  { key: "tracking", label: "Subject Tracking", icon: User },
   { key: "analysis", label: "Video Analysis", icon: Film },
   { key: "alerts", label: "Alerts & History", icon: Bell },
   { key: "health", label: "System Health", icon: HeartPulse },
@@ -13,8 +14,8 @@ const navItems = [
 ];
 
 const roleAccess: Record<"ADMIN" | "OPERATOR" | "VIEWER", string[]> = {
-  ADMIN: ["dashboard", "live", "analysis", "alerts", "health", "settings"],
-  OPERATOR: ["dashboard", "live"],
+  ADMIN: ["dashboard", "live", "tracking", "analysis", "alerts", "health", "settings"],
+  OPERATOR: ["dashboard", "live", "tracking"],
   VIEWER: ["dashboard"],
 };
 

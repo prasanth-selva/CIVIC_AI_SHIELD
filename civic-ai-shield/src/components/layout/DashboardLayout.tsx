@@ -2,6 +2,7 @@ import TopNav from "./TopNav";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import { AlertNotificationPopup } from "../ui/AlertNotificationPopup";
+import { VoiceAssistant } from "../ui/VoiceAssistant";
 import { motion } from "framer-motion";
 
 export default function DashboardLayout({
@@ -27,6 +28,7 @@ export default function DashboardLayout({
       </motion.main>
       <Footer />
       <AlertNotificationPopup />
+      <VoiceAssistant onCommand={setPage} />
     </div>
   );
 }

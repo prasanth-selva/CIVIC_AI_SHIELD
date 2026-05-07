@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { SeverityBadge } from "../components/ui/SeverityBadge";
-import { AlertTriangle, Clock, MapPin, ChevronRight } from "lucide-react";
+import { AlertTriangle, Clock, MapPin, ChevronRight, FileText } from "lucide-react";
 import { useState } from "react";
+import { API_BASE } from "../config";
+import { useAuth } from "../context/AuthContext";
 
 const mockAlerts = [
   { id: 1, type: "Fight Detected", location: "Main Lobby Camera 1", time: "2024-01-29 18:30:15", severity: "high" as const, responded: true },
@@ -26,8 +28,33 @@ const itemVariants = {
 };
 
 export default function Alerts() {
+  const { token } = useAuth();
   const [filter, setFilter] = useState("all");
   const [selectedAlert, setSelectedAlert] = useState<number | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const downloadReport = async (alertId: number) => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/alerts/${alertId}/report`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Incident_Report_${alertId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+    } catch (err) {
+      console.error("Failed to generate report:", err);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const filteredAlerts = mockAlerts.filter((a) => {
     if (filter === "high") return a.severity === "high";
@@ -176,12 +203,25 @@ export default function Alerts() {
               </div>
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="w-full mt-6 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition"
-            >
-              View Full Details & Footage
-            </motion.button>
+            <div className="flex gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="flex-1 mt-6 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition"
+              >
+                View Full Details & Footage
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                disabled={isGenerating}
+                onClick={() => selectedAlert && downloadReport(selectedAlert)}
+                className="mt-6 px-6 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl flex items-center gap-2 hover:bg-white/10 transition disabled:opacity-50"
+              >
+                <FileText size={18} className={isGenerating ? "animate-spin" : ""} />
+                {isGenerating ? "Generating..." : "Generate Legal Report"}
+              </motion.button>
+            </div>
           </div>
         </motion.div>
       )}
