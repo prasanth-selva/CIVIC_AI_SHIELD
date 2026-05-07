@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Shield, ChevronRight, Zap, Eye, Bell } from "lucide-react";
+import { Shield, ChevronRight, Zap, Eye, Bell, Globe, Lock, ShieldCheck } from "lucide-react";
+import Shield3D from "../components/Shield3D";
 
 export default function Landing({ onEnter }: { onEnter: () => void }) {
   const containerVariants = {
