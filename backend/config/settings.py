@@ -143,6 +143,7 @@ class LoggingConfig:
     """Logging and incident storage configuration"""
     # Database
     db_path: Path = Path(__file__).parent.parent / "logs" / "incidents.db"
+    db_url: str = os.getenv("DATABASE_URL", f"sqlite:///{db_path}")
     
     # JSON logging
     json_log_path: Path = Path(__file__).parent.parent / "logs" / "alerts.json"
