@@ -2,9 +2,9 @@
 
 ## 🎯 Project Overview
 
-**Civic AI Shield** is a complete end-to-end demonstration of an AI-powered public safety surveillance system that uses computer vision to detect anomalies and crimes in real-time video feeds.
+**Civic AI Shield** is a production-grade AI-powered public safety surveillance system that uses real-time computer vision to detect anomalies and threats in video feeds.
 
-This project simulates a professional government-grade monitoring dashboard WITHOUT requiring real ML model training or backend infrastructure - making it perfect for hackathons, academic presentations, and technology demonstrations.
+This system features a high-performance **FastAPI** backend integrated with **YOLOv8** for real-time inference, and a premium **React (Vite)** dashboard for centralized monitoring and alert management.
 
 ---
 
