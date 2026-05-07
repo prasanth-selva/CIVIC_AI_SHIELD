@@ -135,6 +135,7 @@ class LiveFrameRequest(BaseModel):
     frame_b64: str
     camera_id: str = "cam-001"
     camera_name: str = "Camera 1"
+    privacy_mode: bool = False
 
 
 class AlertRequest(BaseModel):
