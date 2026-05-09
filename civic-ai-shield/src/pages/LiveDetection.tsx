@@ -1,139 +1,107 @@
 import { motion } from "framer-motion";
 import { CameraStream } from "../components/ui/CameraStream";
-import { SeverityBadge } from "../components/ui/SeverityBadge";
-import { AlertTriangle, Clock, MapPin, Zap } from "lucide-react";
-
-const pageVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
+import { Shield, Activity, Crosshair, Target, History, Zap } from "lucide-react";
 
 export default function LiveDetection() {
-  return (
-    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-8">
-      <motion.div variants={itemVariants}>
-        <h1 className="text-4xl font-bold text-white mb-2">Live Detection</h1>
-        <p className="text-gray-400">Real-time AI monitoring and instant threat detection</p>
-      </motion.div>
+  const pageVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+    },
+  };
 
-      <motion.div
-        variants={itemVariants}
-        className="relative bg-gradient-to-r from-red-500/20 to-red-600/10 border border-red-500/30 rounded-2xl p-6 backdrop-blur-xl overflow-hidden"
-      >
-        <div className="absolute inset-0 animate-pulse bg-red-500/5" />
-        <motion.div
-          animate={{ x: ["-100%", "100%"] }}
-          transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/20 to-transparent"
-        />
-        <div className="relative flex items-start gap-4">
-          <AlertTriangle className="text-red-400 flex-shrink-0 mt-1" size={24} />
-          <div>
-            <p className="font-bold text-red-300 text-lg">High Severity Alert</p>
-            <p className="text-red-200/80 mt-1">Violence detected in Area 01. Immediate law enforcement dispatch recommended.</p>
-          </div>
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+  };
+
+  return (
+    <motion.div
+      variants={pageVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-10 font-inter"
+    >
+      <motion.div variants={itemVariants} className="flex justify-between items-end">
+        <div>
+          <p className="text-red-600 font-black text-[10px] uppercase tracking-[0.4em] mb-2">Live Tactical Feed</p>
+          <h1 className="text-5xl font-black text-white tracking-tighter italic uppercase">Inference_Engine_01</h1>
+        </div>
+        <div className="flex gap-4">
+           <div className="px-4 py-2 glass-panel border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+              <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
+              Neural Link: Active
+           </div>
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants}>
-        <h2 className="text-xl font-bold text-white mb-4">Live Camera Feed: Area 01</h2>
-        <CameraStream />
-      </motion.div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <motion.div variants={itemVariants} className="lg:col-span-3 space-y-8">
+           <div className="relative group">
+              <CameraStream />
+              <div className="absolute top-4 left-4 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                 <div className="px-3 py-1 bg-red-600 text-white text-[8px] font-black uppercase tracking-widest italic">
+                    Live_Inference_Stream
+                 </div>
+              </div>
+           </div>
 
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gradient-to-br from-black/40 to-black/20 border border-cyan-500/20 rounded-2xl p-8 backdrop-blur-2xl"
-        >
-          <h3 className="text-xl font-bold text-white mb-6">Detected Threat Analysis</h3>
-          <div className="space-y-5">
-            <div>
-              <p className="text-gray-400 text-sm font-medium mb-2">Threat Type</p>
-              <p className="text-2xl font-bold text-white">Fight Detected</p>
-              <div className="mt-2 flex items-center gap-2">
-                <Zap className="text-red-400" size={16} />
-                <span className="text-sm text-red-300">Urgent response required</span>
-              </div>
-            </div>
-            <div>
-              <p className="text-gray-400 text-sm font-medium mb-2">Confidence Level</p>
-              <div className="flex items-center gap-3">
-                <p className="text-2xl font-bold text-cyan-400">85%</p>
-                <div className="flex-1 h-2 bg-black/60 rounded-full overflow-hidden border border-cyan-500/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: "85%" }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
-                  />
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { label: "GPU Utilization", val: "78.4%", icon: Activity },
+                { label: "Stream Latency", val: "14ms", icon: Crosshair },
+                { label: "Target Density", val: "MODERATE", icon: Target }
+              ].map(stat => (
+                <div key={stat.label} className="glass-panel-heavy p-6 border-l-2 border-red-950 hover:border-red-600 transition-all group">
+                   <div className="flex items-center gap-4 mb-4">
+                      <stat.icon size={18} className="text-red-600 group-hover:text-glow-red transition-all" />
+                      <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">{stat.label}</p>
+                   </div>
+                   <p className="text-3xl font-black text-white italic tracking-tighter">{stat.val}</p>
                 </div>
-              </div>
-            </div>
-            <div>
-              <p className="text-gray-400 text-sm font-medium mb-2">Severity Assessment</p>
-              <SeverityBadge level="high" animated />
-            </div>
-          </div>
+              ))}
+           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gradient-to-br from-black/40 to-black/20 border border-cyan-500/20 rounded-2xl p-8 backdrop-blur-2xl"
-        >
-          <h3 className="text-xl font-bold text-white mb-6">Camera Status</h3>
-          <div className="space-y-5">
-            <div>
-              <p className="text-gray-400 text-sm font-medium mb-2">Connection Status</p>
-              <div className="flex items-center gap-3">
-                <motion.div
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                  className="w-3 h-3 bg-green-400 rounded-full"
-                />
-                <p className="text-lg font-semibold text-green-400">Online & Streaming</p>
-              </div>
-            </div>
-            <div>
-              <p className="text-gray-400 text-sm font-medium mb-2">Location</p>
-              <div className="flex items-start gap-2">
-                <MapPin className="text-cyan-400 flex-shrink-0 mt-1" size={18} />
-                <div>
-                  <p className="font-semibold text-white">Warehouse A - Section 2</p>
-                  <p className="text-sm text-gray-400">Zone: High-Traffic Area</p>
-                </div>
-              </div>
-            </div>
-            <div>
-              <p className="text-gray-400 text-sm font-medium mb-2">Stream Quality</p>
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-green-500/20 border border-green-500/50 text-green-300 text-sm font-semibold rounded-lg">
-                  4K Ultra HD
-                </span>
-                <span className="text-sm text-gray-400">30 FPS</span>
-              </div>
-            </div>
-            <div>
-              <p className="text-gray-400 text-sm font-medium mb-2">Detection Timestamp</p>
-              <div className="flex items-center gap-2">
-                <Clock className="text-gray-400" size={16} />
-                <p className="text-sm text-gray-300">Today, 3:45 PM</p>
-              </div>
-            </div>
+        <motion.div variants={itemVariants} className="space-y-8">
+          <div className="glass-panel-heavy p-8 border-l-2 border-red-600 h-full relative overflow-hidden">
+             <div className="radar-sweep opacity-5" />
+             <div className="flex items-center gap-4 mb-8">
+                <History size={18} className="text-red-600" />
+                <h2 className="text-sm font-black text-white uppercase tracking-widest">Inference_Log</h2>
+             </div>
+
+             <div className="space-y-6">
+                {[
+                  { time: "14:22:01", event: "ENTITY_DETECTED", detail: "PERSON_0x24", severity: "LOW" },
+                  { time: "14:21:45", event: "ANOMALY_TRIGGER", detail: "FAST_MOTION", severity: "MED" },
+                  { time: "14:21:12", event: "WEAPON_SCAN", detail: "CLEAR", severity: "SAFE" },
+                  { time: "14:20:55", event: "FACE_MATCH", detail: "UNKNOWN", severity: "WARN" },
+                ].map((log, i) => (
+                  <div key={i} className="space-y-2 border-b border-white/5 pb-4 last:border-0">
+                     <div className="flex justify-between items-center">
+                        <span className="text-[9px] font-mono text-red-500/50">{log.time}</span>
+                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-sm ${
+                           log.severity === 'SAFE' ? 'bg-green-500/10 text-green-500' :
+                           log.severity === 'LOW' ? 'bg-blue-500/10 text-blue-500' :
+                           log.severity === 'WARN' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500'
+                        }`}>{log.severity}</span>
+                     </div>
+                     <p className="text-[11px] font-black text-white uppercase tracking-widest">{log.event}</p>
+                     <p className="text-[9px] text-gray-600 font-mono italic">{log.detail}</p>
+                  </div>
+                ))}
+             </div>
+
+             <div className="mt-8">
+                <button className="w-full py-3 bg-red-950/20 border border-red-600/30 text-red-500 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
+                   Export Telemetry
+                </button>
+             </div>
           </div>
         </motion.div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
