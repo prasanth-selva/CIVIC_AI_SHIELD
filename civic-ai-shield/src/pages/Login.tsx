@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Shield, Lock, Mail } from "lucide-react";
+import { Shield, Lock, Terminal, Activity } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
@@ -25,88 +25,133 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0f1629] to-[#050812] text-white flex items-center justify-center p-6">
+    <div className="relative min-h-screen bg-black flex items-center justify-center p-6 font-inter overflow-hidden">
+      {/* Global Cinematic Overlays */}
+      <div className="ambient-red-glow" />
+      <div className="scanline-overlay" />
+      <div className="film-grain" />
+
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+        <div className="radar-sweep" />
+      </div>
+
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 shadow-2xl"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-md tilt-card glass-panel-heavy p-10 border-l-4 border-red-600 relative z-10 shadow-[0_0_100px_rgba(255,0,0,0.1)]"
       >
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center">
-            <Shield className="text-cyan-300" />
+        <div className="flex items-center gap-4 mb-10">
+          <div className="w-14 h-14 rounded-sm bg-red-950/40 border border-red-500/30 flex items-center justify-center glow-red">
+            <Shield className="text-red-500" size={28} />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">Secure Access</p>
-            <h1 className="text-2xl font-bold">Civic AI Shield</h1>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-red-500 font-black mb-1">Secure Terminal Access</p>
+            <h1 className="text-3xl font-black text-white italic tracking-tighter">CIVIC_AI_SHIELD</h1>
           </div>
         </div>
 
-        <p className="text-sm text-gray-400 mb-6">
-          Sign in with your operational credentials to access the command dashboard.
-        </p>
+        <div className="mb-8 space-y-2">
+          <div className="flex items-center gap-2 text-red-500/70">
+            <Terminal size={14} />
+            <p className="text-[10px] font-mono tracking-widest uppercase">Kernel Protocol: V4.2.0-STABLE</p>
+          </div>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Enter operational credentials to initialize the command console.
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="Email address"
-              className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-cyan-500/60"
-            />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-1">Operator ID</label>
+              <div className="relative group">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="ID_IDENTIFIER"
+                  className="w-full bg-black/60 border border-white/5 rounded-sm px-4 py-4 text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-red-600/50 transition-all font-mono"
+                />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20 group-focus-within:opacity-100 transition-opacity">
+                  <Activity size={14} className="text-red-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-1">Access Cipher</label>
+              <div className="relative">
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="********"
+                  className="w-full bg-black/60 border border-white/5 rounded-sm px-4 py-4 text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-red-600/50 transition-all font-mono"
+                />
+                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-white/10" size={14} />
+              </div>
+            </div>
           </div>
 
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Password"
-              className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-cyan-500/60"
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-sm text-gray-400">
-            <label className="flex items-center gap-2 cursor-pointer">
+          <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+            <label className="flex items-center gap-2 cursor-pointer text-gray-500 hover:text-white transition-colors">
               <input
                 type="checkbox"
                 checked={remember}
                 onChange={(event) => setRemember(event.target.checked)}
-                className="accent-cyan-400"
+                className="accent-red-600"
               />
-              Remember me
+              Stay Initialized
             </label>
-            <span className="text-cyan-300">Need access?</span>
+            <span className="text-red-600 cursor-pointer hover:text-red-400 transition-colors">Emergency Reset</span>
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/40 text-red-300 text-sm rounded-lg px-4 py-3">
-              {error}
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-red-500/10 border-l-2 border-red-500 text-red-400 text-[10px] font-black uppercase tracking-widest px-4 py-3"
+            >
+              Access Denied: {error}
+            </motion.div>
           )}
 
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             disabled={submitting}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold shadow-lg shadow-cyan-500/20 disabled:opacity-70"
+            className="w-full btn-cinematic disabled:opacity-50"
           >
-            {submitting ? "Authenticating..." : "Access Dashboard"}
+            {submitting ? (
+              <span className="flex items-center justify-center gap-3">
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                  className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full"
+                />
+                Authenticating...
+              </span>
+            ) : "Initialize Access"}
           </motion.button>
         </form>
 
-        <div className="mt-6 text-xs text-gray-500 space-y-1">
-          <p>Demo Accounts:</p>
-          <p>ADMIN — admin@civic.ai / Admin123</p>
-          <p>OPERATOR — operator@civic.ai / Operator123</p>
-          <p>VIEWER — viewer@civic.ai / Viewer123</p>
+        <div className="mt-10 pt-10 border-t border-white/5 text-[9px] text-gray-700 font-mono space-y-2 uppercase tracking-widest">
+          <p className="text-red-900/50 font-black">Authorized Personnel Only</p>
+          <div className="grid grid-cols-2 gap-4">
+             <p>Admin: admin@civic.ai</p>
+             <p>Pass: Admin123</p>
+          </div>
         </div>
       </motion.div>
+
+      {/* Footer Branding */}
+      <div className="absolute bottom-10 left-10 text-[9px] font-mono text-white/20 uppercase tracking-[0.5em] pointer-events-none">
+        CAIS_SECURE_KERNEL_NODE_IDENTIFIED
+      </div>
     </div>
   );
 }
