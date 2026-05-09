@@ -21,6 +21,13 @@ export default function DashboardLayout({
       <div className="scanline-overlay" />
       <div className="film-grain" />
       
+      {/* Point 7: Global Alert Pulse Effect */}
+      <motion.div 
+        animate={{ opacity: [0, 0.2, 0] }}
+        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+        className="fixed inset-0 bg-red-600 pointer-events-none z-[100] mix-blend-overlay"
+      />
+      
       <div className="grid grid-cols-[280px_1fr] grid-rows-[80px_1fr_60px] min-h-screen relative z-10">
         <TopNav role={role} />
         <Sidebar setPage={setPage} role={role} />
@@ -53,4 +60,3 @@ export default function DashboardLayout({
     </div>
   );
 }
-
