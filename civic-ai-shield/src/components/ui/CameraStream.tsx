@@ -147,7 +147,7 @@ export function CameraStream() {
             key={i}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute z-20"
+            className="absolute z-20 border-2 border-red-600 shadow-[0_0_15px_rgba(255,0,0,0.5)]"
             style={{
               left: `${x1}%`,
               top: `${y1}%`,
@@ -155,8 +155,21 @@ export function CameraStream() {
               height: `${height}%`,
             }}
           >
+            {/* Feature 4: Holographic Skeletal Projection Simulation */}
+            {det.label === 'person' && (
+              <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                 <svg className="w-full h-full" viewBox="0 0 100 100">
+                    <line x1="50" y1="20" x2="50" y2="50" stroke="white" strokeWidth="1" />
+                    <line x1="30" y1="35" x2="70" y2="35" stroke="white" strokeWidth="1" />
+                    <line x1="50" y1="50" x2="35" y2="80" stroke="white" strokeWidth="1" />
+                    <line x1="50" y1="50" x2="65" y2="80" stroke="white" strokeWidth="1" />
+                    <circle cx="50" cy="15" r="5" fill="white" />
+                 </svg>
+              </div>
+            )}
+
             {/* Tracking Brackets */}
-            <div className="absolute inset-0 border border-red-600/50">
+            <div className="absolute inset-0">
                <div className="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-red-500" />
                <div className="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-red-500" />
                <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 border-red-500" />

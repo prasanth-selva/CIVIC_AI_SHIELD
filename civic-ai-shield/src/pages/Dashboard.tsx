@@ -6,7 +6,10 @@ import { AIConfidenceChart } from "../components/ui/AIConfidenceChart";
 import { TacticalReplay } from "../components/ui/TacticalReplay";
 import { SystemIntelligence } from "../components/ui/SystemIntelligence";
 import { SubjectCard } from "../components/ui/SubjectCard";
-import { Camera, AlertTriangle, Activity, Wifi, Globe, Map, Target, Crosshair, Grid, Maximize2, LayoutGrid, ShieldCheck, Zap } from "lucide-react";
+import { TacticalCommandMap } from "../components/ui/TacticalCommandMap";
+import { IntelligenceEscalationPanel } from "../components/ui/IntelligenceEscalationPanel";
+import { TacticalTimeline } from "../components/ui/TacticalTimeline";
+import { Camera, AlertTriangle, Activity, Wifi, Globe, Map, Target, Crosshair, Grid, Maximize2, LayoutGrid, ShieldCheck, Zap, Brain, Clock } from "lucide-react";
 import Globe3D from "../components/Globe3D";
 import { PredictiveHeatmap } from "../components/ui/PredictiveHeatmap";
 import { useState, useEffect } from "react";
@@ -28,7 +31,7 @@ const itemVariants = {
 
 export default function Dashboard() {
   const { token } = useAuth();
-  const [activeView, setActiveView] = useState<"grid" | "focus" | "replay">("grid");
+  const [activeView, setActiveView] = useState<"grid" | "map" | "focus" | "replay">("grid");
   const [selectedCam, setSelectedCam] = useState("cam-001");
   const [stats, setStats] = useState({
     total_cameras: "847",
@@ -67,36 +70,36 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center gap-3 mb-2">
              <div className="w-10 h-0.5 bg-red-600" />
-             <p className="text-red-600 font-black text-[10px] uppercase tracking-[0.4em]">Strategic_Inference_Hub</p>
+             <p className="text-red-600 font-black text-[10px] uppercase tracking-[0.4em]">Autonomous_Strategic_Hub</p>
           </div>
-          <h1 className="text-6xl font-black text-white tracking-tighter italic uppercase leading-none">Command_Shield_Alpha</h1>
+          <h1 className="text-6xl font-black text-white tracking-tighter italic uppercase leading-none">Civic_Shield_Tactical_v4</h1>
         </div>
         <div className="text-right">
            <div className="flex items-center gap-4 justify-end mb-4">
               <div className="px-4 py-2 bg-red-950/20 border border-red-500/20 rounded-sm flex items-center gap-3">
                  <div className="w-2 h-2 bg-red-600 rounded-full animate-ping shadow-[0_0_10px_rgba(255,0,0,0.8)]" />
-                 <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Neural_Sync: High</span>
+                 <span className="text-[10px] font-black text-red-500 uppercase tracking-widest italic">AI_Logic: Autonomous</span>
               </div>
               <div className="px-4 py-2 bg-black/40 border border-white/5 rounded-sm flex items-center gap-3">
                  <ShieldCheck size={14} className="text-green-500" />
-                 <span className="text-[10px] font-black text-green-500 uppercase tracking-widest italic">Encrypted_Link_0x82</span>
+                 <span className="text-[10px] font-black text-green-500 uppercase tracking-widest italic">Encrypted_Strategic_Link</span>
               </div>
            </div>
-           <p className="text-gray-600 font-mono text-[10px] uppercase tracking-widest">Sector: Global_Strategic_Axis // 40.7128° N, 74.0060° W</p>
+           <p className="text-gray-600 font-mono text-[10px] uppercase tracking-widest">Global_Strategic_Grid // SEC_ALPHA_1.2</p>
         </div>
       </motion.div>
 
       {/* Top Metrics */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="Strategic Nodes" value={stats.total_cameras} icon={<Camera size={20} />} trend={stats.trends.cameras as any} trendValue="+12 active" />
-        <StatCard title="Neural Threads" value={stats.active_streams} icon={<Zap size={20} />} trend={stats.trends.streams as any} trendValue="98.7% uptime" />
+        <StatCard title="Neural Threads" value={stats.active_streams} icon={<Zap size={20} />} trend={stats.trends.streams as any} trendValue="98.7% sync" />
         <StatCard title="Active Threats" value={stats.alerts_today} icon={<AlertTriangle size={20} />} trend={stats.trends.alerts as any} trendValue="-23% risk" />
         <StatCard title="System Integrity" value={stats.system_health} icon={<Activity size={20} />} trend={stats.trends.health as any} trendValue="Nominal" />
       </motion.div>
 
       {/* Multi-Camera Orchestration & Replay */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2 space-y-6">
           <div className="hud-border p-0.5">
             <div className="corner-tl" /> <div className="corner-tr" /> <div className="corner-bl" /> <div className="corner-br" />
             <div className="bg-black/60 backdrop-blur-3xl border border-white/5 overflow-hidden rounded-sm min-h-[600px] flex flex-col">
@@ -108,18 +111,13 @@ export default function Dashboard() {
                             <span className="text-[10px] font-black text-white uppercase tracking-widest italic">Tactical_Orchestrator</span>
                         </div>
                         <div className="flex bg-white/5 rounded-sm p-1">
-                            <button 
-                                onClick={() => setActiveView("grid")}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest transition-all ${activeView === 'grid' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
-                            >Grid</button>
-                            <button 
-                                onClick={() => setActiveView("focus")}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest transition-all ${activeView === 'focus' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
-                            >Focus</button>
-                            <button 
-                                onClick={() => setActiveView("replay")}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest transition-all ${activeView === 'replay' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
-                            >Replay</button>
+                            {["grid", "map", "focus", "replay"].map((view) => (
+                                <button 
+                                    key={view}
+                                    onClick={() => setActiveView(view as any)}
+                                    className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest transition-all ${activeView === view ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                                >{view}</button>
+                            ))}
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -152,6 +150,17 @@ export default function Dashboard() {
                                         </div>
                                     </div>
                                 ))}
+                            </motion.div>
+                        )}
+                        {activeView === 'map' && (
+                            <motion.div 
+                                key="map"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="h-full"
+                            >
+                                <TacticalCommandMap />
                             </motion.div>
                         )}
                         {activeView === 'focus' && (
@@ -191,15 +200,28 @@ export default function Dashboard() {
         <div className="space-y-6">
             <motion.div
                 variants={itemVariants}
+                className="glass-panel-heavy p-0 border-l-2 border-red-600 relative overflow-hidden h-[500px]"
+            >
+                <IntelligenceEscalationPanel />
+            </motion.div>
+
+            <motion.div
+                variants={itemVariants}
+                className="glass-panel p-0 border-l-2 border-red-950 h-[450px]"
+            >
+                <TacticalTimeline />
+            </motion.div>
+
+            <motion.div
+                variants={itemVariants}
                 className="glass-panel-heavy p-8 border-l-2 border-red-600 relative overflow-hidden"
             >
                 <div className="radar-sweep opacity-5" />
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
-                    <Target size={18} className="text-red-600" />
-                    <h3 className="text-sm font-black text-white uppercase tracking-widest">Target_Intelligence</h3>
+                        <Target size={18} className="text-red-600" />
+                        <h3 className="text-sm font-black text-white uppercase tracking-widest">Active_Target_Intel</h3>
                     </div>
-                    <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse glow-red" />
                 </div>
                 
                 <div className="space-y-4">
@@ -211,37 +233,6 @@ export default function Dashboard() {
                         threatScore={82} 
                         status="alert" 
                     />
-                    <SubjectCard 
-                        id="S-0021-B" 
-                        label="VEHICLE_TRACKED" 
-                        confidence={0.88} 
-                        lastSeen="SEC_03_GATE" 
-                        threatScore={45} 
-                        status="tracking" 
-                    />
-                </div>
-
-                <div className="mt-8 p-4 bg-red-950/20 border border-red-900/30 rounded-sm">
-                    <div className="flex items-center gap-3 mb-2">
-                        <Activity size={12} className="text-red-500" />
-                        <p className="text-[9px] font-black text-red-500 uppercase tracking-widest">Active_Tracking_Queue</p>
-                    </div>
-                    <p className="text-[10px] text-gray-500 italic">4 potential threats identified in sectors Alpha through Gamma. Maintaining surveillance lock.</p>
-                </div>
-            </motion.div>
-
-            <motion.div
-                variants={itemVariants}
-                className="glass-panel p-8 border-l-2 border-red-950"
-            >
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <Map size={18} className="text-red-600" />
-                        <h3 className="text-sm font-black text-white uppercase tracking-widest">Strategic_Map</h3>
-                    </div>
-                </div>
-                <div className="h-[300px] relative rounded-sm overflow-hidden border border-white/5">
-                    <PredictiveHeatmap />
                 </div>
             </motion.div>
         </div>

@@ -9,6 +9,7 @@ from threading import Thread
 from dataclasses import dataclass, field
 from .detector import ThreatDetector, DetectionResult
 from .decision_engine import DecisionEngine, AlertEvent
+from .intel_engine import get_intel_engine, get_timeline_manager, IntelligenceReport
 from ..config import settings
 
 logger = logging.getLogger(__name__)
@@ -50,10 +51,13 @@ class AsyncInferencePipeline:
     """
     Military-grade asynchronous inference pipeline.
     Implements Point 4: GPU-optimized frame processing, async queue, frame buffering.
+    Enhanced with Autonomous Intelligence (Point 1, 2, 3).
     """
     def __init__(self, detector: ThreatDetector, decision_engine: DecisionEngine):
         self.detector = detector
         self.decision_engine = decision_engine
+        self.intel_engine = get_intel_engine()
+        self.timeline_manager = get_timeline_manager()
         self.input_queue = asyncio.Queue(maxsize=30)
         self.output_queue = asyncio.Queue(maxsize=100)
         self.frame_buffers: Dict[str, FrameBuffer] = {}
@@ -66,7 +70,8 @@ class AsyncInferencePipeline:
             "queue_depth": 0,
             "processed_frames": 0,
             "dropped_frames": 0,
-            "active_nodes": 0
+            "active_nodes": 0,
+            "last_intelligence": {}
         }
 
     async def start(self):
@@ -142,12 +147,38 @@ class AsyncInferencePipeline:
                     frame=frame if settings.telegram.send_image else None
                 )
 
+                # Feature 1 & 2: Autonomous Intelligence Analysis
+                intel_report = self.intel_engine.analyze_incident(camera_id, alerts, result)
+                if intel_report:
+                    self.stats["last_intelligence"][camera_id] = {
+                        "escalation": intel_report.escalation_risk,
+                        "probability": intel_report.incident_probability,
+                        "status": intel_report.status.value,
+                        "recommendation": {
+                            "action": intel_report.recommendation.action,
+                            "priority": intel_report.recommendation.priority,
+                            "reasoning": intel_report.recommendation.reasoning,
+                            "confidence": intel_report.recommendation.confidence
+                        }
+                    }
+
+                # Feature 3: Record Timeline Events
+                if alerts:
+                    for alert in alerts:
+                        self.timeline_manager.add_event(camera_id, "ALERT", alert.to_dict())
+                elif result.detections:
+                    self.timeline_manager.add_event(camera_id, "DETECTION", {
+                        "count": len(result.detections),
+                        "labels": [d.label for d in result.detections]
+                    })
+
                 # Put results in output queue for WebSocket or API
                 if not self.output_queue.full():
                     await self.output_queue.put({
                         "camera_id": camera_id,
                         "result": result.to_dict(),
                         "alerts": [a.to_dict() for a in alerts],
+                        "intelligence": self.stats["last_intelligence"].get(camera_id),
                         "timestamp": timestamp,
                         "latency": latency
                     })

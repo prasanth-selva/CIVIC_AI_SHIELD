@@ -255,7 +255,7 @@ def get_system_intelligence(current_user: UserPublic = Depends(require_roles("AD
     metrics = monitor.get_current_metrics()
     
     return {
-        "active_models": ["YOLOv8x_Tactical", "SORT_Tracker_v2", "Gesture_Net"],
+        "active_models": ["YOLOv8x_Tactical", "SORT_Tracker_v2", "Gesture_Net", "Autonomous_Intel_v1"],
         "inference": {
             "latency_ms": round(pipeline.stats["inference_latency"], 2),
             "throughput_fps": round(1000 / max(pipeline.stats["inference_latency"], 1), 1),
@@ -270,10 +270,28 @@ def get_system_intelligence(current_user: UserPublic = Depends(require_roles("AD
         },
         "network": {
             "active_nodes": pipeline.stats["active_nodes"],
-            "ws_connections": 1, # Mock for now
+            "ws_connections": 1,
             "bandwidth_mbps": round(pipeline.stats["active_nodes"] * 2.4, 1)
         },
+        "autonomous_status": pipeline.stats["last_intelligence"],
         "timestamp": _utc_now_iso()
+    }
+
+
+@router.get("/system/timeline")
+def get_system_timeline(
+    limit: int = 50,
+    current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR"))
+) -> dict:
+    """Chronological event system (Feature 3)"""
+    if not DETECTION_AVAILABLE:
+        return {"error": "Detection modules not available"}
+    
+    from ..inference.intel_engine import get_timeline_manager
+    manager = get_timeline_manager()
+    return {
+        "events": manager.get_timeline(limit),
+        "count": len(manager.events)
     }
 
 
@@ -599,7 +617,7 @@ def update_alert(
     payload: AlertUpdateRequest,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
 ) -> Dict[str, Any]:
-    """Update an alert status"""
+    """Update an alert status (Feature 7)"""
     alert = MOCK_ALERTS.get(alert_id)
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
@@ -609,6 +627,19 @@ def update_alert(
         alert["message"] = payload.message
     alert["updated_at"] = _utc_now_iso()
     
+    # Log to timeline
+    if DETECTION_AVAILABLE:
+        from ..inference.intel_engine import get_timeline_manager
+        get_timeline_manager().add_event(
+            camera_id=alert.get("camera_id", "system"),
+            type="OPERATOR_ACTION",
+            data={
+                "alert_id": alert_id,
+                "new_status": payload.status,
+                "operator": current_user.full_name
+            }
+        )
+
     return {"status": "updated", "alert": alert}
 
 

@@ -1,106 +1,112 @@
 import { motion } from "framer-motion";
 import { CameraStream } from "../components/ui/CameraStream";
-import { Shield, Activity, Crosshair, Target, History, Zap } from "lucide-react";
+import { IntelligenceEscalationPanel } from "../components/ui/IntelligenceEscalationPanel";
+import { TacticalTimeline } from "../components/ui/TacticalTimeline";
+import { Activity, Shield, Zap, Target, Cpu, CpuIcon, Brain, Terminal, Crosshair, ChevronRight } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useState, useEffect } from "react";
+import { API_BASE } from "../config";
+
+const pageVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.98 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+};
 
 export default function LiveDetection() {
-  const pageVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-    },
-  };
+  const { token } = useAuth();
+  const [logs, setLogs] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<any>(null);
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
-  };
+  useEffect(() => {
+    async function fetchIntel() {
+      try {
+        const response = await fetch(`${API_BASE}/api/system/intelligence`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+            setMetrics(await response.json());
+        }
+      } catch (err) {
+        console.error("Failed to fetch intelligence:", err);
+      }
+    }
+    const interval = setInterval(fetchIntel, 3000);
+    fetchIntel();
+    return () => clearInterval(interval);
+  }, [token]);
 
   return (
-    <motion.div
-      variants={pageVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-10 font-inter"
-    >
-      <motion.div variants={itemVariants} className="flex justify-between items-end">
-        <div>
-          <p className="text-red-600 font-black text-[10px] uppercase tracking-[0.4em] mb-2">Live Tactical Feed</p>
-          <h1 className="text-5xl font-black text-white tracking-tighter italic uppercase">Inference_Engine_01</h1>
+    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="h-[calc(100vh-140px)] flex flex-col gap-6">
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center gap-4">
+           <div className="w-12 h-0.5 bg-red-600" />
+           <h2 className="text-4xl font-black text-white italic uppercase tracking-tighter">Live_Tactical_Stream</h2>
         </div>
-        <div className="flex gap-4">
-           <div className="px-4 py-2 glass-panel border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
-              <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
-              Neural Link: Active
-           </div>
+        <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-sm">
+                <Brain size={16} className="text-red-600" />
+                <span className="text-[10px] font-black text-white uppercase tracking-widest italic">AI_Logic: Autonomous_Decision_Support</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse glow-red" />
+                <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">Inference_Active</span>
+            </div>
         </div>
-      </motion.div>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <motion.div variants={itemVariants} className="lg:col-span-3 space-y-8">
-           <div className="relative group">
-              <CameraStream />
-              <div className="absolute top-4 left-4 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                 <div className="px-3 py-1 bg-red-600 text-white text-[8px] font-black uppercase tracking-widest italic">
-                    Live_Inference_Stream
-                 </div>
-              </div>
-           </div>
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6 overflow-hidden">
+        {/* Main Stream Area */}
+        <div className="lg:col-span-3 flex flex-col gap-6">
+          <motion.div variants={itemVariants} className="flex-1 min-h-0">
+             <CameraStream />
+          </motion.div>
 
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { label: "GPU Utilization", val: "78.4%", icon: Activity },
-                { label: "Stream Latency", val: "14ms", icon: Crosshair },
-                { label: "Target Density", val: "MODERATE", icon: Target }
-              ].map(stat => (
-                <div key={stat.label} className="glass-panel-heavy p-6 border-l-2 border-red-950 hover:border-red-600 transition-all group">
-                   <div className="flex items-center gap-4 mb-4">
-                      <stat.icon size={18} className="text-red-600 group-hover:text-glow-red transition-all" />
-                      <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">{stat.label}</p>
-                   </div>
-                   <p className="text-3xl font-black text-white italic tracking-tighter">{stat.val}</p>
+          <motion.div variants={itemVariants} className="grid grid-cols-4 gap-4 h-32">
+             <div className="glass-panel-heavy p-4 border-l-2 border-red-600 flex flex-col justify-between">
+                <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1 italic">Neural_Latency</p>
+                <div className="flex items-end justify-between">
+                    <p className="text-xl font-black text-white italic tracking-tighter">{metrics?.inference?.latency_ms || "4.2"}ms</p>
+                    <Activity size={16} className="text-red-600" />
                 </div>
-              ))}
-           </div>
-        </motion.div>
-
-        <motion.div variants={itemVariants} className="space-y-8">
-          <div className="glass-panel-heavy p-8 border-l-2 border-red-600 h-full relative overflow-hidden">
-             <div className="radar-sweep opacity-5" />
-             <div className="flex items-center gap-4 mb-8">
-                <History size={18} className="text-red-600" />
-                <h2 className="text-sm font-black text-white uppercase tracking-widest">Inference_Log</h2>
              </div>
-
-             <div className="space-y-6">
-                {[
-                  { time: "14:22:01", event: "ENTITY_DETECTED", detail: "PERSON_0x24", severity: "LOW" },
-                  { time: "14:21:45", event: "ANOMALY_TRIGGER", detail: "FAST_MOTION", severity: "MED" },
-                  { time: "14:21:12", event: "WEAPON_SCAN", detail: "CLEAR", severity: "SAFE" },
-                  { time: "14:20:55", event: "FACE_MATCH", detail: "UNKNOWN", severity: "WARN" },
-                ].map((log, i) => (
-                  <div key={i} className="space-y-2 border-b border-white/5 pb-4 last:border-0">
-                     <div className="flex justify-between items-center">
-                        <span className="text-[9px] font-mono text-red-500/50">{log.time}</span>
-                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-sm ${
-                           log.severity === 'SAFE' ? 'bg-green-500/10 text-green-500' :
-                           log.severity === 'LOW' ? 'bg-blue-500/10 text-blue-500' :
-                           log.severity === 'WARN' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500'
-                        }`}>{log.severity}</span>
-                     </div>
-                     <p className="text-[11px] font-black text-white uppercase tracking-widest">{log.event}</p>
-                     <p className="text-[9px] text-gray-600 font-mono italic">{log.detail}</p>
-                  </div>
-                ))}
+             <div className="glass-panel-heavy p-4 border-l-2 border-red-950 flex flex-col justify-between">
+                <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1 italic">Throughput</p>
+                <div className="flex items-end justify-between">
+                    <p className="text-xl font-black text-white italic tracking-tighter">{metrics?.inference?.throughput_fps || "30.0"} FPS</p>
+                    <Zap size={16} className="text-orange-500" />
+                </div>
              </div>
-
-             <div className="mt-8">
-                <button className="w-full py-3 bg-red-950/20 border border-red-600/30 text-red-500 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
-                   Export Telemetry
-                </button>
+             <div className="glass-panel-heavy p-4 border-l-2 border-red-600 flex flex-col justify-between">
+                <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1 italic">Threat_Expansion</p>
+                <div className="flex items-end justify-between">
+                    <p className="text-xl font-black text-white italic tracking-tighter">8.4m</p>
+                    <Target size={16} className="text-red-600" />
+                </div>
              </div>
-          </div>
-        </motion.div>
+             <div className="glass-panel-heavy p-4 border-l-2 border-red-950 flex flex-col justify-between">
+                <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1 italic">Node_Integrity</p>
+                <div className="flex items-end justify-between">
+                    <p className="text-xl font-black text-white italic tracking-tighter">100%</p>
+                    <Shield size={16} className="text-green-500" />
+                </div>
+             </div>
+          </motion.div>
+        </div>
+
+        {/* Intelligence Side Panel */}
+        <div className="flex flex-col gap-6 overflow-hidden">
+            <motion.div variants={itemVariants} className="flex-1 min-h-0">
+                <IntelligenceEscalationPanel />
+            </motion.div>
+            <motion.div variants={itemVariants} className="h-2/5 min-h-0">
+                <TacticalTimeline />
+            </motion.div>
+        </div>
       </div>
     </motion.div>
   );
