@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Shield, ChevronRight, Zap, Eye, Bell, Globe, Lock, ShieldCheck } from "lucide-react";
+import { ChevronRight, Shield, Globe, Lock, ShieldCheck, Activity } from "lucide-react";
 import Shield3D from "../components/Shield3D";
 
 export default function Landing({ onEnter }: { onEnter: () => void }) {
@@ -8,170 +8,175 @@ export default function Landing({ onEnter }: { onEnter: () => void }) {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.3,
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: "easeOut" },
+      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
     },
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] flex items-center justify-center overflow-hidden selection:bg-cyan-500/30">
+    <div className="relative min-h-screen bg-black flex items-center justify-center overflow-hidden font-inter selection:bg-red-500/30">
+      {/* Global Cinematic Overlays */}
+      <div className="ambient-red-glow" />
+      <div className="scanline-overlay" />
+      <div className="film-grain" />
+
       {/* 3D Background Layer */}
-      <div className="absolute inset-0 opacity-60">
+      <div className="absolute inset-0 opacity-40 z-0">
         <Shield3D />
       </div>
 
-      {/* Decorative Blobs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.1, 0.3],
-          }}
-          transition={{ repeat: Infinity, duration: 10 }}
-          className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[120px]"
-        />
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.1, 0.2],
-          }}
-          transition={{ repeat: Infinity, duration: 10, delay: 2 }}
-          className="absolute -bottom-20 -left-20 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px]"
-        />
+      {/* Background Radar Overlay */}
+      <div className="absolute -top-1/4 -right-1/4 w-[1000px] h-[1000px] opacity-10 pointer-events-none z-0">
+        <div className="radar-sweep" />
       </div>
-
-      {/* Animated Grid Pattern */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="container mx-auto px-6 z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+        className="container mx-auto px-6 z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
       >
-        <div className="text-left space-y-8">
-          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest">
+        <div className="text-left space-y-10">
+          <motion.div variants={itemVariants} className="inline-flex items-center gap-3 px-4 py-1.5 rounded-sm bg-red-950/30 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-[0.3em]">
             <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
             </span>
-            Next-Gen AI Protocol
+            Enterprise Security Protocol Active
           </motion.div>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             <motion.h1
               variants={itemVariants}
-              className="text-7xl md:text-8xl font-black text-white leading-none tracking-tighter"
+              className="text-7xl md:text-[100px] font-black text-white leading-[0.9] tracking-tighter"
             >
               CIVIC <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 animate-gradient">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-red-800 text-glow-red">
                 AI SHIELD
               </span>
             </motion.h1>
             
             <motion.p
               variants={itemVariants}
-              className="text-xl text-gray-400 max-w-lg leading-relaxed font-medium"
+              className="text-lg text-gray-500 max-w-xl leading-relaxed font-medium"
             >
-              Enterprise-grade threat detection powered by YOLOv8. 
-              Safeguarding cities with real-time neural processing and predictive anomaly analysis.
+              National-grade threat detection powered by neural processing. 
+              Deploying real-time autonomous monitoring and predictive anomaly analysis for high-stakes urban security.
             </motion.p>
           </div>
 
-          <motion.div variants={itemVariants} className="flex gap-4">
+          <motion.div variants={itemVariants} className="flex flex-wrap gap-6">
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onEnter}
-              className="px-10 py-5 bg-white text-black font-black rounded-2xl flex items-center gap-3 hover:bg-cyan-50 transition-colors shadow-[0_0_40px_rgba(255,255,255,0.1)]"
+              className="btn-cinematic"
             >
-              Launch Core Console
-              <ChevronRight size={20} />
+              Initialize Command Center
+              <ChevronRight size={18} className="inline ml-2" />
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              className="px-8 py-5 bg-white/5 border border-white/10 text-white font-bold rounded-2xl backdrop-blur-md hover:bg-white/10 transition"
+              whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.05)" }}
+              className="px-8 py-3 bg-transparent border border-white/10 text-white font-bold text-sm rounded-sm uppercase tracking-widest transition-all"
             >
-              View Protocols
+              Access Protocols
             </motion.button>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="flex gap-8 pt-4">
+          <motion.div variants={itemVariants} className="flex gap-12 pt-6">
              {[
-               { icon: Globe, val: "24/7", label: "Active Nodes" },
-               { icon: Lock, val: "E2E", label: "Encrypted" },
-               { icon: ShieldCheck, val: "99.9%", label: "Accuracy" }
+               { icon: Activity, val: "REAL-TIME", label: "Inference Status" },
+               { icon: Lock, val: "MIL-SPEC", label: "Encryption" },
+               { icon: ShieldCheck, val: "99.98%", label: "System Uptime" }
              ].map(({ icon: Icon, val, label }) => (
-               <div key={label} className="space-y-1">
-                 <div className="flex items-center gap-2 text-white font-bold text-lg">
-                    <Icon size={18} className="text-cyan-500" />
+               <div key={label} className="space-y-2">
+                 <div className="flex items-center gap-3 text-white font-black text-sm tracking-tight">
+                    <Icon size={16} className="text-red-600" />
                     {val}
                  </div>
-                 <div className="text-gray-500 text-xs font-bold uppercase tracking-wider">{label}</div>
+                 <div className="text-gray-600 text-[10px] font-black uppercase tracking-widest">{label}</div>
                </div>
              ))}
           </motion.div>
         </div>
 
-        <div className="hidden lg:block relative">
-          {/* Floating Interface Elements */}
+        {/* Right Side Visuals - HUD Elements */}
+        <div className="hidden lg:block relative h-[600px] hud-border">
+          <div className="corner-tl" />
+          <div className="corner-tr" />
+          <div className="corner-bl" />
+          <div className="corner-br" />
+          
           <motion.div 
-            animate={{ y: [0, -20, 0] }}
-            transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-            className="absolute top-0 right-0 p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl z-20"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1, duration: 1 }}
+            className="absolute inset-0 flex items-center justify-center"
           >
-            <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
-                    <Bell className="text-white" />
+             {/* Holographic HUD UI Element */}
+             <div className="w-[80%] h-[60%] glass-panel-heavy p-8 border-l-2 border-red-600 relative overflow-hidden">
+                <div className="radar-sweep opacity-20" />
+                <div className="flex justify-between items-start mb-8">
+                   <div>
+                      <p className="text-red-500 font-black text-[10px] tracking-widest uppercase mb-1">Sector Analysis</p>
+                      <h3 className="text-2xl font-black text-white italic">DOWNTOWN_AXIS_01</h3>
+                   </div>
+                   <div className="flex gap-1">
+                      {[1,2,3].map(i => <div key={i} className="w-1.5 h-6 bg-red-600/40" />)}
+                   </div>
                 </div>
-                <div>
-                    <p className="text-white font-bold">Threat Detected</p>
-                    <p className="text-gray-400 text-xs">Sector 7G — 0.4s ago</p>
-                </div>
-            </div>
-          </motion.div>
 
-          <motion.div 
-            animate={{ y: [0, 20, 0] }}
-            transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }}
-            className="absolute bottom-10 left-0 p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl z-20"
-          >
-            <div className="space-y-3">
-                <p className="text-cyan-400 font-bold text-xs uppercase tracking-widest">Neural Link Active</p>
-                <div className="flex gap-2">
-                    {[1,2,3,4,5].map(i => (
-                        <motion.div 
-                            key={i}
-                            animate={{ height: [10, 30, 10] }}
-                            transition={{ repeat: Infinity, duration: 1, delay: i * 0.1 }}
-                            className="w-1 bg-cyan-500/50 rounded-full"
-                        />
-                    ))}
+                <div className="space-y-6">
+                   {[
+                     { label: "Neural Load", val: "42.8%", color: "bg-red-600" },
+                     { label: "Signal Latency", val: "12ms", color: "bg-red-500" },
+                     { label: "Target Density", val: "HIGH", color: "bg-red-800" }
+                   ].map(stat => (
+                     <div key={stat.label} className="space-y-2">
+                        <div className="flex justify-between text-[9px] font-black uppercase tracking-widest">
+                           <span className="text-gray-500">{stat.label}</span>
+                           <span className="text-white">{stat.val}</span>
+                        </div>
+                        <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                           <motion.div 
+                             initial={{ width: 0 }}
+                             animate={{ width: "70%" }}
+                             transition={{ duration: 2, delay: 1.5 }}
+                             className={`h-full ${stat.color}`} 
+                           />
+                        </div>
+                     </div>
+                   ))}
                 </div>
-            </div>
+
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between text-[8px] font-mono text-red-500/50">
+                   <span>LAT: 40.7128° N</span>
+                   <span>LNG: 74.0060° W</span>
+                </div>
+             </div>
           </motion.div>
         </div>
       </motion.div>
       
-      {/* Version & Credits */}
-      <div className="absolute bottom-8 left-0 right-0 flex justify-between px-12 items-center pointer-events-none">
-          <p className="text-white/20 font-mono text-xs uppercase tracking-widest">CV-OS v2.4.0-STABLE</p>
-          <div className="flex gap-4">
-             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-             <p className="text-white/20 font-mono text-xs uppercase tracking-widest">Neural Cluster: Connected</p>
+      {/* Footer Info */}
+      <div className="absolute bottom-10 left-0 right-0 flex justify-between px-16 items-center pointer-events-none z-20">
+          <div className="flex items-center gap-4">
+            <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+            <p className="text-white/20 font-mono text-[9px] uppercase tracking-[0.4em]">SYSTEM_STATUS: OPERATIONAL</p>
           </div>
+          <p className="text-white/20 font-mono text-[9px] uppercase tracking-[0.4em]">CAIS_KERNEL_V4.2.0_STABLE</p>
       </div>
     </div>
   );
 }
+
