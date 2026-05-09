@@ -1,44 +1,43 @@
 import { motion } from "framer-motion";
 
 interface SeverityBadgeProps {
-  level: "high" | "medium" | "low" | "safe";
+  level: "critical" | "high" | "medium" | "low" | "safe";
   animated?: boolean;
 }
 
 export function SeverityBadge({ level, animated = false }: SeverityBadgeProps) {
   const styles = {
-    high: "bg-red-500/20 text-red-300 border-red-500/50 hover:bg-red-500/30",
-    medium: "bg-yellow-500/20 text-yellow-300 border-yellow-500/50 hover:bg-yellow-500/30",
-    low: "bg-green-500/20 text-green-300 border-green-500/50 hover:bg-green-500/30",
-    safe: "bg-cyan-500/20 text-cyan-300 border-cyan-500/50 hover:bg-cyan-500/30",
+    critical: "bg-red-600 text-white border-red-400 glow-red",
+    high: "bg-red-950/40 text-red-500 border-red-500/30",
+    medium: "bg-orange-950/20 text-orange-500 border-orange-500/20",
+    low: "bg-blue-950/20 text-blue-500 border-blue-500/20",
+    safe: "bg-green-950/20 text-green-500 border-green-500/20",
   };
 
   const labels = {
-    high: "High",
-    medium: "Medium",
-    low: "Low",
-    safe: "Safe",
+    critical: "CRITICAL",
+    high: "HIGH_RISK",
+    medium: "MEDIUM",
+    low: "LOW",
+    safe: "SAFE",
   };
 
   const badge = (
     <span
-      className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${styles[level]}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[9px] font-black uppercase tracking-widest border transition-all ${styles[level as keyof typeof styles] || styles.high}`}
     >
-      {animated && level === "high" && (
+      {(animated || level === "critical") && (
         <motion.span
-          animate={{ scale: [1, 1.3, 1] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="w-1.5 h-1.5 rounded-full mr-2"
-          style={{
-            background: level === "high" ? "#ef4444" : level === "medium" ? "#f59e0b" : "#10b981",
-          }}
+          animate={{ opacity: [1, 0.4, 1] }}
+          transition={{ repeat: Infinity, duration: 1 }}
+          className="w-1.5 h-1.5 rounded-full mr-2 bg-current"
         />
       )}
-      {labels[level]}
+      {labels[level as keyof typeof labels] || level.toUpperCase()}
     </span>
   );
 
-  return animated && level === "high" ? (
+  return animated && (level === "high" || level === "critical") ? (
     <motion.div
       animate={{ scale: [1, 1.05, 1] }}
       transition={{ repeat: Infinity, duration: 2 }}
@@ -49,3 +48,4 @@ export function SeverityBadge({ level, animated = false }: SeverityBadgeProps) {
     badge
   );
 }
+
