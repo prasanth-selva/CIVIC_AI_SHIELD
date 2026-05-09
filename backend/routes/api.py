@@ -21,6 +21,7 @@ from ..config import settings, get_settings, ThreatClass, Severity
 # Import detection modules (with graceful fallback)
 try:
     from ..inference import ThreatDetector, DecisionEngine, Detection
+    from ..inference.pipeline import get_pipeline, AsyncInferencePipeline
     from ..telegram_alert import TelegramBot, AlertManager
     from ..utils import get_incident_logger, get_system_monitor
     from ..utils.report_generator import get_report_generator
@@ -243,6 +244,39 @@ def system_info(current_user: UserPublic = Depends(require_roles("ADMIN"))) -> d
     }
 
 
+@router.get("/system/intelligence")
+def get_system_intelligence(current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR"))) -> dict:
+    """Real-time AI intelligence panel data (Point 8)"""
+    if not DETECTION_AVAILABLE:
+        return {"error": "Detection modules not available"}
+    
+    pipeline = get_pipeline()
+    monitor = get_system_monitor()
+    metrics = monitor.get_current_metrics()
+    
+    return {
+        "active_models": ["YOLOv8x_Tactical", "SORT_Tracker_v2", "Gesture_Net"],
+        "inference": {
+            "latency_ms": round(pipeline.stats["inference_latency"], 2),
+            "throughput_fps": round(1000 / max(pipeline.stats["inference_latency"], 1), 1),
+            "processed_frames": pipeline.stats["processed_frames"],
+            "dropped_frames": pipeline.stats["dropped_frames"]
+        },
+        "resources": {
+            "gpu_usage": f"{metrics.get('gpu_load', 0)}%",
+            "gpu_mem": f"{metrics.get('gpu_mem_used', 0)} MB",
+            "cpu_usage": f"{metrics.get('cpu_usage', 0)}%",
+            "ram_usage": f"{metrics.get('memory_usage', 0)}%"
+        },
+        "network": {
+            "active_nodes": pipeline.stats["active_nodes"],
+            "ws_connections": 1, # Mock for now
+            "bandwidth_mbps": round(pipeline.stats["active_nodes"] * 2.4, 1)
+        },
+        "timestamp": _utc_now_iso()
+    }
+
+
 # ============== Camera Endpoints ==============
 
 @router.get("/cameras")
@@ -296,11 +330,11 @@ def update_camera_status(
 # ============== Detection Endpoints ==============
 
 @router.post("/live_frame")
-def live_frame(
+async def live_frame(
     payload: LiveFrameRequest,
     current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
 ) -> Dict[str, Any]:
-    """Process a single frame for threat detection"""
+    """Process a single frame using the Async Tactical Pipeline"""
     if not DETECTION_AVAILABLE:
         raise HTTPException(status_code=503, detail="Detection modules not available")
     
@@ -308,34 +342,38 @@ def live_frame(
         # Decode frame
         frame = b64_to_frame(payload.frame_b64)
         
-        # Get detector
-        detector = get_detector()
-        if not detector or not detector.is_initialized:
-            raise HTTPException(status_code=503, detail="Detector not initialized")
+        pipeline = get_pipeline()
+        await pipeline.start()
         
-        # Run detection
+        # Enqueue for async processing (Point 4)
+        timestamp = time.time()
+        await pipeline.enqueue_frame(
+            camera_id=payload.camera_id,
+            camera_name=payload.camera_name,
+            frame=frame,
+            timestamp=timestamp
+        )
+
+        # For immediate UI feedback in "live" mode, we still return a fast response
+        # In a real military system, this would be handled via WebSocket.
+        # But to keep current frontend working while evolving, we run one sync detect too
+        # or just return the last result. 
+        
+        detector = get_detector()
         result = detector.detect(frame)
         
-        # Process detections
+        # Privacy mode (enhanced)
         if payload.privacy_mode and result.detections:
             for det in result.detections:
-                # In a real system, we'd use a face detector here.
-                # For this implementation, we blur the upper 30% of any 'person' detection
-                # or the whole box for threat classes to ensure privacy.
                 x1, y1, x2, y2 = det.bbox
                 h, w = frame.shape[:2]
-                
-                # Ensure coordinates are within frame
                 x1, y1 = max(0, int(x1)), max(0, int(y1))
                 x2, y2 = min(w, int(x2)), min(h, int(y2))
-                
                 if x2 > x1 and y2 > y1:
-                    # Apply heavy blur to the area
                     roi = frame[y1:y2, x1:x2]
-                    blurred_roi = cv2.GaussianBlur(roi, (51, 51), 0)
-                    frame[y1:y2, x1:x2] = blurred_roi
+                    frame[y1:y2, x1:x2] = cv2.GaussianBlur(roi, (99, 99), 0)
 
-        # Process through decision engine
+        # Decision engine
         decision = get_decision_engine()
         alerts = decision.process_detections(
             camera_id=payload.camera_id,
@@ -344,39 +382,47 @@ def live_frame(
             frame=frame if settings.telegram.send_image else None,
         )
         
-        # Queue alerts for sending
         alert_mgr = get_alert_mgr()
         for alert in alerts:
             alert_mgr.queue_alert(alert)
         
-        # Format response
-        if not result.detections:
-            return {
-                "label": "none",
-                "threat_level": "safe",
-                "confidence": 0.0,
-                "boxes": [],
-                "inference_time_ms": result.inference_time,
-            }
-        
-        # Get highest confidence detection
-        top_detection = max(result.detections, key=lambda d: d.confidence)
+        top_detection = max(result.detections, key=lambda d: d.confidence) if result.detections else None
         
         return {
-            "label": top_detection.label,
-            "threat_level": top_detection.severity.value,
-            "confidence": round(top_detection.confidence, 3),
+            "label": top_detection.label if top_detection else "none",
+            "threat_level": top_detection.severity.value if top_detection else "safe",
+            "confidence": round(top_detection.confidence, 3) if top_detection else 0.0,
             "boxes": [d.to_dict()["bbox"] for d in result.detections],
             "all_detections": [d.to_dict() for d in result.detections],
             "inference_time_ms": round(result.inference_time, 1),
             "alerts_triggered": len(alerts),
+            "pipeline_status": "active_async"
         }
         
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Detection error: {e}")
         raise HTTPException(status_code=500, detail=f"Detection failed: {str(e)}")
+
+
+@router.get("/replay/{camera_id}")
+def get_tactical_replay(
+    camera_id: str,
+    limit: int = 30,
+    current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR")),
+) -> Dict[str, Any]:
+    """Forensic Replay Engine (Point 1)"""
+    if not DETECTION_AVAILABLE:
+        return {"error": "Detection modules not available"}
+    
+    pipeline = get_pipeline()
+    replay_data = pipeline.get_replay_data(camera_id, limit)
+    
+    return {
+        "camera_id": camera_id,
+        "frames_count": len(replay_data),
+        "timeline": replay_data,
+        "system_time": time.time()
+    }
 
 
 @router.post("/analyze_video")
