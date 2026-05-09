@@ -8,59 +8,59 @@ function ShieldCore() {
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    meshRef.current.rotation.y = time * 0.2;
-    meshRef.current.rotation.z = time * 0.1;
+    meshRef.current.rotation.y = time * 0.15;
+    meshRef.current.rotation.z = time * 0.05;
   });
 
   return (
     <group>
-      {/* Outer Glow Sphere */}
-      <Sphere args={[1.5, 64, 64]} scale={1.2}>
+      {/* Outer Atmospheric Glow */}
+      <Sphere args={[2, 64, 64]} scale={1.1}>
         <MeshDistortMaterial
-          color="#0ea5e9"
+          color="#ff0000"
           attach="material"
-          distort={0.4}
-          speed={2}
-          roughness={0}
+          distort={0.3}
+          speed={1.5}
+          roughness={1}
           transparent
-          opacity={0.1}
+          opacity={0.05}
         />
       </Sphere>
 
-      {/* Main Shield Geometry */}
+      {/* Main Core Geometry - Military Grade Octahedron */}
       <mesh ref={meshRef}>
-        <octahedronGeometry args={[1, 0]} />
+        <octahedronGeometry args={[1.2, 0]} />
         <MeshWobbleMaterial 
-          color="#22d3ee" 
-          factor={0.4} 
-          speed={1.5} 
-          roughness={0.1}
-          metalness={0.8}
-          emissive="#22d3ee"
-          emissiveIntensity={0.5}
+          color="#1a1a1a" 
+          factor={0.2} 
+          speed={1} 
+          roughness={0.2}
+          metalness={1}
+          emissive="#ff0000"
+          emissiveIntensity={0.2}
         />
       </mesh>
 
-      {/* Inner Energy Core */}
-      <Sphere args={[0.5, 32, 32]}>
+      {/* Inner Energy Pulse */}
+      <Sphere args={[0.4, 32, 32]}>
         <meshStandardMaterial
-          color="#ffffff"
-          emissive="#ffffff"
-          emissiveIntensity={2}
+          color="#ff0000"
+          emissive="#ff0000"
+          emissiveIntensity={4}
         />
       </Sphere>
 
-      {/* Orbital Rings */}
-      <group rotation={[Math.PI / 4, 0, 0]}>
+      {/* Orbital Defense Rings */}
+      <group rotation={[Math.PI / 3, 0, 0]}>
         <mesh>
-          <torusGeometry args={[1.8, 0.02, 16, 100]} />
-          <meshBasicMaterial color="#0ea5e9" transparent opacity={0.3} />
+          <torusGeometry args={[2.2, 0.015, 16, 100]} />
+          <meshBasicMaterial color="#ff0000" transparent opacity={0.2} />
         </mesh>
       </group>
-      <group rotation={[-Math.PI / 4, Math.PI / 4, 0]}>
+      <group rotation={[-Math.PI / 4, Math.PI / 6, 0]}>
         <mesh>
-          <torusGeometry args={[2, 0.02, 16, 100]} />
-          <meshBasicMaterial color="#3b82f6" transparent opacity={0.2} />
+          <torusGeometry args={[2.5, 0.015, 16, 100]} />
+          <meshBasicMaterial color="#8b0000" transparent opacity={0.15} />
         </mesh>
       </group>
     </group>
@@ -70,14 +70,15 @@ function ShieldCore() {
 export default function Shield3D() {
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none">
-      <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
-        <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
-        <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+      <Canvas camera={{ position: [0, 0, 6], fov: 40 }}>
+        <ambientLight intensity={0.2} />
+        <pointLight position={[10, 10, 10]} intensity={2} color="#ff0000" />
+        <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} intensity={1} color="#ffffff" />
+        <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.3}>
           <ShieldCore />
         </Float>
       </Canvas>
     </div>
   );
 }
+
