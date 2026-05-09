@@ -25,9 +25,9 @@ export default function TopNav({ role }: { role: "ADMIN" | "OPERATOR" | "VIEWER"
             </div>
         </div>
         <div className="h-8 w-px bg-white/5 hidden md:block" />
-        <div className="hidden md:flex items-center gap-4 px-4 py-1.5 bg-white/5 border border-white/5 rounded-sm">
+        <div className="hidden md:flex items-center gap-4 px-4 py-1.5 bg-red-600/10 border border-red-600/30 rounded-sm">
             <Activity size={12} className="text-red-600 animate-pulse" />
-            <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Global_Grid: Stable</span>
+            <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">EDGE_MODE_ACTIVE</span>
         </div>
       </motion.div>
 
@@ -103,4 +103,3 @@ function TimeDisplay() {
     </div>
   )
 }
-
