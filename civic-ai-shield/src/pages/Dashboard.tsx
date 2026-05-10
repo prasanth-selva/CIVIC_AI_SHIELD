@@ -4,10 +4,11 @@ import { CameraFeed } from "../components/ui/CameraFeed";
 import { SystemIntelligence } from "../components/ui/SystemIntelligence";
 import { SubjectCard } from "../components/ui/SubjectCard";
 import { TacticalReplay } from "../components/ui/TacticalReplay";
-import { Strategic3DMap } from "../components/ui/Strategic3DMap";
-import { AICommanderConsole } from "../components/ui/AICommanderConsole";
+import { StrategicWarRoom } from "../components/ui/StrategicWarRoom";
+import { DigitalTwinCity } from "../components/ui/DigitalTwinCity";
+import { AIConsciousnessLayer } from "../components/ui/AIConsciousnessLayer";
 import { TacticalTimeline } from "../components/ui/TacticalTimeline";
-import { Camera, AlertTriangle, Activity, Zap, ShieldCheck, LayoutGrid, Maximize2, Crosshair, Target, Brain, Shield, Terminal, Search, Globe, Network, Map } from "lucide-react";
+import { Camera, AlertTriangle, Activity, Zap, Globe, ShieldAlert, LayoutGrid, Maximize2, Crosshair, Target, Brain, Shield, Terminal, Search, Network, Map, Dna, Plane, Cpu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE } from "../config";
@@ -28,25 +29,30 @@ const itemVariants = {
 export default function Dashboard() {
   const { token } = useAuth();
   const [isBooting, setIsBooting] = useState(true);
-  const [activeView, setActiveView] = useState<"grid" | "3d" | "fabric" | "replay">("grid");
+  const [activeView, setActiveView] = useState<"war-room" | "city" | "grid" | "replay">("war-room");
   const [selectedCam, setSelectedCam] = useState("cam-001");
-  const [stats, setStats] = useState({
-    total_cameras: "847",
-    active_streams: "124",
-    alerts_today: "37",
-    system_health: "98.7%",
-    trends: {
-        cameras: "up",
-        streams: "stable",
-        alerts: "down",
-        health: "up"
-    }
-  });
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsBooting(false), 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const response = await fetch(`${API_BASE}/api/system/intelligence`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) setStats(await response.json());
+      } catch (err) {
+        console.error("Dashboard stats fetch failed:", err);
+      }
+    }
+    const interval = setInterval(fetchStats, 5000);
+    fetchStats();
+    return () => clearInterval(interval);
+  }, [token]);
 
   return (
     <div className="relative">
@@ -54,162 +60,146 @@ export default function Dashboard() {
         {isBooting && (
           <motion.div 
             initial={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 1.1, filter: "blur(40px)" }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[2000] bg-[#020202] flex flex-col items-center justify-center space-y-12"
+            exit={{ opacity: 0, filter: "blur(60px)", scale: 1.1 }}
+            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[5000] bg-[#020202] flex flex-col items-center justify-center space-y-16"
           >
             <div className="relative">
                 <motion.div 
                    animate={{ rotate: 360 }}
-                   transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-                   className="w-48 h-48 border border-red-600/20 rounded-full"
+                   transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
+                   className="w-64 h-64 border border-red-600/10 rounded-full"
                 />
                 <motion.div 
                    animate={{ rotate: -360 }}
-                   transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-                   className="absolute inset-4 border-t-2 border-red-600 rounded-full shadow-[0_0_30px_rgba(255,0,0,0.4)]"
+                   transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
+                   className="absolute inset-8 border-t-2 border-red-600 rounded-full shadow-[0_0_40px_rgba(255,0,0,0.5)]"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <Shield size={48} className="text-red-600 animate-pulse" />
+                    <ShieldAlert size={64} className="text-red-600 animate-pulse" />
                 </div>
             </div>
-            <div className="text-center space-y-4">
-                <h2 className="text-3xl font-black text-white uppercase tracking-[1em] italic">Civic_Sentient_OS</h2>
-                <div className="flex justify-center gap-2">
-                    {Array.from({ length: 8 }).map((_, i) => (
+            <div className="text-center space-y-6">
+                <h2 className="text-4xl font-black text-white uppercase tracking-[1.2em] italic">Initializing_ASWIG_Core</h2>
+                <div className="flex justify-center gap-3">
+                    {Array.from({ length: 12 }).map((_, i) => (
                         <motion.div 
                             key={i}
-                            animate={{ opacity: [0.2, 1, 0.2], height: [4, 8, 4] }}
-                            transition={{ repeat: Infinity, duration: 1, delay: i * 0.1 }}
-                            className="w-6 bg-red-600"
+                            animate={{ opacity: [0.1, 1, 0.1], height: [6, 12, 6] }}
+                            transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.1 }}
+                            className="w-8 bg-red-600 shadow-[0_0_10px_rgba(255,0,0,0.5)]"
                         />
                     ))}
                 </div>
-                <p className="text-[10px] font-mono text-gray-700 uppercase tracking-widest mt-6">SYNCHRONIZING_GLOBAL_SURVEILLANCE_FABRIC // VERSION_4.2.0_AUTONOMOUS</p>
+                <p className="text-[12px] font-mono text-gray-700 uppercase tracking-widest mt-8">AUTONOMOUS_STRATEGIC_WARFARE_INTELLIGENCE_GRID // OMEGA_LEVEL_ENCRYPTION_ACTIVE</p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-10 font-inter pb-20">
-        {/* Tactical Header */}
+      <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-12 font-inter pb-20">
+        {/* ASWIG Global Header */}
         <motion.div variants={itemVariants} className="flex justify-between items-end">
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-               <div className="w-12 h-0.5 bg-red-600 shadow-[0_0_15px_rgba(255,0,0,0.6)]" />
-               <p className="text-red-600 font-black text-[10px] uppercase tracking-[0.6em] italic">Autonomous_Sentient_Defense_Fabric</p>
+            <div className="flex items-center gap-4">
+               <div className="w-16 h-1 bg-red-600 shadow-[0_0_20px_rgba(255,0,0,0.8)]" />
+               <p className="text-red-600 font-black text-[12px] uppercase tracking-[0.8em] italic">Strategic_Warfare_Intelligence_Infrastructure</p>
             </div>
-            <h1 className="text-8xl font-black text-white tracking-tighter italic uppercase leading-none">Sentient_Shield</h1>
+            <h1 className="text-9xl font-black text-white tracking-tighter italic uppercase leading-none">ASWIG_OS</h1>
           </div>
-          <div className="text-right space-y-4">
-             <div className="flex items-center gap-6 justify-end">
-                <div className="px-6 py-2 bg-red-600 text-white border border-red-400 rounded-sm flex items-center gap-3 shadow-[0_0_20px_rgba(255,0,0,0.4)] animate-pulse">
-                   <Brain size={16} />
-                   <span className="text-[11px] font-black uppercase tracking-widest italic">SENTIENT_OVERRIDE: ACTIVE</span>
+          <div className="text-right space-y-6">
+             <div className="flex items-center gap-8 justify-end">
+                <div className="px-8 py-3 bg-red-600 text-white border border-red-400 rounded-sm flex items-center gap-4 shadow-[0_0_30px_rgba(255,0,0,0.6)] animate-pulse">
+                   <Brain size={20} />
+                   <span className="text-[14px] font-black uppercase tracking-widest italic">WARFARE_GRID_ACTIVE</span>
                 </div>
-                <div className="px-6 py-2 bg-black/40 border border-white/5 rounded-sm flex items-center gap-3 group hover:border-red-600 transition-all cursor-pointer">
-                   <Network size={16} className="text-red-600" />
-                   <span className="text-[11px] font-black text-white uppercase tracking-widest italic">Mesh_Federation: Stable</span>
+                <div className="px-8 py-3 bg-black/60 border border-white/5 rounded-sm flex items-center gap-4 group hover:border-red-600 transition-all cursor-pointer">
+                   <Cpu size={20} className="text-red-600" />
+                   <span className="text-[14px] font-black text-white uppercase tracking-widest italic">Self_Healing_Nominal</span>
                 </div>
              </div>
-             <p className="text-gray-600 font-mono text-[10px] uppercase tracking-widest italic">Global_Strategic_Grid // MESH_NODE_0XFA21 // SITE_ALPHA</p>
+             <p className="text-gray-600 font-mono text-[12px] uppercase tracking-[0.4em] italic">Global_Command_Node // 0X_OMEGA_SEC // SITE_OMEGA</p>
           </div>
         </motion.div>
 
-        {/* Distributed Metrics */}
-        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard title="Regional Nodes" value={stats.total_cameras} icon={<Globe size={20} />} trend={stats.trends.cameras as any} trendValue="+12 active" />
-          <StatCard title="Swarm Threads" value={stats.active_streams} icon={<Network size={20} />} trend={stats.trends.streams as any} trendValue="99.2% sync" />
-          <StatCard title="Threat Cascades" value={stats.alerts_today} icon={<AlertTriangle size={20} />} trend={stats.trends.alerts as any} trendValue="-23% risk" />
-          <StatCard title="Mesh Integrity" value={stats.system_health} icon={<Activity size={20} />} trend={stats.trends.health as any} trendValue="Nominal" />
+        {/* Global Strategic Metrics */}
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <StatCard title="Mesh Nodes" value={stats?.network?.active_nodes || "..."} icon={<Network size={24} />} trend="up" trendValue="+14 federated" />
+          <StatCard title="Cascade Risk" value={stats?.aswig_status?.strategic_intelligence?.cascade_probability || "..."} icon={<Activity size={24} />} trend="down" trendValue="low_risk" />
+          <StatCard title="Swarm Units" value="24" icon={<Plane size={24} />} trend="stable" trendValue="active_swarm" />
+          <StatCard title="Grid Integrity" value="99.9%" icon={<Shield size={24} />} trend="up" trendValue="optimal" />
         </motion.div>
 
-        {/* Global Operational Environment */}
-        <motion.div variants={itemVariants} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <div className="xl:col-span-2 space-y-6">
-            <div className="hud-border p-0.5">
+        {/* Operational Strategic Environment */}
+        <motion.div variants={itemVariants} className="grid grid-cols-1 xl:grid-cols-3 gap-10">
+          <div className="xl:col-span-2 space-y-10">
+            <div className="hud-border p-1 bg-white/5">
               <div className="corner-tl" /> <div className="corner-tr" /> <div className="corner-bl" /> <div className="corner-br" />
-              <div className="bg-[#020202] border border-white/5 overflow-hidden rounded-sm min-h-[700px] flex flex-col relative">
-                  {/* Viewport Control Bar */}
-                  <div className="p-6 border-b border-white/5 flex justify-between items-center bg-black/60 backdrop-blur-2xl">
-                      <div className="flex items-center gap-10">
-                          <div className="flex items-center gap-4">
-                              <LayoutGrid size={18} className="text-red-600" />
-                              <span className="text-[12px] font-black text-white uppercase tracking-[0.3em] italic">Orchestration_Viewport</span>
+              <div className="bg-[#010101] border border-white/5 overflow-hidden rounded-sm min-h-[750px] flex flex-col relative">
+                  {/* Viewport Control Hierarchy */}
+                  <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/80 backdrop-blur-3xl z-10">
+                      <div className="flex items-center gap-12">
+                          <div className="flex items-center gap-5">
+                              <LayoutGrid size={24} className="text-red-600" />
+                              <span className="text-[14px] font-black text-white uppercase tracking-[0.4em] italic">Strategic_Orchestration</span>
                           </div>
-                          <div className="flex bg-white/5 rounded-sm p-1 border border-white/5">
-                              {["grid", "3d", "fabric", "replay"].map((view) => (
+                          <div className="flex bg-white/5 rounded-sm p-1.5 border border-white/5">
+                              {["war-room", "city", "grid", "replay"].map((view) => (
                                   <button 
                                       key={view}
                                       onClick={() => setActiveView(view as any)}
-                                      className={`px-6 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all ${activeView === view ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(255,0,0,0.5)]' : 'text-gray-500 hover:text-white'}`}
+                                      className={`px-8 py-3 text-[12px] font-black uppercase tracking-widest transition-all ${activeView === view ? 'bg-red-600 text-white shadow-[0_0_25px_rgba(255,0,0,0.6)]' : 'text-gray-500 hover:text-white'}`}
                                   >{view}</button>
                               ))}
                           </div>
                       </div>
-                      <div className="flex items-center gap-6">
-                          <div className="flex flex-col items-end mr-4">
-                             <p className="text-[8px] font-black text-gray-600 uppercase tracking-widest">Selected_Mesh_Node</p>
-                             <p className="text-[10px] font-black text-red-600 uppercase italic">{selectedCam}</p>
+                      <div className="flex items-center gap-8">
+                          <div className="flex flex-col items-end">
+                             <p className="text-[10px] font-black text-gray-700 uppercase tracking-widest">Active_Strategic_Focus</p>
+                             <p className="text-[12px] font-black text-red-600 uppercase italic tracking-widest">{selectedCam}</p>
                           </div>
-                          <button className="p-2 bg-white/5 border border-white/5 text-gray-500 hover:text-white transition-colors"><Maximize2 size={18} /></button>
+                          <button className="p-3 bg-white/5 border border-white/10 text-gray-600 hover:text-white transition-all"><Maximize2 size={20} /></button>
                       </div>
                   </div>
 
-                  {/* Sentient Operational Viewport */}
+                  {/* ASWIG Viewport Ecosystem */}
                   <div className="flex-1 relative overflow-hidden">
                       <AnimatePresence mode="wait">
+                          {activeView === 'war-room' && (
+                              <motion.div key="war-room" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, filter: "blur(40px)" }} className="h-full">
+                                  <StrategicWarRoom />
+                              </motion.div>
+                          )}
+                          {activeView === 'city' && (
+                              <motion.div key="city" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
+                                  <DigitalTwinCity />
+                              </motion.div>
+                          )}
                           {activeView === 'grid' && (
                               <motion.div 
                                   key="grid"
-                                  initial={{ opacity: 0, filter: "blur(20px)" }}
+                                  initial={{ opacity: 0, filter: "blur(40px)" }}
                                   animate={{ opacity: 1, filter: "blur(0px)" }}
-                                  exit={{ opacity: 0, scale: 1.05 }}
+                                  exit={{ opacity: 0 }}
                                   className="grid grid-cols-2 h-full gap-1 p-1 bg-white/5"
                               >
                                   {["cam-001", "cam-002", "cam-003", "cam-004"].map((id) => (
                                       <div 
                                           key={id} 
                                           onClick={() => { setSelectedCam(id); }}
-                                          className={`relative group cursor-pointer border border-white/5 hover:border-red-600/50 transition-all ${selectedCam === id ? 'ring-2 ring-red-600' : ''}`}
+                                          className={`relative group cursor-pointer border border-white/5 hover:border-red-600 transition-all ${selectedCam === id ? 'ring-4 ring-red-600/50' : ''}`}
                                       >
                                           <CameraFeed compact cameraId={id} />
-                                          <div className="absolute top-8 left-8 z-10 px-4 py-1.5 bg-black/90 text-[11px] font-black text-white uppercase tracking-[0.2em] border-l-2 border-red-600 italic">
-                                              {id} // MESH_ACTIVE
+                                          <div className="absolute top-10 left-10 z-10 px-6 py-2 bg-black/95 text-[12px] font-black text-white uppercase tracking-[0.4em] border-l-4 border-red-600 italic">
+                                              {id} // ASWIG_ACTIVE
                                           </div>
                                       </div>
                                   ))}
                               </motion.div>
                           )}
-                          {activeView === '3d' && (
-                              <motion.div key="3d" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
-                                  <Strategic3DMap />
-                              </motion.div>
-                          )}
-                          {activeView === 'fabric' && (
-                              <motion.div key="fabric" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-black/80 flex items-center justify-center p-12">
-                                  <div className="text-center space-y-8">
-                                      <Globe size={120} className="text-red-600/20 mx-auto animate-pulse" />
-                                      <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter">Global_Surveillance_Fabric_Core</h3>
-                                      <div className="grid grid-cols-3 gap-8 max-w-4xl">
-                                          {["SITE_ALPHA", "SITE_BRAVO", "EDGE_NORTH"].map(site => (
-                                              <div key={site} className="p-8 glass-panel-heavy border-red-600/20 relative overflow-hidden group hover:border-red-600 transition-all">
-                                                  <div className="radar-sweep opacity-5" />
-                                                  <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-4">{site}</p>
-                                                  <div className="space-y-4">
-                                                      <div className="flex justify-between text-[9px] font-bold text-gray-500"><span>NODES_ACTIVE</span><span className="text-white">12</span></div>
-                                                      <div className="flex justify-between text-[9px] font-bold text-gray-500"><span>THREAT_INDEX</span><span className="text-red-500">0.04</span></div>
-                                                      <div className="flex justify-between text-[9px] font-bold text-gray-500"><span>MESH_SYNC</span><span className="text-green-500">100%</span></div>
-                                                  </div>
-                                              </div>
-                                          ))}
-                                      </div>
-                                  </div>
-                              </motion.div>
-                          )}
                           {activeView === 'replay' && (
                               <motion.div key="replay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
-                                  <TacticalReplay cameraId={selectedCam} onClose={() => setActiveView("grid")} />
+                                  <TacticalReplay cameraId={selectedCam} onClose={() => setActiveView("war-room")} />
                               </motion.div>
                           )}
                       </AnimatePresence>
@@ -217,18 +207,19 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               <SystemIntelligence />
-              <div className="glass-panel-heavy p-8 border-l-2 border-red-950 flex flex-col justify-center items-center text-center space-y-4">
-                  <Activity size={48} className="text-red-600/20" />
-                  <h3 className="text-sm font-black text-white uppercase tracking-widest italic">Realtime_Neural_Telemetry</h3>
-                  <div className="w-full h-32 flex items-end gap-1 px-4">
-                      {Array.from({ length: 40 }).map((_, i) => (
+              <div className="glass-panel-heavy p-10 border-l-2 border-red-950 relative overflow-hidden flex flex-col justify-center items-center text-center space-y-6">
+                  <div className="radar-sweep opacity-5" />
+                  <Activity size={64} className="text-red-600/20" />
+                  <h3 className="text-xl font-black text-white uppercase tracking-[0.4em] italic">Realtime_Asymmetric_Telemetry</h3>
+                  <div className="w-full h-40 flex items-end gap-1.5 px-8">
+                      {Array.from({ length: 64 }).map((_, i) => (
                           <motion.div 
                               key={i}
-                              animate={{ height: [10, Math.random() * 80 + 10, 10] }}
-                              transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.05 }}
-                              className="flex-1 bg-red-600/30"
+                              animate={{ height: [15, Math.random() * 120 + 15, 15] }}
+                              transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.02 }}
+                              className="flex-1 bg-red-600/40 border-t border-red-500/50"
                           />
                       ))}
                   </div>
@@ -236,28 +227,28 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Sentient Control Stack */}
-          <div className="space-y-6">
-              <motion.div variants={itemVariants} className="h-[550px]">
-                  <AICommanderConsole />
+          {/* ASWIG Strategic Control Stack */}
+          <div className="space-y-10">
+              <motion.div variants={itemVariants} className="h-[600px]">
+                  <AIConsciousnessLayer />
               </motion.div>
 
-              <motion.div variants={itemVariants} className="h-[450px]">
+              <motion.div variants={itemVariants} className="h-[500px]">
                   <TacticalTimeline />
               </motion.div>
 
               <motion.div
                   variants={itemVariants}
-                  className="glass-panel-heavy p-8 border-l-2 border-red-600 relative overflow-hidden"
+                  className="glass-panel-heavy p-10 border-l-2 border-red-600 relative overflow-hidden"
               >
-                  <div className="radar-sweep opacity-5" />
-                  <div className="flex items-center gap-4 mb-8">
-                      <Target size={20} className="text-red-600" />
-                      <h3 className="text-[12px] font-black text-white uppercase tracking-widest italic">Autonomous_Target_Priority</h3>
+                  <div className="radar-sweep opacity-10" />
+                  <div className="flex items-center gap-5 mb-10">
+                      <Dna size={24} className="text-red-600" />
+                      <h3 className="text-[16px] font-black text-white uppercase tracking-[0.4em] italic">Behavioral_Threat_DNA</h3>
                   </div>
                   
-                  <div className="space-y-4">
-                      <SubjectCard id="S-9921-ALPHA" label="CRITICAL_ANOMALY" confidence={0.98} lastSeen="MESH_SEC_A" threatScore={96} status="alert" />
+                  <div className="space-y-6">
+                      <SubjectCard id="OMEGA-9921" label="SENTIENT_THREAT" confidence={0.99} lastSeen="OMEGA_ZONE_4" threatScore={98} status="alert" />
                   </div>
               </motion.div>
           </div>
