@@ -10,9 +10,26 @@ import Login from "./pages/Login";
 import SubjectTracking from "./pages/SubjectTracking";
 import { useAuth } from "./context/AuthContext";
 
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: any, errorInfo: any) { console.error("CRITICAL_OS_FAILURE:", error, errorInfo); }
+  render() {
+    if (this.state.hasError) return <div className="p-20 bg-black text-red-600 font-mono">SYSTEM_HALTED: CRITICAL_UI_EXCEPTION</div>;
+    return this.props.children;
+  }
+}
+
+import React from "react";
+
 export default function App() {
   const { user, loading } = useAuth();
   const [page, setPage] = useState("dashboard");
+
+  console.log("APP_INIT: User:", !!user, "Loading:", loading);
 
   const allowedPages = useMemo(() => {
     if (!user) return ["dashboard"];
@@ -30,10 +47,10 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0f1629] to-[#050812] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#020202] text-white flex items-center justify-center font-mono">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-2 border-cyan-400/40 border-t-cyan-400 animate-spin" />
-          <p className="text-sm text-gray-400">Verifying credentials...</p>
+          <div className="w-12 h-12 rounded-full border-2 border-red-600/40 border-t-red-600 animate-spin" />
+          <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Initializing_ASWIG_Core...</p>
         </div>
       </div>
     );
@@ -44,16 +61,18 @@ export default function App() {
   }
 
   return (
-    <DashboardLayout setPage={setPage} role={user.role}>
-      {{
-        dashboard: <Dashboard />,
-        live: <LiveDetection />,
-        tracking: <SubjectTracking />,
-        analysis: <VideoAnalysis />,
-        alerts: <Alerts />,
-        health: <SystemHealth />,
-        settings: <Settings />,
-      }[page]}
-    </DashboardLayout>
+    <ErrorBoundary>
+      <DashboardLayout setPage={setPage} role={user.role}>
+        {{
+          dashboard: <Dashboard />,
+          live: <LiveDetection />,
+          tracking: <SubjectTracking />,
+          analysis: <VideoAnalysis />,
+          alerts: <Alerts />,
+          health: <SystemHealth />,
+          settings: <Settings />,
+        }[page]}
+      </DashboardLayout>
+    </ErrorBoundary>
   );
 }
