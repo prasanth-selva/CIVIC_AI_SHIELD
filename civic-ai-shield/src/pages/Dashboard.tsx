@@ -1,15 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { StatCard } from "../components/ui/StatCard";
 import { CameraFeed } from "../components/ui/CameraFeed";
-import { SeverityBadge } from "../components/ui/SeverityBadge";
-import { AIConfidenceChart } from "../components/ui/AIConfidenceChart";
-import { TacticalReplay } from "../components/ui/TacticalReplay";
 import { SystemIntelligence } from "../components/ui/SystemIntelligence";
 import { SubjectCard } from "../components/ui/SubjectCard";
-import { TacticalCommandMap } from "../components/ui/TacticalCommandMap";
-import { IntelligenceEscalationPanel } from "../components/ui/IntelligenceEscalationPanel";
+import { TacticalReplay } from "../components/ui/TacticalReplay";
+import { Strategic3DMap } from "../components/ui/Strategic3DMap";
+import { AICommanderConsole } from "../components/ui/AICommanderConsole";
 import { TacticalTimeline } from "../components/ui/TacticalTimeline";
-import { Camera, AlertTriangle, Activity, Zap, ShieldCheck, LayoutGrid, Maximize2, Crosshair, Target, Brain, Shield, Terminal, Search } from "lucide-react";
+import { Camera, AlertTriangle, Activity, Zap, ShieldCheck, LayoutGrid, Maximize2, Crosshair, Target, Brain, Shield, Terminal, Search, Globe, Network, Map } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE } from "../config";
@@ -30,7 +28,7 @@ const itemVariants = {
 export default function Dashboard() {
   const { token } = useAuth();
   const [isBooting, setIsBooting] = useState(true);
-  const [activeView, setActiveView] = useState<"grid" | "map" | "focus" | "replay">("grid");
+  const [activeView, setActiveView] = useState<"grid" | "3d" | "fabric" | "replay">("grid");
   const [selectedCam, setSelectedCam] = useState("cam-001");
   const [stats, setStats] = useState({
     total_cameras: "847",
@@ -46,7 +44,7 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsBooting(false), 2500);
+    const timer = setTimeout(() => setIsBooting(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -56,28 +54,38 @@ export default function Dashboard() {
         {isBooting && (
           <motion.div 
             initial={{ opacity: 1 }}
-            exit={{ opacity: 0, filter: "blur(20px)" }}
-            transition={{ duration: 1 }}
-            className="fixed inset-0 z-[1000] bg-[#020202] flex flex-col items-center justify-center space-y-8"
+            exit={{ opacity: 0, scale: 1.1, filter: "blur(40px)" }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[2000] bg-[#020202] flex flex-col items-center justify-center space-y-12"
           >
-            <motion.div 
-               animate={{ rotate: 360 }}
-               transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-               className="w-24 h-24 border-t-2 border-red-600 rounded-full"
-            />
-            <div className="text-center space-y-2">
-                <h2 className="text-xl font-black text-white uppercase tracking-[0.6em] italic">Initializing_Tactical_OS</h2>
-                <div className="flex justify-center gap-1">
-                    {Array.from({ length: 4 }).map((_, i) => (
+            <div className="relative">
+                <motion.div 
+                   animate={{ rotate: 360 }}
+                   transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+                   className="w-48 h-48 border border-red-600/20 rounded-full"
+                />
+                <motion.div 
+                   animate={{ rotate: -360 }}
+                   transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                   className="absolute inset-4 border-t-2 border-red-600 rounded-full shadow-[0_0_30px_rgba(255,0,0,0.4)]"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <Shield size={48} className="text-red-600 animate-pulse" />
+                </div>
+            </div>
+            <div className="text-center space-y-4">
+                <h2 className="text-3xl font-black text-white uppercase tracking-[1em] italic">Civic_Sentient_OS</h2>
+                <div className="flex justify-center gap-2">
+                    {Array.from({ length: 8 }).map((_, i) => (
                         <motion.div 
                             key={i}
-                            animate={{ opacity: [0.2, 1, 0.2] }}
-                            transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
-                            className="w-4 h-1 bg-red-600"
+                            animate={{ opacity: [0.2, 1, 0.2], height: [4, 8, 4] }}
+                            transition={{ repeat: Infinity, duration: 1, delay: i * 0.1 }}
+                            className="w-6 bg-red-600"
                         />
                     ))}
                 </div>
-                <p className="text-[8px] font-mono text-gray-600 uppercase tracking-widest mt-4">AUTH_TOKEN: VERIFIED // K8S_SYNC: 100% // NEURAL_NET: READY</p>
+                <p className="text-[10px] font-mono text-gray-700 uppercase tracking-widest mt-6">SYNCHRONIZING_GLOBAL_SURVEILLANCE_FABRIC // VERSION_4.2.0_AUTONOMOUS</p>
             </div>
           </motion.div>
         )}
@@ -88,116 +96,120 @@ export default function Dashboard() {
         <motion.div variants={itemVariants} className="flex justify-between items-end">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-               <div className="w-10 h-0.5 bg-red-600 shadow-[0_0_10px_rgba(255,0,0,0.5)]" />
-               <p className="text-red-600 font-black text-[10px] uppercase tracking-[0.6em] italic">Strategic_Command_Infrastructure</p>
+               <div className="w-12 h-0.5 bg-red-600 shadow-[0_0_15px_rgba(255,0,0,0.6)]" />
+               <p className="text-red-600 font-black text-[10px] uppercase tracking-[0.6em] italic">Autonomous_Sentient_Defense_Fabric</p>
             </div>
-            <h1 className="text-7xl font-black text-white tracking-tighter italic uppercase leading-none">Civic_Shield_v4.2</h1>
+            <h1 className="text-8xl font-black text-white tracking-tighter italic uppercase leading-none">Sentient_Shield</h1>
           </div>
           <div className="text-right space-y-4">
-             <div className="flex items-center gap-4 justify-end">
-                <div className="px-5 py-2 bg-red-950/20 border border-red-600/30 rounded-sm flex items-center gap-3">
-                   <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
-                   <span className="text-[10px] font-black text-red-500 uppercase tracking-widest italic">Autonomous_Mode: ACTIVE</span>
+             <div className="flex items-center gap-6 justify-end">
+                <div className="px-6 py-2 bg-red-600 text-white border border-red-400 rounded-sm flex items-center gap-3 shadow-[0_0_20px_rgba(255,0,0,0.4)] animate-pulse">
+                   <Brain size={16} />
+                   <span className="text-[11px] font-black uppercase tracking-widest italic">SENTIENT_OVERRIDE: ACTIVE</span>
                 </div>
-                <div className="px-5 py-2 bg-black/40 border border-white/5 rounded-sm flex items-center gap-3 group hover:border-red-600 transition-all cursor-pointer">
-                   <ShieldCheck size={14} className="text-green-500" />
-                   <span className="text-[10px] font-black text-green-500 uppercase tracking-widest italic">Secure_Uplink</span>
+                <div className="px-6 py-2 bg-black/40 border border-white/5 rounded-sm flex items-center gap-3 group hover:border-red-600 transition-all cursor-pointer">
+                   <Network size={16} className="text-red-600" />
+                   <span className="text-[11px] font-black text-white uppercase tracking-widest italic">Mesh_Federation: Stable</span>
                 </div>
              </div>
-             <div className="flex flex-col items-end">
-                <p className="text-gray-600 font-mono text-[10px] uppercase tracking-widest">Global_Strategic_Grid // NODE_0XFA21</p>
-                <p className="text-[8px] font-black text-red-600/40 uppercase tracking-[0.4em] italic mt-1">Projection: MIL-STD-810G</p>
-             </div>
+             <p className="text-gray-600 font-mono text-[10px] uppercase tracking-widest italic">Global_Strategic_Grid // MESH_NODE_0XFA21 // SITE_ALPHA</p>
           </div>
         </motion.div>
 
-        {/* Top Metrics */}
+        {/* Distributed Metrics */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard title="Strategic Nodes" value={stats.total_cameras} icon={<Camera size={20} />} trend={stats.trends.cameras as any} trendValue="+12 active" />
-          <StatCard title="Neural Threads" value={stats.active_streams} icon={<Zap size={20} />} trend={stats.trends.streams as any} trendValue="98.7% sync" />
-          <StatCard title="Active Threats" value={stats.alerts_today} icon={<AlertTriangle size={20} />} trend={stats.trends.alerts as any} trendValue="-23% risk" />
-          <StatCard title="System Integrity" value={stats.system_health} icon={<Activity size={20} />} trend={stats.trends.health as any} trendValue="Nominal" />
+          <StatCard title="Regional Nodes" value={stats.total_cameras} icon={<Globe size={20} />} trend={stats.trends.cameras as any} trendValue="+12 active" />
+          <StatCard title="Swarm Threads" value={stats.active_streams} icon={<Network size={20} />} trend={stats.trends.streams as any} trendValue="99.2% sync" />
+          <StatCard title="Threat Cascades" value={stats.alerts_today} icon={<AlertTriangle size={20} />} trend={stats.trends.alerts as any} trendValue="-23% risk" />
+          <StatCard title="Mesh Integrity" value={stats.system_health} icon={<Activity size={20} />} trend={stats.trends.health as any} trendValue="Nominal" />
         </motion.div>
 
-        {/* Main Operational Grid */}
+        {/* Global Operational Environment */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           <div className="xl:col-span-2 space-y-6">
             <div className="hud-border p-0.5">
               <div className="corner-tl" /> <div className="corner-tr" /> <div className="corner-bl" /> <div className="corner-br" />
-              <div className="bg-[#020202] border border-white/5 overflow-hidden rounded-sm min-h-[650px] flex flex-col relative">
-                  {/* Digital Overlay HUD Overlay */}
-                  <div className="absolute top-20 left-10 pointer-events-none opacity-20 z-50">
-                      <div className="text-[10px] font-mono text-red-600 space-y-1">
-                          <p>SCAN_MODE: ACTIVE</p>
-                          <p>BUFFER_SYNC: 100%</p>
-                          <p>LATENCY: 2.4MS</p>
-                      </div>
-                  </div>
-
-                  {/* Viewport Header */}
-                  <div className="p-5 border-b border-white/5 flex justify-between items-center bg-black/60 backdrop-blur-xl">
-                      <div className="flex items-center gap-8">
-                          <div className="flex items-center gap-3">
-                              <LayoutGrid size={16} className="text-red-600" />
-                              <span className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Operational_Orchestrator</span>
+              <div className="bg-[#020202] border border-white/5 overflow-hidden rounded-sm min-h-[700px] flex flex-col relative">
+                  {/* Viewport Control Bar */}
+                  <div className="p-6 border-b border-white/5 flex justify-between items-center bg-black/60 backdrop-blur-2xl">
+                      <div className="flex items-center gap-10">
+                          <div className="flex items-center gap-4">
+                              <LayoutGrid size={18} className="text-red-600" />
+                              <span className="text-[12px] font-black text-white uppercase tracking-[0.3em] italic">Orchestration_Viewport</span>
                           </div>
-                          <div className="flex bg-white/5 rounded-sm p-1">
-                              {["grid", "map", "focus", "replay"].map((view) => (
+                          <div className="flex bg-white/5 rounded-sm p-1 border border-white/5">
+                              {["grid", "3d", "fabric", "replay"].map((view) => (
                                   <button 
                                       key={view}
                                       onClick={() => setActiveView(view as any)}
-                                      className={`px-5 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeView === view ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(255,0,0,0.4)]' : 'text-gray-500 hover:text-white'}`}
+                                      className={`px-6 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all ${activeView === view ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(255,0,0,0.5)]' : 'text-gray-500 hover:text-white'}`}
                                   >{view}</button>
                               ))}
                           </div>
                       </div>
                       <div className="flex items-center gap-6">
-                          <div className="relative">
-                              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
-                              <input placeholder="NODE_ID..." className="bg-white/5 border border-white/10 rounded-sm pl-10 pr-4 py-1.5 text-[9px] font-black uppercase tracking-widest w-48 focus:border-red-600 outline-none transition-all" />
+                          <div className="flex flex-col items-end mr-4">
+                             <p className="text-[8px] font-black text-gray-600 uppercase tracking-widest">Selected_Mesh_Node</p>
+                             <p className="text-[10px] font-black text-red-600 uppercase italic">{selectedCam}</p>
                           </div>
-                          <button className="text-gray-500 hover:text-white transition-colors"><Maximize2 size={16} /></button>
+                          <button className="p-2 bg-white/5 border border-white/5 text-gray-500 hover:text-white transition-colors"><Maximize2 size={18} /></button>
                       </div>
                   </div>
 
-                  {/* Operational Viewport */}
+                  {/* Sentient Operational Viewport */}
                   <div className="flex-1 relative overflow-hidden">
                       <AnimatePresence mode="wait">
                           {activeView === 'grid' && (
                               <motion.div 
                                   key="grid"
-                                  initial={{ opacity: 0, scale: 0.98, filter: "blur(10px)" }}
-                                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                                  exit={{ opacity: 0, scale: 1.02 }}
+                                  initial={{ opacity: 0, filter: "blur(20px)" }}
+                                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                                  exit={{ opacity: 0, scale: 1.05 }}
                                   className="grid grid-cols-2 h-full gap-1 p-1 bg-white/5"
                               >
                                   {["cam-001", "cam-002", "cam-003", "cam-004"].map((id) => (
                                       <div 
                                           key={id} 
-                                          onClick={() => { setSelectedCam(id); setActiveView("focus"); }}
-                                          className={`relative group cursor-pointer border border-white/5 hover:border-red-600/50 transition-all ${selectedCam === id ? 'ring-2 ring-red-600/50' : ''}`}
+                                          onClick={() => { setSelectedCam(id); }}
+                                          className={`relative group cursor-pointer border border-white/5 hover:border-red-600/50 transition-all ${selectedCam === id ? 'ring-2 ring-red-600' : ''}`}
                                       >
                                           <CameraFeed compact cameraId={id} />
-                                          <div className="absolute top-6 left-6 z-10 px-3 py-1 bg-black/80 text-[10px] font-black text-white uppercase tracking-widest border border-white/10 group-hover:bg-red-600 transition-colors italic">
-                                              {id} // LIVE_FEED
+                                          <div className="absolute top-8 left-8 z-10 px-4 py-1.5 bg-black/90 text-[11px] font-black text-white uppercase tracking-[0.2em] border-l-2 border-red-600 italic">
+                                              {id} // MESH_ACTIVE
                                           </div>
                                       </div>
                                   ))}
                               </motion.div>
                           )}
-                          {activeView === 'map' && (
-                              <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
-                                  <TacticalCommandMap />
+                          {activeView === '3d' && (
+                              <motion.div key="3d" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
+                                  <Strategic3DMap />
                               </motion.div>
                           )}
-                          {activeView === 'focus' && (
-                              <motion.div key="focus" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
-                                  <CameraFeed threat="Target Analysis Active" confidence={98.7} location="Central Axis Sector" cameraId={selectedCam} />
+                          {activeView === 'fabric' && (
+                              <motion.div key="fabric" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-black/80 flex items-center justify-center p-12">
+                                  <div className="text-center space-y-8">
+                                      <Globe size={120} className="text-red-600/20 mx-auto animate-pulse" />
+                                      <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter">Global_Surveillance_Fabric_Core</h3>
+                                      <div className="grid grid-cols-3 gap-8 max-w-4xl">
+                                          {["SITE_ALPHA", "SITE_BRAVO", "EDGE_NORTH"].map(site => (
+                                              <div key={site} className="p-8 glass-panel-heavy border-red-600/20 relative overflow-hidden group hover:border-red-600 transition-all">
+                                                  <div className="radar-sweep opacity-5" />
+                                                  <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-4">{site}</p>
+                                                  <div className="space-y-4">
+                                                      <div className="flex justify-between text-[9px] font-bold text-gray-500"><span>NODES_ACTIVE</span><span className="text-white">12</span></div>
+                                                      <div className="flex justify-between text-[9px] font-bold text-gray-500"><span>THREAT_INDEX</span><span className="text-red-500">0.04</span></div>
+                                                      <div className="flex justify-between text-[9px] font-bold text-gray-500"><span>MESH_SYNC</span><span className="text-green-500">100%</span></div>
+                                                  </div>
+                                              </div>
+                                          ))}
+                                      </div>
+                                  </div>
                               </motion.div>
                           )}
                           {activeView === 'replay' && (
                               <motion.div key="replay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
-                                  <TacticalReplay cameraId={selectedCam} onClose={() => setActiveView("focus")} />
+                                  <TacticalReplay cameraId={selectedCam} onClose={() => setActiveView("grid")} />
                               </motion.div>
                           )}
                       </AnimatePresence>
@@ -207,14 +219,27 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <SystemIntelligence />
-              <AIConfidenceChart />
+              <div className="glass-panel-heavy p-8 border-l-2 border-red-950 flex flex-col justify-center items-center text-center space-y-4">
+                  <Activity size={48} className="text-red-600/20" />
+                  <h3 className="text-sm font-black text-white uppercase tracking-widest italic">Realtime_Neural_Telemetry</h3>
+                  <div className="w-full h-32 flex items-end gap-1 px-4">
+                      {Array.from({ length: 40 }).map((_, i) => (
+                          <motion.div 
+                              key={i}
+                              animate={{ height: [10, Math.random() * 80 + 10, 10] }}
+                              transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.05 }}
+                              className="flex-1 bg-red-600/30"
+                          />
+                      ))}
+                  </div>
+              </div>
             </div>
           </div>
 
-          {/* Right Side Intelligence Stack */}
+          {/* Sentient Control Stack */}
           <div className="space-y-6">
               <motion.div variants={itemVariants} className="h-[550px]">
-                  <IntelligenceEscalationPanel />
+                  <AICommanderConsole />
               </motion.div>
 
               <motion.div variants={itemVariants} className="h-[450px]">
@@ -226,13 +251,13 @@ export default function Dashboard() {
                   className="glass-panel-heavy p-8 border-l-2 border-red-600 relative overflow-hidden"
               >
                   <div className="radar-sweep opacity-5" />
-                  <div className="flex items-center gap-3 mb-8">
-                      <Target size={18} className="text-red-600" />
-                      <h3 className="text-sm font-black text-white uppercase tracking-widest italic">High_Risk_Target_Intel</h3>
+                  <div className="flex items-center gap-4 mb-8">
+                      <Target size={20} className="text-red-600" />
+                      <h3 className="text-[12px] font-black text-white uppercase tracking-widest italic">Autonomous_Target_Priority</h3>
                   </div>
                   
                   <div className="space-y-4">
-                      <SubjectCard id="X-9921-A" label="UNKNOWN_THREAT" confidence={0.97} lastSeen="SEC_ALPHA_GATE_4" threatScore={92} status="alert" />
+                      <SubjectCard id="S-9921-ALPHA" label="CRITICAL_ANOMALY" confidence={0.98} lastSeen="MESH_SEC_A" threatScore={96} status="alert" />
                   </div>
               </motion.div>
           </div>
