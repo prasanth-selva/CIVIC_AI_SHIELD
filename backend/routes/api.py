@@ -246,7 +246,7 @@ def system_info(current_user: UserPublic = Depends(require_roles("ADMIN"))) -> d
 
 @router.get("/system/intelligence")
 def get_system_intelligence(current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR"))) -> dict:
-    """Sentient AI intelligence matrix (Point 8, 9)"""
+    """ASWIG Strategic Intelligence Matrix (Feature 2, 3, 5, 9)"""
     if not DETECTION_AVAILABLE:
         return {"error": "Detection modules not available"}
     
@@ -254,12 +254,14 @@ def get_system_intelligence(current_user: UserPublic = Depends(require_roles("AD
     monitor = get_system_monitor()
     metrics = monitor.get_current_metrics()
     
-    from ..inference.intel_engine import get_intel_engine, get_sim_engine
-    intel = get_intel_engine()
-    sim = get_sim_engine()
+    from ..inference.intel_engine import get_aswig_engine
+    aswig = get_aswig_engine()
+    
+    # Analyze a dummy state to get ASWIG metrics
+    aswig_data = aswig.analyze_incident("MESH_CORE_01", [], DetectionResult(detections=[]), metrics)
     
     return {
-        "active_models": ["SENTIENT_COMMANDER_v4", "YOLOv8x_Tactical", "SWARM_CORE_v1", "PREDICTIVE_FORECAST_v2"],
+        "active_models": ["ASWIG_STRATEGIC_CORE_v1", "SENTIENT_COMMANDER_v4", "THREAT_DNA_SCANNER_v2", "INFRA_SENTINEL_v1"],
         "inference": {
             "latency_ms": round(pipeline.stats["inference_latency"], 2),
             "throughput_fps": round(1000 / max(pipeline.stats["inference_latency"], 1), 1),
@@ -268,26 +270,65 @@ def get_system_intelligence(current_user: UserPublic = Depends(require_roles("AD
         },
         "resources": {
             "gpu_usage": f"{metrics.get('gpu_load', 0)}%",
-            "gpu_temp": f"{metrics.get('gpu_temp', 45)}°C", # Feature 9
+            "gpu_temp": f"{metrics.get('gpu_temp', 45)}°C",
             "gpu_mem": f"{metrics.get('gpu_mem_used', 0)} MB",
             "cpu_usage": f"{metrics.get('cpu_usage', 0)}%",
             "ram_usage": f"{metrics.get('memory_usage', 0)}%"
         },
+        "aswig_status": aswig_data,
         "network": {
             "active_nodes": pipeline.stats["active_nodes"],
-            "ws_connections": 1,
+            "mesh_integrity": aswig_data["infrastructure_integrity"],
             "bandwidth_mbps": round(pipeline.stats["active_nodes"] * 2.4, 1),
-            "mesh_sync": "SYNCHRONIZED" # Feature 3
+            "mesh_sync": "SYNCHRONIZED"
         },
-        "autonomous_status": pipeline.stats["last_intelligence"],
-        "commander_status": {
-            "active": True,
-            "resource_matrix": intel.commander.resource_status,
-            "decision_confidence": 0.98
-        },
-        "simulation": sim.generate_simulation() if random.random() > 0.8 else None,
         "timestamp": _utc_now_iso()
     }
+
+
+@router.get("/strategic/war-room")
+def get_strategic_war_room(current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR"))) -> dict:
+    """Feature 1: Strategic War Room Missions"""
+    return {
+        "active_missions": [
+            {
+                "id": "MISSION-A-941",
+                "directive": "SECURE_SECTOR_ALPHA_PERIMETER",
+                "status": "OPERATIONAL",
+                "threat_ladder": 3,
+                "cascade_prob": 0.12,
+                "units_deployed": ["ALPHA-UNIT", "DRONE-SWARM-1"]
+            },
+            {
+                "id": "MISSION-A-945",
+                "directive": "NEUTRALIZE_BEHAVIORAL_ANOMALY_P4",
+                "status": "INITIATING",
+                "threat_ladder": 1,
+                "cascade_prob": 0.04,
+                "units_deployed": ["SEC-MOBILE-1"]
+            }
+        ],
+        "global_threat_level": "ELEVATED",
+        "strategic_projection": "STABLE_CONTAINMENT"
+    }
+
+
+@router.get("/strategic/consciousness")
+def get_ai_consciousness(current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR"))) -> dict:
+    """Feature 9: AI Simulated Consciousness Stream"""
+    from ..inference.intel_engine import get_aswig_engine
+    return {
+        "thought_stream": get_aswig_engine().thought_stream,
+        "neural_load": "4.2%",
+        "decision_confidence_avg": 0.982
+    }
+
+
+@router.get("/strategic/swarm")
+def get_drone_swarm_telemetry(current_user: UserPublic = Depends(require_roles("ADMIN", "OPERATOR"))) -> dict:
+    """Feature 6: Drone & Mobile Edge Integration"""
+    from ..inference.intel_engine import get_aswig_engine
+    return get_aswig_engine().drone_swarm.get_swarm_status()
 
 
 @router.get("/system/simulation")
