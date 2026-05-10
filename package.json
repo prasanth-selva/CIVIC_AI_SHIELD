@@ -1,4 +1,12 @@
 {
+  "name": "civic-ai-shield-root",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm run dev --prefix civic-ai-shield",
+    "build": "npm run build --prefix civic-ai-shield",
+    "backend": "python -m uvicorn backend.main:app --reload",
+    "install-all": "npm install && npm install --prefix civic-ai-shield"
+  },
   "dependencies": {
     "chart.js": "^4.5.1",
     "react-chartjs-2": "^5.3.1"
