@@ -9,7 +9,7 @@ from threading import Thread
 from dataclasses import dataclass, field
 from .detector import ThreatDetector, DetectionResult
 from .decision_engine import DecisionEngine, AlertEvent
-from .intel_engine import get_intel_engine, get_timeline_manager, IntelligenceReport
+from .intel_engine import get_aswig_engine, get_timeline_manager
 from ..config import settings
 
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ class AsyncInferencePipeline:
     def __init__(self, detector: ThreatDetector, decision_engine: DecisionEngine):
         self.detector = detector
         self.decision_engine = decision_engine
-        self.intel_engine = get_intel_engine()
+        self.intel_engine = get_aswig_engine()
         self.timeline_manager = get_timeline_manager()
         self.input_queue = asyncio.Queue(maxsize=30)
         self.output_queue = asyncio.Queue(maxsize=100)

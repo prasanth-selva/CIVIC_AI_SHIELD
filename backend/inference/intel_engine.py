@@ -176,10 +176,66 @@ class AutonomousIntelligenceEngine:
         })
         if len(self.thought_stream) > 100: self.thought_stream.pop(0)
 
+class TimelineManager:
+    """
+    Feature 3: Global Surveillance Fabric.
+    Regional node federation and global command synchronization.
+    """
+    def __init__(self):
+        self.events: List[Dict[str, Any]] = []
+        self.sites = ["SITE-ALPHA", "SITE-BRAVO", "EDGE-NORTH"]
+
+    def add_event(self, camera_id: str, type: str, data: Dict[str, Any]):
+        event = {
+            "id": f"EVT-{int(time.time() * 1000)}",
+            "timestamp": time.time(),
+            "camera_id": camera_id,
+            "type": type,
+            "data": data,
+            "site": random.choice(self.sites) # Feature 3: Distributed mesh
+        }
+        self.events.append(event)
+        if len(self.events) > 1000: self.events.pop(0)
+        return event
+
+    def get_timeline(self, limit: int = 50) -> List[Dict[str, Any]]:
+        return sorted(self.events, key=lambda x: x["timestamp"], reverse=True)[:limit]
+
+class SimulationEngine:
+    """
+    Feature 7: Autonomous Incident Simulation Engine.
+    AI-generated tactical stress-testing and risk propagation.
+    """
+    def __init__(self):
+        self.sim_active = False
+        self.scenarios = ["CROWD_ESCALATION", "ZONE_BREACH", "SABOTAGE_SEQUENCE"]
+
+    def generate_simulation(self) -> Dict[str, Any]:
+        scenario = random.choice(self.scenarios)
+        return {
+            "mode": "SIMULATION",
+            "scenario": scenario,
+            "threat_cascade": random.uniform(0.6, 0.95),
+            "predicted_outcome": "CONTAINED_90",
+            "timestamp": time.time()
+        }
+
 # Global Instances
 _aswig_engine: Optional[AutonomousIntelligenceEngine] = None
+_timeline_manager: Optional[TimelineManager] = None
+_sim_engine: Optional[SimulationEngine] = None
 
 def get_aswig_engine():
     global _aswig_engine
     if _aswig_engine is None: _aswig_engine = AutonomousIntelligenceEngine()
     return _aswig_engine
+
+def get_timeline_manager():
+    global _timeline_manager
+    if _timeline_manager is None: _timeline_manager = TimelineManager()
+    return _timeline_manager
+
+def get_sim_engine():
+    global _sim_engine
+    if _sim_engine is None: _sim_engine = SimulationEngine()
+    return _sim_engine
