@@ -1,12 +1,24 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-export type Role = "ADMIN" | "OPERATOR" | "VIEWER";
+export type Role = "COMMANDER" | "STRATEGIC_OPS" | "FIELD_CONTROL" | "ANALYST" | "OBSERVER";
+
+export type OperatorProfile = {
+  rank: string;
+  clearance: number; // 1-5
+  missionStatus: string;
+  efficiency: number; // 0-100
+  threatScore: number;
+  opsHistory: string[];
+  callsign: string;
+  neuralLinkStatus: "STABLE" | "SYNCING" | "OFFLINE";
+};
 
 export type AuthUser = {
   id: string;
   email: string;
   full_name: string;
   role: Role;
+  profile: OperatorProfile;
   disabled?: boolean;
 };
 
@@ -18,6 +30,7 @@ type AuthContextValue = {
   loading: boolean;
   login: (email: string, password: string, remember?: boolean) => Promise<LoginResult>;
   logout: () => void;
+  setProfileStatus: (status: "STABLE" | "SYNCING" | "OFFLINE") => void;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -47,6 +60,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("civic_ai_token");
   }, []);
 
+  const generateMockProfile = (role: Role, name: string): OperatorProfile => {
+    const roles: Record<Role, Partial<OperatorProfile>> = {
+      COMMANDER: { rank: "GENERAL_OF_GRID", clearance: 5, callsign: "ARCHON_01" },
+      STRATEGIC_OPS: { rank: "COLONEL_TACTICAL", clearance: 4, callsign: "SENTINEL_ALPHA" },
+      FIELD_CONTROL: { rank: "MAJOR_OVERSEER", clearance: 3, callsign: "STRIKE_EYE" },
+      ANALYST: { rank: "CHIEF_INTELLIGENCE", clearance: 2, callsign: "PATTERN_GHOST" },
+      OBSERVER: { rank: "GUEST_RECON", clearance: 1, callsign: "NEURAL_GUEST" },
+    };
+
+    return {
+      rank: roles[role]?.rank || "UNKNOWN",
+      clearance: roles[role]?.clearance || 0,
+      missionStatus: "ACTIVE_MONITORING",
+      efficiency: 94.2,
+      threatScore: 0.02,
+      opsHistory: ["OP_SILENT_STORM", "OP_CYBER_SHIELD"],
+      callsign: roles[role]?.callsign || "UNIDENTIFIED",
+      neuralLinkStatus: "STABLE",
+    };
+  };
+
   const login = useCallback(
     async (email: string, password: string, remember = false): Promise<LoginResult> => {
       setLoading(true);
@@ -70,7 +104,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const profile = await fetchMe(data.access_token);
-        setUser(profile);
+        
+        // Enhance with tactical profile if not present
+        const roleMapping: Record<string, Role> = {
+          "ADMIN": "COMMANDER",
+          "OPERATOR": "STRATEGIC_OPS",
+          "VIEWER": "OBSERVER"
+        };
+        
+        const tacticalUser: AuthUser = {
+          ...profile,
+          role: roleMapping[profile.role as string] || "OBSERVER",
+          profile: generateMockProfile(roleMapping[profile.role as string] || "OBSERVER", profile.full_name)
+        };
+        
+        setUser(tacticalUser);
         return { ok: true };
       } catch (error) {
         return { ok: false, error: "Unable to sign in. Please try again." };
@@ -80,6 +128,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     [fetchMe]
   );
+
+  const setProfileStatus = useCallback((status: "STABLE" | "SYNCING" | "OFFLINE") => {
+    setUser(prev => prev ? ({
+      ...prev,
+      profile: { ...prev.profile, neuralLinkStatus: status }
+    }) : null);
+  }, []);
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -92,7 +147,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         setToken(stored);
         const profile = await fetchMe(stored);
-        setUser(profile);
+        
+        const roleMapping: Record<string, Role> = {
+          "ADMIN": "COMMANDER",
+          "OPERATOR": "STRATEGIC_OPS",
+          "VIEWER": "OBSERVER"
+        };
+        
+        const tacticalUser: AuthUser = {
+          ...profile,
+          role: roleMapping[profile.role as string] || "OBSERVER",
+          profile: generateMockProfile(roleMapping[profile.role as string] || "OBSERVER", profile.full_name)
+        };
+        
+        setUser(tacticalUser);
       } catch {
         logout();
       } finally {
@@ -104,8 +172,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchMe, logout]);
 
   const value = useMemo(
-    () => ({ user, token, loading, login, logout }),
-    [user, token, loading, login, logout]
+    () => ({ user, token, loading, login, logout, setProfileStatus }),
+    [user, token, loading, login, logout, setProfileStatus]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
