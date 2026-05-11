@@ -355,9 +355,9 @@ export default function Login() {
 
         {/* Fake Terminal Logs Bottom */}
         <div className="mt-6 terminal-logs h-12 overflow-hidden opacity-30">
-           <p className="animate-pulse">> UPLINK_STABLE // SYNC_LATENCY_12ms // X_OMEGA_SEC_01</p>
-           <p className="delay-75">> TRACE_DETECTION_PASSIVE // NO_INTRUSION_DETECTED</p>
-           <p className="delay-150">> CAIS_V5_READY_FOR_COMMAND_INPUT</p>
+           <p className="animate-pulse">{">"} UPLINK_STABLE // SYNC_LATENCY_12ms // X_OMEGA_SEC_01</p>
+           <p className="delay-75">{">"} TRACE_DETECTION_PASSIVE // NO_INTRUSION_DETECTED</p>
+           <p className="delay-150">{">"} CAIS_V5_READY_FOR_COMMAND_INPUT</p>
         </div>
       </motion.div>
     </div>
