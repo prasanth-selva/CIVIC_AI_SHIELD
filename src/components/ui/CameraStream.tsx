@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { API_BASE } from "../../config";
-import { AlertTriangle, Wifi, WifiOff, Shield, ShieldOff, Crosshair, Target, Zap } from "lucide-react";
+import { AlertTriangle, Wifi, WifiOff, Shield, ShieldOff, Crosshair, Target, Zap, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Detection {

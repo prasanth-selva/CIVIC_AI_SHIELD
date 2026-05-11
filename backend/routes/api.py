@@ -14,6 +14,7 @@ from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Backgro
 from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 import logging
+import time
 
 from ..auth import require_roles, UserPublic
 from ..config import settings, get_settings, ThreatClass, Severity
