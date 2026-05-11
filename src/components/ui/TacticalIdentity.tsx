@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Target, User, ShieldCheck, Activity, Zap, Radio, Globe, Lock, Cpu, Brain, Dna, MapPin, AlertTriangle } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export function TacticalIdentity() {
   const { user } = useAuth();
