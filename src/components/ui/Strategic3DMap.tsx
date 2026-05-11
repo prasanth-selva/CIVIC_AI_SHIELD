@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, PerspectiveCamera, Float, MeshDistortMaterial, Text, Box, Sphere, Cylinder } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera, Float, Text, Sphere } from "@react-three/drei";
 import { useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { motion as m } from "framer-motion";
