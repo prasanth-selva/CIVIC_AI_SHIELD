@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
-Role = Literal["ADMIN", "OPERATOR", "VIEWER"]
+Role = Literal["COMMANDER", "STRATEGIC_OPS", "FIELD_CONTROL", "ANALYST", "OBSERVER"]
 
 SECRET_KEY = "civic-ai-shield-dev-secret"
 ALGORITHM = "HS256"
@@ -43,7 +43,7 @@ MOCK_USERS: Dict[str, UserInDB] = {
         id="user-001",
         email="admin@civic.ai",
         full_name="Avery Quinn",
-        role="ADMIN",
+        role="COMMANDER",
         hashed_password="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/Ll5PEcUBqTPdGOdZ6",  # Admin123
         disabled=False,
     ),
@@ -51,7 +51,7 @@ MOCK_USERS: Dict[str, UserInDB] = {
         id="user-002",
         email="operator@civic.ai",
         full_name="Jordan Hayes",
-        role="OPERATOR",
+        role="STRATEGIC_OPS",
         hashed_password="$2b$12$VQq8xEsZe8qAqEbBZgKLkOuNZ5.RQJqFLBcLnX7sQEzVYMJ9YW/zq",  # Operator123
         disabled=False,
     ),
@@ -59,7 +59,7 @@ MOCK_USERS: Dict[str, UserInDB] = {
         id="user-003",
         email="viewer@civic.ai",
         full_name="Riley Morgan",
-        role="VIEWER",
+        role="OBSERVER",
         hashed_password="$2b$12$kBz5Z8z7YqK5KpZ8F5Z5ZeZ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zu",  # Viewer123
         disabled=False,
     ),

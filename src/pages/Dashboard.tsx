@@ -26,15 +26,17 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
 };
 
+import { TacticalIdentity, SecuritySentinel } from "../components/ui/TacticalIdentity";
+
 export default function Dashboard() {
-  const { token } = useAuth();
+  const { user, token } = useAuth();
   const [isBooting, setIsBooting] = useState(true);
   const [activeView, setActiveView] = useState<"war-room" | "city" | "grid" | "replay">("war-room");
   const [selectedCam, setSelectedCam] = useState("cam-001");
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsBooting(false), 2000);
+    const timer = setTimeout(() => setIsBooting(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -64,34 +66,56 @@ export default function Dashboard() {
             transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-0 z-[5000] bg-[#020202] flex flex-col items-center justify-center space-y-16"
           >
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="scanlines opacity-20" />
+              <div className="tactical-grid opacity-10" />
+            </div>
+
             <div className="relative">
                 <motion.div 
                    animate={{ rotate: 360 }}
                    transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
-                   className="w-64 h-64 border border-red-600/10 rounded-full"
+                   className="w-80 h-80 border border-red-600/10 rounded-full"
                 />
                 <motion.div 
                    animate={{ rotate: -360 }}
                    transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
-                   className="absolute inset-8 border-t-2 border-red-600 rounded-full shadow-[0_0_40px_rgba(255,0,0,0.5)]"
+                   className="absolute inset-10 border-t-2 border-red-600 rounded-full shadow-[0_0_60px_rgba(255,0,0,0.6)]"
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <ShieldAlert size={64} className="text-red-600 animate-pulse" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                    <ShieldCheck size={80} className="text-red-600 animate-pulse" />
+                    <p className="text-red-600 font-black text-xs tracking-[1em] uppercase">ACCESS_GRANTED</p>
                 </div>
             </div>
-            <div className="text-center space-y-6">
-                <h2 className="text-4xl font-black text-white uppercase tracking-[1.2em] italic">Initializing_ASWIG_Core</h2>
-                <div className="flex justify-center gap-3">
-                    {Array.from({ length: 12 }).map((_, i) => (
+            
+            <div className="text-center space-y-8">
+                <div className="flex flex-col gap-2">
+                   <h2 className="text-5xl font-black text-white uppercase tracking-[0.8em] italic">WELCOME_TO_THE_STRATEGIC_WARFARE_GRID</h2>
+                   <p className="text-red-600/60 font-black text-sm tracking-[0.5em] uppercase">COMMANDER_CLEARANCE_STABILIZED // SYNCING_MESH_NODES</p>
+                </div>
+                
+                <div className="flex justify-center gap-4">
+                    {Array.from({ length: 24 }).map((_, i) => (
                         <motion.div 
                             key={i}
-                            animate={{ opacity: [0.1, 1, 0.1], height: [6, 12, 6] }}
-                            transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.1 }}
-                            className="w-8 bg-red-600 shadow-[0_0_10px_rgba(255,0,0,0.5)]"
+                            initial={{ height: 2 }}
+                            animate={{ opacity: [0.1, 1, 0.1], height: [4, 16, 4] }}
+                            transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.05 }}
+                            className="w-6 bg-red-600 shadow-[0_0_15px_rgba(255,0,0,0.8)]"
                         />
                     ))}
                 </div>
-                <p className="text-[12px] font-mono text-gray-700 uppercase tracking-widest mt-8">AUTONOMOUS_STRATEGIC_WARFARE_INTELLIGENCE_GRID // OMEGA_LEVEL_ENCRYPTION_ACTIVE</p>
+                
+                <div className="flex items-center justify-center gap-12 pt-8 border-t border-white/5">
+                   <div className="text-left">
+                      <p className="text-gray-700 text-[10px] font-black uppercase tracking-widest">IDENTIFIED_OPERATOR</p>
+                      <p className="text-white text-lg font-black uppercase tracking-widest">{user?.full_name}</p>
+                   </div>
+                   <div className="text-right">
+                      <p className="text-gray-700 text-[10px] font-black uppercase tracking-widest">CLEARANCE_LEVEL</p>
+                      <p className="text-red-600 text-lg font-black uppercase tracking-widest italic">{user?.role}</p>
+                   </div>
+                </div>
             </div>
           </motion.div>
         )}
@@ -109,13 +133,13 @@ export default function Dashboard() {
           </div>
           <div className="text-right space-y-6">
              <div className="flex items-center gap-8 justify-end">
-                <div className="px-8 py-3 bg-red-600 text-white border border-red-400 rounded-sm flex items-center gap-4 shadow-[0_0_30px_rgba(255,0,0,0.6)] animate-pulse">
-                   <Brain size={20} />
-                   <span className="text-[14px] font-black uppercase tracking-widest italic">WARFARE_GRID_ACTIVE</span>
+                <div className="px-8 py-3 bg-red-600 text-white border border-red-400 rounded-sm flex items-center gap-4 shadow-[0_0_30px_rgba(255,0,0,0.6)]">
+                   <Target size={20} />
+                   <span className="text-[14px] font-black uppercase tracking-widest italic">{user?.profile.callsign} // ONLINE</span>
                 </div>
                 <div className="px-8 py-3 bg-black/60 border border-white/5 rounded-sm flex items-center gap-4 group hover:border-red-600 transition-all cursor-pointer">
-                   <Cpu size={20} className="text-red-600" />
-                   <span className="text-[14px] font-black text-white uppercase tracking-widest italic">Self_Healing_Nominal</span>
+                   <Shield size={20} className="text-red-600" />
+                   <span className="text-[14px] font-black text-white uppercase tracking-widest italic">Clearance_Level_{user?.profile.clearance}</span>
                 </div>
              </div>
              <p className="text-gray-600 font-mono text-[12px] uppercase tracking-[0.4em] italic">Global_Command_Node // 0X_OMEGA_SEC // SITE_OMEGA</p>
@@ -229,27 +253,20 @@ export default function Dashboard() {
 
           {/* ASWIG Strategic Control Stack */}
           <div className="space-y-10">
-              <motion.div variants={itemVariants} className="h-[600px]">
-                  <AIConsciousnessLayer />
+              <motion.div variants={itemVariants}>
+                  <TacticalIdentity />
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                  <SecuritySentinel />
               </motion.div>
 
               <motion.div variants={itemVariants} className="h-[500px]">
                   <TacticalTimeline />
               </motion.div>
 
-              <motion.div
-                  variants={itemVariants}
-                  className="glass-panel-heavy p-10 border-l-2 border-red-600 relative overflow-hidden"
-              >
-                  <div className="radar-sweep opacity-10" />
-                  <div className="flex items-center gap-5 mb-10">
-                      <Dna size={24} className="text-red-600" />
-                      <h3 className="text-[16px] font-black text-white uppercase tracking-[0.4em] italic">Behavioral_Threat_DNA</h3>
-                  </div>
-                  
-                  <div className="space-y-6">
-                      <SubjectCard id="OMEGA-9921" label="SENTIENT_THREAT" confidence={0.99} lastSeen="OMEGA_ZONE_4" threatScore={98} status="alert" />
-                  </div>
+              <motion.div variants={itemVariants} className="h-[400px]">
+                  <AIConsciousnessLayer />
               </motion.div>
           </div>
         </motion.div>

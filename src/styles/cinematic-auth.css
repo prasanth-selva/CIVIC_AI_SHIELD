@@ -4,7 +4,7 @@
   --military-black: #050505;
   --blood-red: #ff0000;
   --tactical-red: rgba(255, 0, 0, 0.8);
-  --glass-red: rgba(20, 0, 0, 0.6);
+  --glass-red: rgba(10, 0, 0, 0.85);
   --neon-red-glow: 0 0 15px rgba(255, 0, 0, 0.4);
 }
 
@@ -22,10 +22,10 @@
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(255, 0, 0, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 0, 0, 0.05) 1px, transparent 1px);
-  background-size: 50px 50px;
-  mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%);
+    linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(circle at 50% 50%, black 20%, transparent 90%);
   pointer-events: none;
 }
 
@@ -34,25 +34,25 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 1000px;
-  height: 1000px;
-  background: radial-gradient(circle, rgba(255, 0, 0, 0.03) 0%, transparent 70%);
-  animation: neural-pulse 8s infinite ease-in-out;
+  width: 1200px;
+  height: 1200px;
+  background: radial-gradient(circle, rgba(255, 0, 0, 0.04) 0%, transparent 75%);
+  animation: neural-pulse 10s infinite ease-in-out;
   pointer-events: none;
 }
 
 @keyframes neural-pulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
-  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.2; }
+  50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.5; }
 }
 
 .tactical-glass-panel {
   background: var(--glass-red);
-  backdrop-filter: blur(40px);
-  border: 1px solid rgba(255, 0, 0, 0.1);
+  backdrop-filter: blur(60px);
+  border: 1px solid rgba(255, 0, 0, 0.15);
   box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    inset 0 0 20px rgba(255, 0, 0, 0.05);
+    0 40px 100px -20px rgba(0, 0, 0, 0.8),
+    inset 0 0 30px rgba(255, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
 }
@@ -61,81 +61,76 @@
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
+  left: -150%;
   width: 100%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 0, 0, 0.05),
+    rgba(255, 0, 0, 0.08),
     transparent
   );
-  animation: glass-sweep 4s infinite linear;
+  animation: glass-sweep 6s infinite linear;
 }
 
 @keyframes glass-sweep {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% { left: -150%; }
+  100% { left: 150%; }
 }
 
 .cinematic-vignette {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+  background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.95) 100%);
   pointer-events: none;
   z-index: 5;
 }
 
 .military-input {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 3px solid rgba(255, 0, 0, 0.3);
-  padding: 1rem 1.25rem;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 4px solid rgba(255, 0, 0, 0.2);
+  padding: 1.25rem 1.5rem;
   font-family: 'Space Grotesk', monospace;
   color: white;
-  letter-spacing: 0.1em;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.15em;
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  font-weight: 600;
+  font-size: 0.875rem;
 }
 
 .military-input:focus {
   outline: none;
   border-color: var(--blood-red);
-  background: rgba(255, 0, 0, 0.05);
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);
+  background: rgba(255, 0, 0, 0.08);
+  box-shadow: 0 0 25px rgba(255, 0, 0, 0.15);
+  border-left-width: 6px;
 }
 
 .btn-tactical {
   background: transparent;
-  border: 1px solid var(--blood-red);
+  border: 2px solid var(--blood-red);
   color: white;
-  padding: 1rem 2rem;
+  padding: 1.25rem 2.5rem;
   font-family: 'Inter', sans-serif;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.4em;
   position: relative;
   overflow: hidden;
-  transition: all 0.4s ease;
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   cursor: pointer;
 }
 
 .btn-tactical:hover {
   background: var(--blood-red);
   color: black;
-  box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
+  transform: scale(1.02);
 }
 
-.btn-tactical::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: white;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.btn-tactical:active::after {
-  opacity: 0.2;
+.btn-tactical:active {
+  transform: scale(0.98);
 }
 
 .scanlines {
@@ -143,12 +138,12 @@
   inset: 0;
   background: linear-gradient(
     rgba(18, 16, 16, 0) 50%,
-    rgba(0, 0, 0, 0.1) 50%
+    rgba(0, 0, 0, 0.15) 50%
   );
-  background-size: 100% 4px;
+  background-size: 100% 6px;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.3;
+  opacity: 0.4;
 }
 
 .floating-particles {
@@ -162,27 +157,26 @@
   position: absolute;
   background: var(--blood-red);
   border-radius: 50%;
-  opacity: 0.2;
-  filter: blur(1px);
+  opacity: 0.15;
+  filter: blur(2px);
 }
 
 .fingerprint-scanner {
-  width: 60px;
-  height: 60px;
-  border: 1px solid rgba(255, 0, 0, 0.3);
-  border-radius: 4px;
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
+  background: rgba(255, 0, 0, 0.02);
 }
 
 .fingerprint-scanner:hover {
   border-color: var(--blood-red);
-  background: rgba(255, 0, 0, 0.1);
-  box-shadow: var(--neon-red-glow);
+  background: rgba(255, 0, 0, 0.12);
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
 }
 
 .scanner-line {
@@ -190,10 +184,10 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 2px;
+  height: 3px;
   background: var(--blood-red);
-  box-shadow: 0 0 10px var(--blood-red);
-  animation: scan 2s infinite ease-in-out;
+  box-shadow: 0 0 15px var(--blood-red);
+  animation: scan 2.5s infinite ease-in-out;
 }
 
 @keyframes scan {
@@ -201,32 +195,11 @@
   50% { top: 100%; }
 }
 
-.terminal-logs {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 10px;
-  color: rgba(255, 0, 0, 0.5);
-  letter-spacing: 1px;
-}
-
-.node-counter {
-  font-family: 'Space Grotesk', monospace;
-  font-weight: 700;
-  color: var(--blood-red);
-  text-shadow: var(--neon-red-glow);
-}
-
 .retina-overlay {
   position: fixed;
   inset: 0;
-  border: 2px solid var(--blood-red);
   pointer-events: none;
   z-index: 1000;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.retina-overlay.active {
-  opacity: 1;
 }
 
 .retina-circle {
@@ -234,11 +207,9 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 300px;
-  height: 300px;
-  border: 1px dashed var(--blood-red);
+  border: 2px dashed var(--blood-red);
   border-radius: 50%;
-  animation: spin 10s linear infinite;
+  animation: spin 15s linear infinite;
 }
 
 @keyframes spin {
@@ -246,8 +217,27 @@
   to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-.progress-ring-circle {
-  transition: stroke-dashoffset 0.35s;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
+.terminal-logs {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 11px;
+  color: rgba(255, 0, 0, 0.4);
+  letter-spacing: 2px;
+  line-height: 1.8;
+}
+
+.node-counter {
+  font-family: 'Space Grotesk', monospace;
+  font-weight: 800;
+  color: var(--blood-red);
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+.voice-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
