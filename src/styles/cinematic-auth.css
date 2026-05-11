@@ -1,0 +1,253 @@
+/* CINEMATIC MILITARY-GRADE AUTHENTICATION TERMINAL STYLES */
+
+:root {
+  --military-black: #050505;
+  --blood-red: #ff0000;
+  --tactical-red: rgba(255, 0, 0, 0.8);
+  --glass-red: rgba(20, 0, 0, 0.6);
+  --neon-red-glow: 0 0 15px rgba(255, 0, 0, 0.4);
+}
+
+.auth-terminal-root {
+  background-color: var(--military-black);
+  font-family: 'Inter', sans-serif;
+  color: white;
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+}
+
+.tactical-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%);
+  pointer-events: none;
+}
+
+.neural-pulse-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1000px;
+  height: 1000px;
+  background: radial-gradient(circle, rgba(255, 0, 0, 0.03) 0%, transparent 70%);
+  animation: neural-pulse 8s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes neural-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
+}
+
+.tactical-glass-panel {
+  background: var(--glass-red);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 0, 0, 0.1);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    inset 0 0 20px rgba(255, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.tactical-glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 0, 0, 0.05),
+    transparent
+  );
+  animation: glass-sweep 4s infinite linear;
+}
+
+@keyframes glass-sweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.cinematic-vignette {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.military-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 3px solid rgba(255, 0, 0, 0.3);
+  padding: 1rem 1.25rem;
+  font-family: 'Space Grotesk', monospace;
+  color: white;
+  letter-spacing: 0.1em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.military-input:focus {
+  outline: none;
+  border-color: var(--blood-red);
+  background: rgba(255, 0, 0, 0.05);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);
+}
+
+.btn-tactical {
+  background: transparent;
+  border: 1px solid var(--blood-red);
+  color: white;
+  padding: 1rem 2rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.btn-tactical:hover {
+  background: var(--blood-red);
+  color: black;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+}
+
+.btn-tactical::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.btn-tactical:active::after {
+  opacity: 0.2;
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.1) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.3;
+}
+
+.floating-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  background: var(--blood-red);
+  border-radius: 50%;
+  opacity: 0.2;
+  filter: blur(1px);
+}
+
+.fingerprint-scanner {
+  width: 60px;
+  height: 60px;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.fingerprint-scanner:hover {
+  border-color: var(--blood-red);
+  background: rgba(255, 0, 0, 0.1);
+  box-shadow: var(--neon-red-glow);
+}
+
+.scanner-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--blood-red);
+  box-shadow: 0 0 10px var(--blood-red);
+  animation: scan 2s infinite ease-in-out;
+}
+
+@keyframes scan {
+  0%, 100% { top: 0; }
+  50% { top: 100%; }
+}
+
+.terminal-logs {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 10px;
+  color: rgba(255, 0, 0, 0.5);
+  letter-spacing: 1px;
+}
+
+.node-counter {
+  font-family: 'Space Grotesk', monospace;
+  font-weight: 700;
+  color: var(--blood-red);
+  text-shadow: var(--neon-red-glow);
+}
+
+.retina-overlay {
+  position: fixed;
+  inset: 0;
+  border: 2px solid var(--blood-red);
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.retina-overlay.active {
+  opacity: 1;
+}
+
+.retina-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  border: 1px dashed var(--blood-red);
+  border-radius: 50%;
+  animation: spin 10s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.progress-ring-circle {
+  transition: stroke-dashoffset 0.35s;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
