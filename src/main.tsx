@@ -1,20 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import "./index.css";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
-console.log("MAIN_INIT: Starting React Mount...");
+function TestApp() {
+  const { user, loading } = useAuth();
+  return React.createElement("div", {
+    style: { color: "lime", fontSize: "32px", padding: "60px", background: "#111", minHeight: "100vh" }
+  }, 
+    "AUTH_STATE: loading=" + String(loading) + " user=" + String(!!user)
+  );
+}
 
-const rootElement = document.getElementById("root");
-if (!rootElement) {
-    console.error("FATAL: Root element not found!");
-} else {
-    console.log("MAIN_INIT: Root element found, mounting...");
-    ReactDOM.createRoot(rootElement).render(
-        <AuthProvider>
-            <App />
-        </AuthProvider>
-    );
-    console.log("MAIN_INIT: Render call completed.");
+const root = document.getElementById("root");
+if (root) {
+  ReactDOM.createRoot(root).render(
+    React.createElement(AuthProvider, null,
+      React.createElement(TestApp)
+    )
+  );
 }
