@@ -21,7 +21,7 @@ from ..config import settings, get_settings, ThreatClass, Severity
 
 # Import detection modules (with graceful fallback)
 try:
-    from ..inference import ThreatDetector, DecisionEngine, Detection
+    from ..inference import ThreatDetector, DecisionEngine, Detection, DetectionResult
     from ..inference.pipeline import get_pipeline, AsyncInferencePipeline
     from ..telegram_alert import TelegramBot, AlertManager
     from ..utils import get_incident_logger, get_system_monitor
@@ -259,7 +259,7 @@ def get_system_intelligence(current_user: UserPublic = Depends(require_roles("AD
     aswig = get_aswig_engine()
     
     # Analyze a dummy state to get ASWIG metrics
-    aswig_data = aswig.analyze_incident("MESH_CORE_01", [], DetectionResult(detections=[]), metrics)
+    aswig_data = aswig.analyze_incident("MESH_CORE_01", [], DetectionResult(detections=[], inference_time=0.0, frame_id=0, timestamp=time.time()), metrics)
     
     return {
         "active_models": ["ASWIG_STRATEGIC_CORE_v1", "SENTIENT_COMMANDER_v4", "THREAT_DNA_SCANNER_v2", "INFRA_SENTINEL_v1"],

@@ -45,7 +45,14 @@ class StrategicReasoningEngine:
         self.reasoning_log: List[str] = []
 
     def analyze_strategic_risk(self, camera_id: str, alerts: List[AlertEvent]) -> Dict[str, Any]:
-        if not alerts: return {"risk": 0.05, "cascade": 0.01}
+        if not alerts: 
+            return {
+                "strategic_threat_score": 0.05, 
+                "cascade_probability": 0.01,
+                "projected_civilian_risk": "LOW",
+                "recommendation_matrix": "OBSERVATION_SYNC"
+            }
+        
         
         # Calculate cascade probability based on multi-event correlation
         correlation_factor = len(alerts) * 0.15
