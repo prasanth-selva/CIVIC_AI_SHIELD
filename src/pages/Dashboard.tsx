@@ -1,9 +1,48 @@
+import { motion, AnimatePresence } from "framer-motion";
+import { StatCard } from "../components/ui/StatCard";
+import { CameraFeed } from "../components/ui/CameraFeed";
+import { SystemIntelligence } from "../components/ui/SystemIntelligence";
+import { SubjectCard } from "../components/ui/SubjectCard";
+import { TacticalReplay } from "../components/ui/TacticalReplay";
+import { StrategicWarRoom } from "../components/ui/StrategicWarRoom";
+import { DigitalTwinCity } from "../components/ui/DigitalTwinCity";
+import { AIConsciousnessLayer } from "../components/ui/AIConsciousnessLayer";
+import { TacticalTimeline } from "../components/ui/TacticalTimeline";
+import { GlobalDefenseMesh } from "../components/battlefield/GlobalDefenseMesh";
+import { AIBattlefieldBrain } from "../components/battlefield/AIBattlefieldBrain";
+import { SwarmSurveillance } from "../components/battlefield/SwarmSurveillance";
+import { ForensicEngine } from "../components/battlefield/ForensicEngine";
+import { InfrastructureMonitor } from "../components/battlefield/InfrastructureMonitor";
+import { 
+  Camera, AlertTriangle, Activity, Zap, Globe, ShieldAlert, LayoutGrid, Maximize2, Crosshair, Target, Brain, Shield, Terminal, 
+  Search, Network, Map, Dna, Plane, Cpu, ShieldCheck, Wifi, History, TrendingUp, ChevronRight, MessageSquare, AlertCircle, 
+  Trash2, Edit3, Save, Play, Square, Pause, SkipBack, SkipForward, Volume2, Settings, User, Bell, LogOut, Lock, Unlock, 
+  Eye, EyeOff, Key, Fingerprint, Mic, Smartphone, Info, HelpCircle, MoreHorizontal, ExternalLink, RefreshCw, Layers, Hash, 
+  Thermometer, Database, Server, Clock, CheckCircle, Binary, Box, Users 
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { API_BASE } from "../config";
+import { TacticalIdentity, SecuritySentinel } from "../components/ui/TacticalIdentity";
 import { PlanetaryDefenseGrid } from "../components/battlefield/PlanetaryDefenseGrid";
 import { QuantumIntelligenceCore } from "../components/battlefield/QuantumIntelligenceCore";
 import { AIEvolutionEngine } from "../components/battlefield/AIEvolutionEngine";
 import { TacticalSimulationReality } from "../components/battlefield/TacticalSimulationReality";
 import { GeopoliticalEngine } from "../components/battlefield/GeopoliticalEngine";
 import { NeuralFirewall } from "../components/battlefield/NeuralFirewall";
+
+const pageVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+};
 
 export default function Dashboard() {
   const { user, token } = useAuth();
