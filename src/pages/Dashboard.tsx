@@ -30,6 +30,8 @@ import { AIEvolutionEngine } from "../components/battlefield/AIEvolutionEngine";
 import { TacticalSimulationReality } from "../components/battlefield/TacticalSimulationReality";
 import { GeopoliticalEngine } from "../components/battlefield/GeopoliticalEngine";
 import { NeuralFirewall } from "../components/battlefield/NeuralFirewall";
+import { SentientAIVisualizer } from "../components/battlefield/SentientAIVisualizer";
+import { SelfProtectingInfrastructure } from "../components/battlefield/SelfProtectingInfrastructure";
 
 const pageVariants = {
   hidden: { opacity: 0 },
@@ -323,7 +325,7 @@ export default function Dashboard() {
                         )}
                         {activeView === 'firewall' && (
                             <motion.div key="firewall" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full p-12">
-                                <NeuralFirewall />
+                                <SelfProtectingInfrastructure />
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -371,8 +373,8 @@ export default function Dashboard() {
            <div className="col-span-4 space-y-12">
               <TacticalIdentity />
               <SecuritySentinel />
-              <div className="h-[500px] shadow-2xl">
-                 <AIConsciousnessLayer />
+              <div className="h-[600px] shadow-2xl">
+                 <SentientAIVisualizer />
               </div>
               <div className="tactical-glass-panel p-10 flex flex-col items-center text-center group cursor-help hover:border-red-600 transition-all border-2 border-white/5">
                  <div className="w-24 h-24 border-8 border-red-950 rounded-xl flex items-center justify-center mb-10 transform group-hover:rotate-180 transition-transform duration-1000 shadow-[0_0_50px_rgba(255,0,0,0.2)]">
