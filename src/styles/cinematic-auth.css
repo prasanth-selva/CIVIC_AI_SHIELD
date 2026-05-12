@@ -1,48 +1,36 @@
-/* CIVIC_AI_SHIELD — AUTONOMOUS_BATTLEFIELD_INTELLIGENCE_GRID_CSS_V9.4 */
+/* QUANTUM_AUTONOMOUS_DEFENSE_SUPERINTELLIGENCE_OS_v12.0 */
 
 :root {
-  --military-black: #020202;
-  --matte-black: #050505;
-  --blood-red: #ff0000;
-  --deep-red: #8b0000;
-  --glass-red: rgba(10, 0, 0, 0.9);
-  --neon-glow: 0 0 20px rgba(255, 0, 0, 0.4);
-  --panel-border: rgba(255, 0, 0, 0.15);
+  --quantum-red: #ff0000;
+  --deep-void: #010101;
+  --neural-glow: rgba(255, 0, 0, 0.4);
+  --planetary-ring: rgba(255, 0, 0, 0.15);
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
-  background-color: var(--military-black);
+  background-color: var(--deep-void);
   color: white;
   margin: 0;
   overflow-x: hidden;
   font-family: 'Inter', sans-serif;
 }
 
-/* --- CORE ANIMATIONS --- */
-
 @keyframes pulse-red {
   0% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.2); }
-  50% { box-shadow: 0 0 60px rgba(255, 0, 0, 0.6); }
+  50% { box-shadow: 0 0 80px rgba(255, 0, 0, 0.8); }
   100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.2); }
 }
 
-@keyframes scanline-sweep {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(100%); }
+@keyframes quantum-flicker {
+  0%, 100% { opacity: 0.8; filter: brightness(1) blur(0px); }
+  50% { opacity: 1; filter: brightness(1.5) blur(1px); }
 }
 
-@keyframes radar-pulse {
-  0% { transform: scale(1); opacity: 0.6; }
-  100% { transform: scale(2.5); opacity: 0; }
-}
-
-@keyframes neural-pulse {
-  0%, 100% { filter: brightness(1) contrast(1.2); }
-  50% { filter: brightness(1.5) contrast(1.5); }
+@keyframes planetary-fog {
+  0% { transform: translateX(-50%) translateY(-50%) rotate(0deg); opacity: 0.2; }
+  100% { transform: translateX(-50%) translateY(-50%) rotate(360deg); opacity: 0.4; }
 }
 
 @keyframes glass-sweep {
@@ -50,25 +38,18 @@ body {
   100% { left: 150%; }
 }
 
-@keyframes rotate {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+@keyframes scanline-sweep {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
 }
-
-@keyframes volumetric-beam {
-  0%, 100% { transform: translateX(-20%) skewX(-25deg); opacity: 0.05; }
-  50% { transform: translateX(120%) skewX(-25deg); opacity: 0.2; }
-}
-
-/* --- TACTICAL UI COMPONENTS --- */
 
 .tactical-glass-panel {
-  background: var(--glass-red);
-  backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid var(--panel-border);
+  background: rgba(5, 5, 5, 0.9);
+  backdrop-filter: blur(60px) saturate(180%);
+  border: 1px solid rgba(255, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 1);
 }
 
 .tactical-glass-panel::after {
@@ -78,13 +59,8 @@ body {
   left: -150%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 0, 0, 0.03),
-    transparent
-  );
-  animation: glass-sweep 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+  animation: glass-sweep 8s infinite;
   pointer-events: none;
 }
 
@@ -94,186 +70,114 @@ body {
   left: 50%;
   width: 300%;
   height: 300%;
-  background: conic-gradient(from 0deg, rgba(255, 0, 0, 0.08), transparent 90deg);
+  background: conic-gradient(from 0deg, rgba(255, 0, 0, 0.1), transparent 90deg);
   transform-origin: center center;
-  animation: rotate 12s linear infinite;
+  animation: rotate 15s linear infinite;
   pointer-events: none;
+}
+
+@keyframes rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .scanlines {
   position: fixed;
   inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(255, 0, 0, 0.02) 3px,
-    transparent 4px
-  );
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 0, 0, 0.03) 3px, transparent 4px);
   pointer-events: none;
-  z-index: 100;
-  opacity: 0.5;
+  z-index: 1000;
+  opacity: 0.4;
 }
 
 .scanlines::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(255, 0, 0, 0.04),
-    transparent
-  );
-  animation: scanline-sweep 6s linear infinite;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.05), transparent);
+  animation: scanline-sweep 4s linear infinite;
 }
 
 .tactical-grid {
-  background-image: 
-    linear-gradient(rgba(255, 0, 0, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 0, 0, 0.05) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(255, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 0, 0.05) 1px, transparent 1px);
   background-size: 50px 50px;
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-.red-alert-mode {
-  animation: pulse-red 2s infinite;
-  border-color: rgba(255, 0, 0, 0.6) !important;
-}
-
-.volumetric-lighting {
+.planetary-atmosphere {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  top: 50%; left: 50%;
+  width: 150%; height: 150%;
+  background: radial-gradient(circle, var(--planetary-ring) 0%, transparent 60%);
+  filter: blur(80px);
+  animation: planetary-fog 60s linear infinite;
   pointer-events: none;
-  z-index: 1;
 }
 
-.volumetric-beam {
+.gpu-particle-field {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 200%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 0, 0, 0.05),
-    transparent
-  );
-  transform: skewX(-25deg);
-  animation: volumetric-beam 20s ease-in-out infinite;
+  inset: 0;
+  background-image: radial-gradient(circle, #ff0000 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.05;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
 }
 
-/* --- HUD DECORATIONS --- */
-
-.corner-tl, .corner-tr, .corner-bl, .corner-br {
-  position: absolute;
-  width: 25px;
-  height: 25px;
-  border: 2px solid rgba(255, 0, 0, 0.4);
-  pointer-events: none;
-  z-index: 10;
+.text-quantum-glow {
+  text-shadow: 0 0 15px rgba(255, 0, 0, 1), 0 0 30px rgba(255, 0, 0, 0.6);
 }
-
-.corner-tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
-.corner-tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
-.corner-bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
-.corner-br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
-
-.text-glow-red {
-  text-shadow: 0 0 15px rgba(255, 0, 0, 1), 0 0 30px rgba(255, 0, 0, 0.5);
-}
-
-/* --- SCROLLBAR --- */
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.4);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 0, 0, 0.5);
-}
-
-/* --- AUTH SPECIFIC --- */
 
 .military-input {
-  background: rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-left: 6px solid rgba(255, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  border-left: 8px solid var(--quantum-red);
   padding: 1.5rem 2rem;
   font-family: 'Space Grotesk', monospace;
   color: white;
-  letter-spacing: 0.2em;
-  font-weight: 700;
-  font-size: 1rem;
+  letter-spacing: 0.3em;
+  font-weight: 800;
   width: 100%;
-  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: all 0.4s ease;
 }
 
 .military-input:focus {
   outline: none;
-  border-color: var(--blood-red);
   background: rgba(255, 0, 0, 0.05);
-  box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
+  box-shadow: 0 0 40px rgba(255, 0, 0, 0.2);
 }
 
 .btn-tactical {
   background: transparent;
-  border: 2px solid var(--blood-red);
+  border: 2px solid var(--quantum-red);
   color: white;
   padding: 1.5rem 3rem;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.5em;
+  letter-spacing: 0.6em;
   cursor: pointer;
-  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  position: relative;
+  transition: all 0.5s ease;
   overflow: hidden;
+  position: relative;
 }
 
 .btn-tactical:hover {
-  background: var(--blood-red);
+  background: var(--quantum-red);
   color: black;
-  box-shadow: 0 0 60px rgba(255, 0, 0, 0.6);
-}
-
-/* --- UTILITIES --- */
-
-.neural-activity-bars {
-  display: flex;
-  align-items: end;
-  gap: 3px;
-}
-
-.neural-bar {
-  flex: 1;
-  background: rgba(255, 0, 0, 0.3);
-  border-top: 1px solid rgba(255, 0, 0, 0.6);
+  box-shadow: 0 0 80px rgba(255, 0, 0, 0.8);
+  transform: scale(1.05);
 }
 
 .cinematic-vignette {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.9) 100%);
+  background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 1) 100%);
   pointer-events: none;
   z-index: 10;
 }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
+::-webkit-scrollbar-thumb { background: rgba(255,0,0,0.4); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,0,0,0.8); }
