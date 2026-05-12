@@ -24,9 +24,9 @@ const AUTH_STAGES = [
 ];
 
 const RECENT_ATTEMPTS = [
-  { id: 1, loc: "SITE-ALPHA (10.0.1.42)", status: "SECURE", time: "2m ago" },
-  { id: 2, loc: "SITE-OMEGA (192.168.4.1)", status: "AUTHORIZED", time: "14m ago" },
-  { id: 3, loc: "EDGE-NORTH (172.16.0.5)", status: "FAILED_CIPHER", time: "1h ago" },
+  { id: 1, loc: "SITE-ALPHA (10.0.1.42)", status: "SECURE", time: "2m ago", coords: "34.05, -118.24" },
+  { id: 2, loc: "SITE-OMEGA (192.168.4.1)", status: "AUTHORIZED", time: "14m ago", coords: "40.71, -74.00" },
+  { id: 3, loc: "EDGE-NORTH (172.16.0.5)", status: "FAILED_CIPHER", time: "1h ago", coords: "51.50, -0.12" },
 ];
 
 export default function Login() {
@@ -47,8 +47,9 @@ export default function Login() {
   const [showVoice, setShowVoice] = useState(false);
   const [lockOnProgress, setLockOnProgress] = useState(0);
   const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; duration: number }[]>([]);
+  const [intrusionAlerts, setIntrusionAlerts] = useState<string[]>([]);
 
-  // Initialize Particles
+  // Initialize Particles & Alerts
   useEffect(() => {
     const newParticles = Array.from({ length: 40 }).map((_, i) => ({
       id: i,
@@ -58,6 +59,14 @@ export default function Login() {
       duration: Math.random() * 15 + 10
     }));
     setParticles(newParticles);
+
+    const alertInterval = setInterval(() => {
+      const site = ['ALPHA', 'OMEGA', 'NODE-7'][Math.floor(Math.random() * 3)];
+      const type = ['ACCESS_SYNC', 'HEARTBEAT_STABLE', 'NODE_FEDERATED'][Math.floor(Math.random() * 3)];
+      setIntrusionAlerts(prev => [ `${site} // ${type} // ${new Date().toLocaleTimeString()}`, ...prev.slice(0, 4) ]);
+    }, 4000);
+
+    return () => clearInterval(alertInterval);
   }, []);
 
   // Boot Sequence Logic
@@ -86,7 +95,7 @@ export default function Login() {
         setIsScanning(false);
         setShowVoice(true);
       }
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      await new Promise(resolve => setTimeout(resolve, 1400));
       if (i === 2) setShowVoice(false);
     }
   }, []);
@@ -98,11 +107,12 @@ export default function Login() {
     setLockOnProgress(0);
 
     const lockInterval = setInterval(() => {
-      setLockOnProgress(prev => Math.min(100, prev + 1));
-    }, 50);
+      setLockOnProgress(prev => Math.min(100, prev + (Math.random() > 0.5 ? 1 : 2)));
+    }, 100);
 
     await runAuthSimulation();
     clearInterval(lockInterval);
+    setLockOnProgress(100);
 
     const result = await login(email.trim(), password, remember);
     if (!result.ok) {
@@ -268,60 +278,85 @@ export default function Login() {
           animate={{ opacity: 1, x: 0 }}
           className="col-span-3 space-y-6"
         >
-          <div className="tactical-glass-panel p-6 border-l-2 border-red-600">
+          <div className="tactical-glass-panel p-6 border-l-2 border-red-600 relative overflow-hidden">
+            <div className="radar-sweep opacity-5" />
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-red-600/10 border border-red-600/30">
                 <ShieldCheck className="text-red-600" size={18} />
               </div>
-              <h3 className="text-red-600 text-[10px] font-black uppercase tracking-[0.3em]">Sentinel_AI_Guardian</h3>
+              <div>
+                <h3 className="text-red-600 text-[10px] font-black uppercase tracking-[0.3em]">Sentinel_AI_Guardian</h3>
+                <p className="text-[7px] font-mono text-gray-700 uppercase tracking-widest mt-1">SENTINEL_MONITORING_ACTIVE</p>
+              </div>
             </div>
             
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-gray-500 mb-2">
-                  <span>Trust_Score</span>
-                  <span className="text-red-600">98.4%</span>
+                  <span>Trust_Score_Confidence</span>
+                  <span className="text-emerald-500">98.4%</span>
                 </div>
-                <div className="h-1 bg-red-950/30 w-full overflow-hidden">
-                  <motion.div initial={{ width: 0 }} animate={{ width: "98.4%" }} className="h-full bg-red-600" />
+                <div className="h-1 bg-white/5 w-full overflow-hidden rounded-full">
+                  <motion.div initial={{ width: 0 }} animate={{ width: "98.4%" }} className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                 </div>
               </div>
 
-              <div className="h-24 relative overflow-hidden bg-black/40 border border-red-600/10">
-                 <div className="absolute inset-0 flex items-center justify-center text-[8px] font-mono text-red-900/40 uppercase tracking-tighter">Behavior_Anomaly_Graph</div>
+              <div className="h-24 relative overflow-hidden bg-black/40 border border-white/5 rounded-sm">
+                 <div className="absolute inset-0 flex flex-col items-center justify-center opacity-20">
+                    <Brain size={32} className="text-red-900" />
+                    <p className="text-[6px] font-mono text-red-900 uppercase tracking-tighter mt-2">Behavior_Neural_Analysis</p>
+                 </div>
                  <svg className="absolute inset-0 w-full h-full">
-                    <motion.path 
-                      d="M0 50 Q 50 20 100 60 T 200 40 T 300 70" 
-                      fill="none" 
-                      stroke="rgba(255,0,0,0.3)" 
-                      strokeWidth="1"
-                      animate={{ d: ["M0 50 Q 50 20 100 60 T 200 40 T 300 70", "M0 60 Q 50 80 100 30 T 200 60 T 300 20"] }}
-                      transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-                    />
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <motion.path 
+                        key={i}
+                        d={`M0 ${40 + i*10} Q 50 ${20 + i*5} 100 ${60 - i*5} T 200 ${40 + i*10} T 300 ${70 - i*5}`} 
+                        fill="none" 
+                        stroke={`rgba(255,0,0,${0.1 + i*0.1})`} 
+                        strokeWidth="1"
+                        animate={{ d: [
+                          `M0 ${40 + i*10} Q 50 ${20 + i*5} 100 ${60 - i*5} T 200 ${40 + i*10} T 300 ${70 - i*5}`,
+                          `M0 ${60 - i*5} Q 50 ${80 - i*10} 100 ${30 + i*5} T 200 ${60 - i*5} T 300 ${20 + i*10}`
+                        ]}}
+                        transition={{ repeat: Infinity, duration: 3 + i, ease: "linear" }}
+                      />
+                    ))}
                  </svg>
               </div>
 
               <div className="space-y-2">
-                <p className="text-[8px] font-mono text-red-600/50 uppercase italic tracking-widest animate-pulse">Monitoring_Active...</p>
-                <p className="text-[8px] font-mono text-gray-500 uppercase tracking-widest italic">Predictive_Infection_Risk: 0.002%</p>
+                <p className="text-[8px] font-mono text-red-600/50 uppercase italic tracking-widest animate-pulse">Monitoring_Operator_Input...</p>
+                <div className="flex items-center gap-4">
+                   <div className="flex-1 space-y-1">
+                      <p className="text-[6px] font-black text-gray-700 uppercase">Suspicious_Interaction_Probability</p>
+                      <div className="h-0.5 bg-white/5 w-full">
+                         <motion.div animate={{ width: "2%" }} className="h-full bg-emerald-500" />
+                      </div>
+                   </div>
+                   <span className="text-[8px] font-mono text-emerald-500">LOW</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="tactical-glass-panel p-6">
+          <div className="tactical-glass-panel p-6 border-l-2 border-red-900/40">
              <h3 className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Radio size={12} className="text-red-600" /> Site_Connectivity
+                <Terminal size={12} className="text-red-600" /> Intrusion_Telemetry
              </h3>
-             <div className="space-y-3">
-                {['ALPHA', 'BRAVO', 'OMEGA'].map(site => (
-                  <div key={site} className="flex items-center justify-between">
-                    <span className="text-[8px] font-mono text-gray-400">SITE-{site}</span>
-                    <div className="flex gap-1">
-                       <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse" />
-                       <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse delay-75" />
-                    </div>
-                  </div>
-                ))}
+             <div className="space-y-2 overflow-hidden h-32 flex flex-col-reverse">
+                <AnimatePresence>
+                  {intrusionAlerts.map((alert, i) => (
+                    <motion.div 
+                      key={alert}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1 - i * 0.2, x: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="text-[7px] font-mono text-red-600/60 uppercase tracking-tighter whitespace-nowrap"
+                    >
+                      {alert}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
              </div>
           </div>
         </motion.div>
@@ -332,31 +367,34 @@ export default function Login() {
           animate={{ opacity: 1, scale: 1 }}
           className="col-span-6"
         >
-          <div className="tactical-glass-panel p-16 relative">
+          <div className="tactical-glass-panel p-16 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-red-600/5 to-transparent pointer-events-none" />
+            
             {/* Logo Section */}
-            <div className="flex flex-col items-center text-center mb-16">
+            <div className="flex flex-col items-center text-center mb-16 relative">
               <motion.div 
                 animate={{ rotateY: [0, 360] }}
-                transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
-                className="w-24 h-24 border-2 border-red-600 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(255,0,0,0.4)] bg-red-950/30"
+                transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+                className="w-28 h-28 border-2 border-red-600 rounded-full flex items-center justify-center mb-8 shadow-[0_0_60px_rgba(255,0,0,0.5)] bg-red-950/20 group cursor-help"
               >
-                <Shield className="text-red-600" size={40} />
+                <Shield className="text-red-600" size={48} />
+                <div className="absolute inset-0 border-4 border-dashed border-red-600/20 rounded-full animate-spin-slow" />
               </motion.div>
-              <h1 className="text-5xl font-black italic tracking-tighter text-white mb-4">CIVIC_AI_SHIELD</h1>
-              <div className="flex items-center gap-6 text-red-600 uppercase tracking-[0.6em] text-[12px] font-black">
-                <span className="w-12 h-[2px] bg-red-600/30" />
+              <h1 className="text-6xl font-black italic tracking-tighter text-white mb-4">CIVIC_AI_SHIELD</h1>
+              <div className="flex items-center gap-8 text-red-600 uppercase tracking-[0.8em] text-[12px] font-black">
+                <span className="w-16 h-[1px] bg-red-600/40 shadow-[0_0_10px_rgba(255,0,0,0.5)]" />
                 COMMANDER_CLEARANCE_REQUIRED
-                <span className="w-12 h-[2px] bg-red-600/30" />
+                <span className="w-16 h-[1px] bg-red-600/40 shadow-[0_0_10px_rgba(255,0,0,0.5)]" />
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-10">
-              <div className="grid grid-cols-2 gap-10">
+            <form onSubmit={handleSubmit} className="space-y-10 relative">
+              <div className="grid grid-cols-2 gap-12">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-[0.4em] text-red-600/80 flex items-center gap-2">
-                    <Terminal size={12} /> Operator_Identity
+                  <label className="text-[10px] font-black uppercase tracking-[0.4em] text-red-600/80 flex items-center gap-3">
+                    <User size={14} /> Operator_Identity
                   </label>
-                  <div className="relative">
+                  <div className="relative group">
                     <input
                       type="email"
                       required
@@ -365,13 +403,18 @@ export default function Login() {
                       placeholder="KERNEL_ID@CAIS.MIL"
                       className="military-input w-full"
                     />
-                    <Activity size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-red-600/20" />
+                    <motion.div 
+                      animate={{ opacity: email ? [0.2, 0.5, 0.2] : 0 }}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500 font-mono text-[8px]"
+                    >
+                      {email && "0x" + Math.random().toString(16).slice(2, 6).toUpperCase()}
+                    </motion.div>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-[0.4em] text-red-600/80 flex items-center gap-2">
-                    <LockKeyhole size={12} /> Grid_Cipher
+                  <label className="text-[10px] font-black uppercase tracking-[0.4em] text-red-600/80 flex items-center gap-3">
+                    <LockKeyhole size={14} /> Grid_Cipher
                   </label>
                   <div className="relative">
                     <input
@@ -385,81 +428,80 @@ export default function Login() {
                     <button 
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-red-600/20 hover:text-red-600"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-red-600/40 hover:text-red-600 transition-colors"
                     >
-                      <Eye size={16} />
+                      <Eye size={18} />
                     </button>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-8 bg-red-950/10 border border-red-600/10">
-                 <div className="flex items-center gap-8">
-                   <div onClick={handleBiometric} className="fingerprint-scanner w-20 h-20">
-                      <Fingerprint className={isScanning ? "text-red-600 animate-pulse" : "text-red-600/40"} size={48} />
-                      {isScanning && <div className="scanner-line" />}
+              <div className="flex items-center justify-between p-10 bg-red-950/10 border border-red-600/10 relative">
+                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-red-600" />
+                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-red-600" />
+                 
+                 <div className="flex items-center gap-10">
+                   <div onClick={handleBiometric} className="fingerprint-scanner w-24 h-24 border-red-600/20 hover:border-red-600 transition-all">
+                      <Fingerprint className={isScanning ? "text-red-600 animate-pulse" : "text-red-600/30"} size={56} />
+                      {isScanning && <div className="scanner-line h-[4px]" />}
                    </div>
                    <div>
-                      <h4 className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em] mb-1">Identity_Lock_Status</h4>
-                      <div className="flex items-center gap-3">
-                         <div className="text-2xl font-black text-white italic">{lockOnProgress}%</div>
-                         <div className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Confidence_Rating</div>
+                      <h4 className="text-[11px] font-black text-red-600 uppercase tracking-[0.4em] mb-2 italic">Neural_Identity_Lock</h4>
+                      <div className="flex items-center gap-4">
+                         <div className="text-4xl font-black text-white italic tracking-tighter">{lockOnProgress}%</div>
+                         <div className="space-y-1">
+                            <p className="text-[8px] font-black text-gray-600 uppercase tracking-widest">Confidence_Rating</p>
+                            <div className="flex gap-0.5">
+                               {Array.from({ length: 10 }).map((_, i) => (
+                                 <div key={i} className={`w-1.5 h-1 ${i < lockOnProgress / 10 ? 'bg-red-600' : 'bg-white/5'}`} />
+                               ))}
+                            </div>
+                         </div>
                       </div>
                    </div>
                  </div>
 
-                 <div className="text-right space-y-4">
-                   <label className="flex items-center justify-end gap-3 cursor-pointer text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-red-600 transition-colors">
-                      <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="accent-red-600" />
-                      Neural_Link_Persistence
-                   </label>
-                   <div className="flex items-center justify-end gap-6 text-[9px] font-black uppercase tracking-widest text-red-900">
-                      <span className="flex items-center gap-2 cursor-pointer hover:text-red-600 transition-colors"><Radio size={12} /> Encryption_V9</span>
-                      <span className="flex items-center gap-2 cursor-pointer hover:text-red-600 transition-colors text-red-600"><Wifi size={12} /> Secure_Uplink</span>
-                   </div>
+                 <div className="text-right space-y-5">
+                    <label className="flex items-center justify-end gap-4 cursor-pointer text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-red-600 transition-colors">
+                       <span className="opacity-60 italic">Persistent_Neural_Link</span>
+                       <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="w-4 h-4 accent-red-600 border-red-600 bg-black" />
+                    </label>
+                    <div className="flex flex-col items-end gap-2 text-[9px] font-black uppercase tracking-widest">
+                       <span className="flex items-center gap-3 text-red-900/60 hover:text-red-600 transition-colors cursor-help"><Radio size={12} /> Encrypted_Access_Key: 0x9F...A2</span>
+                       <span className="flex items-center gap-3 text-emerald-600/80"><Wifi size={12} className="animate-pulse" /> Secure_Mesh_Uplink_Active</span>
+                    </div>
                  </div>
               </div>
 
-              {error && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-red-950/60 border-l-4 border-red-600 p-6 flex items-center gap-6"
+              <div className="relative group">
+                <button
+                  disabled={submitting || isScanning}
+                  className={`btn-tactical w-full h-24 flex flex-col items-center justify-center gap-1 transition-all ${submitting ? 'bg-red-600 text-black border-none scale-[0.98]' : 'hover:scale-[1.01]'}`}
                 >
-                  <AlertTriangle className="text-red-600" size={24} />
-                  <div>
-                    <h5 className="text-[10px] font-black text-red-600 uppercase tracking-widest">Clearance_Denied_Security_Violation</h5>
-                    <p className="text-sm font-black text-white uppercase tracking-widest">{error}</p>
-                  </div>
-                </motion.div>
-              )}
-
-              <button
-                disabled={submitting || isScanning}
-                className={`btn-tactical w-full h-20 flex flex-col items-center justify-center gap-1 ${submitting ? 'bg-red-600 text-black border-none' : ''}`}
-              >
-                {submitting ? (
-                  <>
-                    <div className="flex items-center gap-4">
-                      <motion.div 
-                        animate={{ rotate: 360 }} 
-                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }} 
-                        className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full" 
-                      />
-                      <span className="text-lg font-black tracking-widest">{AUTH_STAGES[authStageIndex]?.label || "VALIDATING..."}</span>
-                    </div>
-                    <div className="text-[8px] font-mono tracking-[0.5em] opacity-60">PHASE_{authStageIndex + 1}_OF_5</div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-4">
-                       <ShieldCheck size={20} />
-                       <span className="text-lg font-black tracking-widest">INITIALIZE_GRID_ACCESS</span>
-                    </div>
-                    <div className="text-[8px] font-mono tracking-[0.5em] opacity-40">RSA_4096_ENCRYPTION_ACTIVE</div>
-                  </>
-                )}
-              </button>
+                  {submitting ? (
+                    <>
+                      <div className="flex items-center gap-6">
+                        <motion.div 
+                          animate={{ rotate: 360 }} 
+                          transition={{ repeat: Infinity, duration: 1, ease: "linear" }} 
+                          className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full" 
+                        />
+                        <span className="text-xl font-black tracking-[0.2em]">{AUTH_STAGES[authStageIndex]?.label || "STABILIZING_KERNEL..."}</span>
+                      </div>
+                      <div className="text-[10px] font-mono tracking-[0.6em] opacity-60">AUTHORIZATION_PHASE_{authStageIndex + 1}_OF_5</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-6">
+                         <ShieldCheck size={28} />
+                         <span className="text-2xl font-black tracking-[0.3em] italic">INITIALIZE_GRID_ACCESS</span>
+                      </div>
+                      <div className="text-[10px] font-mono tracking-[0.8em] opacity-40">NATIONAL_DEFENSE_PROTOCOL_ALPHA_7</div>
+                    </>
+                  )}
+                </button>
+                <div className="absolute -inset-1 bg-red-600/20 blur opacity-0 group-hover:opacity-100 transition-opacity rounded-sm pointer-events-none" />
+              </div>
             </form>
           </div>
         </motion.div>
@@ -470,60 +512,108 @@ export default function Login() {
           animate={{ opacity: 1, x: 0 }}
           className="col-span-3 space-y-6"
         >
-          <div className="tactical-glass-panel p-6 border-r-2 border-red-600">
+          <div className="tactical-glass-panel p-6 border-r-2 border-red-600 relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-4">
+                <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
+             </div>
              <h3 className="text-red-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
-                <MapPin size={18} /> Access_Surveillance
+                <MapPin size={18} /> Global_Access_Grid
              </h3>
+             
+             {/* Mini Map/Geolocation Simulation */}
+             <div className="h-40 bg-black/60 border border-white/5 relative mb-8 overflow-hidden rounded-sm">
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_50%_50%,#ff0000,transparent_70%)]" />
+                <div className="absolute inset-0 grid grid-cols-8 grid-rows-6 opacity-5 border border-red-600/20" />
+                {RECENT_ATTEMPTS.map(attempt => (
+                   <motion.div 
+                      key={attempt.id}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: [0, 1.5, 1] }}
+                      transition={{ delay: attempt.id * 0.5, repeat: Infinity, repeatDelay: 5 }}
+                      className="absolute w-2 h-2 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,1)]"
+                      style={{ 
+                        left: `${(parseFloat(attempt.coords.split(',')[1]) + 180) / 360 * 100}%`, 
+                        top: `${(90 - parseFloat(attempt.coords.split(',')[0])) / 180 * 100}%` 
+                      }}
+                   >
+                      <div className="absolute inset-0 bg-red-600 rounded-full animate-ping" />
+                   </motion.div>
+                ))}
+                <div className="absolute bottom-2 left-2 text-[6px] font-mono text-gray-600 uppercase tracking-widest">Live_Geospatial_Surveillance</div>
+             </div>
+
              <div className="space-y-6">
                 {RECENT_ATTEMPTS.map(attempt => (
-                  <div key={attempt.id} className="relative pl-4 border-l border-white/5">
-                    <p className="text-[9px] font-black text-white uppercase tracking-widest mb-1">{attempt.loc}</p>
+                  <div key={attempt.id} className="relative pl-4 border-l border-white/5 hover:border-red-600 transition-colors cursor-crosshair group">
+                    <p className="text-[9px] font-black text-white uppercase tracking-widest mb-1 group-hover:text-red-600 transition-colors">{attempt.loc}</p>
                     <div className="flex items-center justify-between">
                        <span className={`text-[8px] font-mono tracking-widest ${attempt.status.includes('FAILED') ? 'text-red-600' : 'text-gray-500'}`}>{attempt.status}</span>
                        <span className="text-[8px] font-mono text-gray-700">{attempt.time}</span>
                     </div>
-                    {attempt.status.includes('SECURE') && (
-                      <div className="absolute top-1/2 -right-2 w-1.5 h-1.5 bg-red-600 rounded-full animate-ping" />
-                    )}
+                    <div className="text-[7px] font-mono text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">COORDS: {attempt.coords}</div>
                   </div>
                 ))}
              </div>
           </div>
 
-          <div className="tactical-glass-panel p-8 flex flex-col items-center text-center">
-             <div className="relative mb-6">
-                <div className="w-16 h-16 border border-red-600/20 rounded-lg transform rotate-45 flex items-center justify-center">
-                   <Lock className="text-red-600 -rotate-45" size={24} />
+          <div className="tactical-glass-panel p-10 flex flex-col items-center text-center relative overflow-hidden group">
+             <div className="absolute inset-0 bg-gradient-to-br from-red-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+             <div className="relative mb-8">
+                <div className="w-20 h-20 border border-red-600/20 rounded-lg transform rotate-45 flex items-center justify-center transition-all group-hover:border-red-600 group-hover:shadow-[0_0_30px_rgba(255,0,0,0.3)]">
+                   <Lock className="text-red-600 -rotate-45" size={32} />
                 </div>
-                <div className="absolute inset-0 bg-red-600/5 blur-xl rounded-full" />
+                <div className="absolute inset-0 bg-red-600/10 blur-2xl rounded-full opacity-20" />
              </div>
-             <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-2">Grid_Status_Lock</p>
-             <p className="text-[8px] font-mono text-gray-500 uppercase tracking-widest leading-relaxed">
-                All_Terminal_Input_Encrypted_Under_Strategic_Directive_74B
+             <p className="text-[12px] font-black text-red-600 uppercase tracking-widest mb-3 italic">Terminal_Lock_Active</p>
+             <p className="text-[9px] font-mono text-gray-500 uppercase tracking-[0.2em] leading-relaxed italic px-4">
+                All_Inbound_Requests_Subject_To_Manual_Commander_Review
              </p>
+             <div className="mt-6 flex gap-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                   <div key={i} className="w-8 h-1 bg-red-950/40 rounded-full overflow-hidden">
+                      <motion.div animate={{ x: ['-100%', '100%'] }} transition={{ repeat: Infinity, duration: 2, delay: i * 0.5 }} className="h-full bg-red-600" />
+                   </div>
+                ))}
+             </div>
           </div>
         </motion.div>
       </div>
 
       {/* Footer Branding Overlay */}
-      <div className="fixed bottom-12 left-12 right-12 flex items-end justify-between pointer-events-none opacity-40">
-         <div className="flex flex-col gap-4">
-            <div className="flex gap-12 font-mono uppercase text-[10px] tracking-widest">
-               <div className="space-y-1">
-                  <p className="text-gray-600">NEURAL_SYNC</p>
-                  <p className="text-red-600 font-bold">STABLE_99.9%</p>
+      <div className="fixed bottom-12 left-12 right-12 flex items-end justify-between pointer-events-none">
+         <div className="flex flex-col gap-6">
+            <div className="flex gap-16 font-mono uppercase text-[10px] tracking-widest">
+               <div className="space-y-2">
+                  <p className="text-gray-700 font-black">Neural_Sync_Core</p>
+                  <p className="text-red-600 font-bold flex items-center gap-3">
+                     <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse" />
+                     STABLE_99.998%
+                  </p>
                </div>
-               <div className="space-y-1">
-                  <p className="text-gray-600">GRID_NODES</p>
-                  <p className="text-red-600 font-bold">512_ACTV</p>
+               <div className="space-y-2 border-l border-white/5 pl-16">
+                  <p className="text-gray-700 font-black">Grid_Connectivity</p>
+                  <p className="text-red-600 font-bold flex items-center gap-3 text-lg italic tracking-tighter">
+                     512_ACTV_NODES
+                  </p>
+               </div>
+               <div className="space-y-2 border-l border-white/5 pl-16">
+                  <p className="text-gray-700 font-black">Secure_Protocol</p>
+                  <p className="text-emerald-500 font-bold flex items-center gap-3">
+                     <Wifi size={14} />
+                     AES_256_GCM
+                  </p>
                </div>
             </div>
-            <div className="h-[1px] w-64 bg-gradient-to-r from-red-600 to-transparent" />
+            <div className="h-[2px] w-[500px] bg-gradient-to-r from-red-600/60 via-red-600/10 to-transparent" />
          </div>
          
-         <div className="flex flex-col items-end gap-2 text-right">
-            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.8em]">ASWIG_STRATEGIC_OS</p>
-            <p className="text-red-900 text-[8px] font-mono uppercase tracking-[0.3em]">Build_ID: CAIS_6.0.1_STABLE_GRID</p>
+         <div className="flex flex-col items-end gap-3 text-right">
+            <div className="flex items-center gap-4 text-red-600 font-black text-xs tracking-[0.4em] italic mb-2">
+               <Shield size={16} />
+               CLASSIFIED_GOVERNMENT_INFRASTRUCTURE
+            </div>
+            <p className="text-gray-600 text-[11px] font-black uppercase tracking-[1em]">ASWIG_STRATEGIC_OS</p>
+            <p className="text-red-950 text-[9px] font-mono uppercase tracking-[0.4em] opacity-40">Build_ID: CAIS_6.0.1_STABLE_GRID_ALPHA_NODE</p>
          </div>
       </div>
     </div>
