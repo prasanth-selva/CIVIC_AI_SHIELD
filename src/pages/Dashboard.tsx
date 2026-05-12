@@ -13,7 +13,7 @@ import { AIBattlefieldBrain } from "../components/battlefield/AIBattlefieldBrain
 import { SwarmSurveillance } from "../components/battlefield/SwarmSurveillance";
 import { ForensicEngine } from "../components/battlefield/ForensicEngine";
 import { InfrastructureMonitor } from "../components/battlefield/InfrastructureMonitor";
-import { Camera, AlertTriangle, Activity, Zap, Globe, ShieldAlert, LayoutGrid, Maximize2, Crosshair, Target, Brain, Shield, Terminal, Search, Network, Map, Dna, Plane, Cpu, ShieldCheck, Wifi, History } from "lucide-react";
+import { Camera, AlertTriangle, Activity, Zap, Globe, ShieldAlert, LayoutGrid, Maximize2, Crosshair, Target, Brain, Shield, Terminal, Search, Network, Map, Dna, Plane, Cpu, ShieldCheck, Wifi, History, TrendingUp, ChevronRight, MessageSquare, AlertCircle, Trash2, Edit3, Save, Play, Square, Pause, SkipBack, SkipForward, Volume2, Settings, User, Bell, LogOut, Lock, Unlock, Eye, EyeOff, Key, Fingerprint, Mic, Smartphone, Info, HelpCircle, MoreHorizontal, ExternalLink, RefreshCw, Layers, Hash, Thermometer, Database, Server, Clock, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE } from "../config";
@@ -296,7 +296,7 @@ export default function Dashboard() {
                             </motion.div>
                         )}
                         {activeView === 'brain' && (
-                            <motion.div key="brain" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="h-full p-8">
+                            <motion.div key="brain" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="h-full">
                                 <AIBattlefieldBrain />
                             </motion.div>
                         )}
