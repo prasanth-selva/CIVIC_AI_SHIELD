@@ -20,24 +20,194 @@
 
 .tactical-grid {
   position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(circle at 50% 50%, black 20%, transparent 90%);
-  pointer-events: none;
+  inset: 0;/* TACTICAL_WARFARE_SYSTEM_OS_V9.4 */
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.2); }
+  50% { box-shadow: 0 0 60px rgba(255, 0, 0, 0.6); }
+  100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.2); }
 }
 
-.neural-pulse-bg {
+@keyframes scanline-sweep {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes radar-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes neural-pulse {
+  0%, 100% { filter: brightness(1) contrast(1.2); }
+  50% { filter: brightness(1.5) contrast(1.5); }
+}
+
+@keyframes glass-sweep {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+@keyframes volumetric-beam {
+  0%, 100% { transform: translateX(-10%) skewX(-20deg); opacity: 0.1; }
+  50% { transform: translateX(110%) skewX(-20deg); opacity: 0.3; }
+}
+
+.tactical-glass-panel {
+  background: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.tactical-glass-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.03),
+    transparent
+  );
+  animation: glass-sweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.radar-sweep {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 1200px;
-  height: 1200px;
-  background: radial-gradient(circle, rgba(255, 0, 0, 0.04) 0%, transparent 75%);
-  animation: neural-pulse 10s infinite ease-in-out;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, rgba(255, 0, 0, 0.1), transparent 90deg);
+  transform-origin: center center;
+  animation: rotate 10s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 0, 0, 0.03) 3px,
+    transparent 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+.scanlines::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 0, 0, 0.05),
+    transparent
+  );
+  animation: scanline-sweep 4s linear infinite;
+}
+
+.tactical-grid {
+  background-image: 
+    linear-gradient(rgba(255, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.red-alert-mode {
+  animation: pulse-red 2s infinite;
+  border-color: rgba(255, 0, 0, 0.4) !important;
+}
+
+.volumetric-lighting {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 0, 0, 0.05),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: volumetric-beam 15s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.hud-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 0, 0, 0.4);
+}
+
+.corner-tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.corner-tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.corner-bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+.corner-br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+.neural-activity {
+  filter: blur(8px);
+  opacity: 0.4;
+  animation: neural-pulse 4s ease-in-out infinite;
+}
+
+.text-glow-red {
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.4);
+}
+
+.glass-panel-heavy {
+  background: rgba(2, 2, 2, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 0 40px rgba(255, 0, 0, 0.02);
+}
+
+/* CUSTOM SCROLLBAR FOR OPERATIONAL DATA */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 0, 0, 0.4);
+}
+
+.battlespace-glow {
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 0, 0, 0.15) 0%, transparent 40%);
+}
+
+.node-pulse {
+  animation: radar-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+ ease-in-out;
   pointer-events: none;
 }
 
