@@ -48,7 +48,7 @@ export default function Sidebar({
 
   const itemVariants = {
     hidden: { x: -20, opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" } },
+    visible: { x: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" as const } },
   };
 
   return (
