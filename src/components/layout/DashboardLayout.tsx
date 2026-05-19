@@ -4,6 +4,7 @@ import Footer from "./Footer";
 import { AlertNotificationPopup } from "../ui/AlertNotificationPopup";
 import { VoiceAssistant } from "../ui/VoiceAssistant";
 import { motion, AnimatePresence } from "framer-motion";
+import type { Role } from "../../context/AuthContext";
 import { Role } from "../../context/AuthContext";
 
 export default function DashboardLayout({

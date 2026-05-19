@@ -32,14 +32,17 @@ patch_file("src/App.tsx", [
 # 3. DashboardLayout.tsx
 patch_file("src/components/layout/DashboardLayout.tsx", [
     ('role: "ADMIN" | "OPERATOR" | "VIEWER";', 'role: Role;'),
-    ('import { motion, AnimatePresence } from "framer-motion";', 'import { motion, AnimatePresence } from "framer-motion";\nimport { Role } from "../../context/AuthContext";')
+    ('import { motion, AnimatePresence } from "framer-motion";', 'import { motion, AnimatePresence } from "framer-motion";\nimport type { Role } from "../../context/AuthContext";'),
+    ('import { motion, AnimatePresence } from "framer-motion";\nimport { Role } from "../../context/AuthContext";', 'import { motion, AnimatePresence } from "framer-motion";\nimport type { Role } from "../../context/AuthContext";')
 ])
 
 # 4. TopNav.tsx
 patch_file("src/components/layout/TopNav.tsx", [
     ('role }: { role: "ADMIN" | "OPERATOR" | "VIEWER" }', 'role }: { role: Role }'),
     ('import { Bell, Shield, Circle, Settings, Activity, Command, Zap } from "lucide-react";', 
-     'import { Bell, Shield, Circle, Settings, Activity, Command, Zap } from "lucide-react";\nimport { Role } from "../../context/AuthContext";')
+     'import { Bell, Shield, Circle, Settings, Activity, Command, Zap } from "lucide-react";\nimport type { Role } from "../../context/AuthContext";'),
+    ('import { Bell, Shield, Circle, Settings, Activity, Command, Zap } from "lucide-react";\nimport { Role } from "../../context/AuthContext";',
+     'import { Bell, Shield, Circle, Settings, Activity, Command, Zap } from "lucide-react";\nimport type { Role } from "../../context/AuthContext";')
 ])
 
 # 5. Sidebar.tsx
@@ -50,7 +53,8 @@ patch_file("src/components/layout/Sidebar.tsx", [
     ('ADMIN: ["dashboard", "live", "tracking", "analysis", "alerts", "health", "settings"],\n  OPERATOR: ["dashboard", "live", "tracking"],\n  VIEWER: ["dashboard"],',
      'COMMANDER: ["dashboard", "live", "tracking", "analysis", "alerts", "health", "settings"],\n  STRATEGIC_OPS: ["dashboard", "live", "tracking", "analysis", "alerts"],\n  FIELD_CONTROL: ["dashboard", "live", "tracking"],\n  ANALYST: ["dashboard", "live", "tracking", "analysis", "alerts"],\n  OBSERVER: ["dashboard"],'),
     ('ease: [0.22, 1, 0.36, 1],', 'ease: [0.22, 1, 0.36, 1] as const,'),
-    ('ease: "easeOut"', 'ease: "easeOut" as const')
+    ('ease: "easeOut"', 'ease: "easeOut" as const'),
+    ('import { useAuth } from "../../context/AuthContext";', 'import { useAuth } from "../../context/AuthContext";\nimport type { Role } from "../../context/AuthContext";')
 ])
 
 # 6. AIConfidenceChart.tsx

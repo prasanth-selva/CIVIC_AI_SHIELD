@@ -1,0 +1,4 @@
+src/components/layout/DashboardLayout.tsx(7,10): error TS1484: 'Role' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/layout/Sidebar.tsx(16,26): error TS2304: Cannot find name 'Role'.
+src/components/layout/Sidebar.tsx(29,9): error TS2304: Cannot find name 'Role'.
+src/components/layout/TopNav.tsx(3,10): error TS1484: 'Role' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.

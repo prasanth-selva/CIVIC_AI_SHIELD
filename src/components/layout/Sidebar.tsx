@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { LayoutDashboard, Video, Film, Bell, HeartPulse, Settings, LogOut, User, Cpu } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import type { Role } from "../../context/AuthContext";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -47,7 +48,7 @@ export default function Sidebar({
 
   const itemVariants = {
     hidden: { x: -20, opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" as const } },
+    visible: { x: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" as const as const } },
   };
 
   return (
