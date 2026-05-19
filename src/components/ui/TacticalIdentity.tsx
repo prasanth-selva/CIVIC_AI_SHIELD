@@ -1,3 +1,8 @@
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { User, Activity, AlertTriangle, Zap, ShieldCheck, Radio } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+
 export function TacticalIdentity() {
   const { user } = useAuth();
   if (!user) return null;
