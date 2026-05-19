@@ -13,10 +13,12 @@ const navItems = [
   { key: "settings", label: "Settings", icon: Settings },
 ];
 
-const roleAccess: Record<"ADMIN" | "OPERATOR" | "VIEWER", string[]> = {
-  ADMIN: ["dashboard", "live", "tracking", "analysis", "alerts", "health", "settings"],
-  OPERATOR: ["dashboard", "live", "tracking"],
-  VIEWER: ["dashboard"],
+const roleAccess: Record<Role, string[]> = {
+  COMMANDER: ["dashboard", "live", "tracking", "analysis", "alerts", "health", "settings"],
+  STRATEGIC_OPS: ["dashboard", "live", "tracking", "analysis", "alerts"],
+  FIELD_CONTROL: ["dashboard", "live", "tracking"],
+  ANALYST: ["dashboard", "live", "tracking", "analysis", "alerts"],
+  OBSERVER: ["dashboard"],
 };
 
 export default function Sidebar({
@@ -24,7 +26,7 @@ export default function Sidebar({
   role,
 }: {
   setPage: (p: string) => void;
-  role: "ADMIN" | "OPERATOR" | "VIEWER";
+  role: Role;
 }) {
   const [active, setActive] = useState("dashboard");
   const { logout, user } = useAuth();
@@ -36,7 +38,7 @@ export default function Sidebar({
       x: 0,
       transition: {
         duration: 0.6,
-        ease: [0.22, 1, 0.36, 1],
+        ease: [0.22, 1, 0.36, 1] as const,
         staggerChildren: 0.05,
         delayChildren: 0.1,
       },
@@ -45,7 +47,7 @@ export default function Sidebar({
 
   const itemVariants = {
     hidden: { x: -20, opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" } },
+    visible: { x: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" as const } },
   };
 
   return (

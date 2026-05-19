@@ -132,7 +132,7 @@ export function TacticalIdentity() {
         <div className="pt-6 border-t border-white/5">
            <p className="text-[9px] font-black text-gray-700 uppercase tracking-[0.2em] mb-4">OPERATIONAL_HISTORY_LOG</p>
            <div className="space-y-3">
-              {user.profile.opsHistory.map(op => (
+              {user.profile.opsHistory.map((op: string) => (
                 <div key={op} className="flex items-center gap-4 group/item">
                    <div className={`w-1.5 h-1.5 rounded-full ${config.bg} opacity-20 group-hover/item:opacity-100 transition-opacity`} />
                    <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest group-hover/item:text-white transition-colors">{op} // COMPLETED</span>

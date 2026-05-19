@@ -4,6 +4,7 @@ import Footer from "./Footer";
 import { AlertNotificationPopup } from "../ui/AlertNotificationPopup";
 import { VoiceAssistant } from "../ui/VoiceAssistant";
 import { motion, AnimatePresence } from "framer-motion";
+import { Role } from "../../context/AuthContext";
 
 export default function DashboardLayout({
   children,
@@ -12,7 +13,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
   setPage: (p: string) => void;
-  role: "ADMIN" | "OPERATOR" | "VIEWER";
+  role: Role;
 }) {
   return (
     <div className="relative min-h-screen text-white bg-[#020202] overflow-hidden font-inter selection:bg-red-600/30">

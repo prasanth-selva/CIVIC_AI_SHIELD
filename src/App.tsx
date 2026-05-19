@@ -31,8 +31,9 @@ export default function App() {
 
   const allowedPages = useMemo(() => {
     if (!user) return ["dashboard"];
-    if (user.role === "ADMIN") return ["dashboard", "live", "tracking", "analysis", "alerts", "health", "settings"];
-    if (user.role === "OPERATOR") return ["dashboard", "live", "tracking"];
+    if (user.role === "COMMANDER") return ["dashboard", "live", "tracking", "analysis", "alerts", "health", "settings"];
+    if (user.role === "STRATEGIC_OPS" || user.role === "ANALYST") return ["dashboard", "live", "tracking", "analysis", "alerts"];
+    if (user.role === "FIELD_CONTROL") return ["dashboard", "live", "tracking"];
     return ["dashboard"];
   }, [user]);
 

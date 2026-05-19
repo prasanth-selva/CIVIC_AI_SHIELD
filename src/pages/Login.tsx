@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, Lock, Terminal, Activity, Eye, Fingerprint, Cpu, Globe, Zap, AlertTriangle, ChevronRight, Speaker, Mic, Target, ShieldCheck, MapPin, Radio, Wifi, LockKeyhole } from "lucide-react";
+import { Shield, Lock, Terminal, Activity, Eye, Fingerprint, Cpu, Globe, Zap, AlertTriangle, ChevronRight, Speaker, Mic, Target, ShieldCheck, MapPin, Radio, Wifi, LockKeyhole, Brain, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import "../styles/cinematic-auth.css";
 

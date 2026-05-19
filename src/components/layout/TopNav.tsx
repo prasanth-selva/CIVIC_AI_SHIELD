@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { Bell, Shield, Circle, Settings, Activity, Command, Zap } from "lucide-react";
+import { Role } from "../../context/AuthContext";
 import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect } from "react";
 
-export default function TopNav({ role }: { role: "ADMIN" | "OPERATOR" | "VIEWER" }) {
+export default function TopNav({ role }: { role: Role }) {
   const { user } = useAuth();
   return (
     <motion.header

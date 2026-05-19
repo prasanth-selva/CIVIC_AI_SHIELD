@@ -60,7 +60,9 @@ export function AIConfidenceChart() {
             x: {
               grid: {
                 color: "rgba(255, 255, 255, 0.05)",
-                drawBorder: false,
+              },
+              border: {
+                display: false,
               },
               ticks: {
                 color: "#9ca3af",
@@ -70,7 +72,9 @@ export function AIConfidenceChart() {
             y: {
               grid: {
                 color: "rgba(255, 255, 255, 0.05)",
-                drawBorder: false,
+              },
+              border: {
+                display: false,
               },
               ticks: {
                 color: "#9ca3af",

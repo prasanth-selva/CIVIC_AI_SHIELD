@@ -1,5 +1,6 @@
 import { animate, motion, useMotionValue, useTransform } from "framer-motion";
-import { ReactNode, useEffect } from "react";
+import type { ReactNode } from "react";
+import { useEffect } from "react";
 
 interface StatCardProps {
   title: string;
